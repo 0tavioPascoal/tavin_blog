@@ -3,10 +3,10 @@ import Link from "next/link";
 
 import { ProjectCard } from "@/components/projects/project-card";
 import { SectionHeading } from "@/components/shared/section-heading";
-import type { Project } from "@/features/projects/types/project";
+import type { ProjectSummary } from "@/features/projects/types/project";
 
 type FeaturedProjectsSectionProps = {
-  projects: Project[];
+  projects: ProjectSummary[];
 };
 
 export function FeaturedProjectsSection({ projects }: FeaturedProjectsSectionProps) {

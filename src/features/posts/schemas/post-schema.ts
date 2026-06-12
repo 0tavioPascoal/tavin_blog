@@ -4,6 +4,7 @@ export const postStatusSchema = z.enum(["draft", "published"]);
 
 export const articleRowSchema = z.object({
   id: z.uuid(),
+  category_id: z.uuid().nullable(),
   title: z.string().min(1),
   slug: z.string().min(1),
   description: z.string().min(1),
@@ -11,7 +12,6 @@ export const articleRowSchema = z.object({
   published_at: z.string().nullable(),
   updated_at: z.string(),
   status: postStatusSchema,
-  tags: z.array(z.string()),
   reading_time_minutes: z.number().int().positive(),
   is_featured: z.boolean(),
 });
@@ -25,7 +25,8 @@ export const postFormSchema = z.object({
   description: z.string().min(10, "Informe uma descrição mais completa."),
   contentMarkdown: z.string().min(20, "O artigo precisa de conteúdo."),
   status: postStatusSchema,
-  tags: z.array(z.string()),
+  categoryId: z.uuid().nullable(),
+  tagIds: z.array(z.uuid()),
   readingTimeMinutes: z.number().int().positive(),
   isFeatured: z.boolean(),
 });

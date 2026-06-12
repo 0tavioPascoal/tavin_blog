@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 
 import { ArticleCard } from "@/components/blog/article-card";
+import { BlogTaxonomyFilters } from "@/components/blog/blog-taxonomy-filters";
 import { EmptyState } from "@/components/shared/empty-state";
+import { listActiveCategories } from "@/features/categories/repositories/categories-repository";
 import { listPublishedArticles } from "@/features/posts/repositories/posts-repository";
+import { listActiveTags } from "@/features/tags/repositories/tags-repository";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -10,7 +13,11 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const articles = await listPublishedArticles();
+  const [articles, categories, tags] = await Promise.all([
+    listPublishedArticles(),
+    listActiveCategories(),
+    listActiveTags(),
+  ]);
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -23,6 +30,7 @@ export default async function BlogPage() {
           Conteúdo prático sobre desenvolvimento fullstack, arquitetura, boas práticas e aprendizados de projetos reais.
         </p>
       </div>
+      <BlogTaxonomyFilters categories={categories} tags={tags} />
       <div className="mt-10">
         {articles.length > 0 ? (
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">

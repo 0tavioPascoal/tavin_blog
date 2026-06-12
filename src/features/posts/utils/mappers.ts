@@ -1,10 +1,16 @@
 import { articleRowSchema } from "@/features/posts/schemas/post-schema";
 import type { ArticleDetail, ArticleSummary } from "@/features/posts/types/post";
+import type { CategorySummary } from "@/features/categories/types/category";
+import type { TagSummary } from "@/features/tags/types/tag";
 import type { Database } from "@/types/supabase";
 
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
 
-export function mapArticleRowToSummary(row: ArticleRow): ArticleSummary {
+export function mapArticleRowToSummary(
+  row: ArticleRow,
+  category: CategorySummary | null,
+  tags: TagSummary[],
+): ArticleSummary {
   const article = articleRowSchema.parse(row);
 
   return {
@@ -14,13 +20,18 @@ export function mapArticleRowToSummary(row: ArticleRow): ArticleSummary {
     description: article.description,
     publishedAt: article.published_at,
     status: article.status,
-    tags: article.tags,
+    category,
+    tags,
     readingTimeMinutes: article.reading_time_minutes,
     isFeatured: article.is_featured,
   };
 }
 
-export function mapArticleRowToDetail(row: ArticleRow): ArticleDetail {
+export function mapArticleRowToDetail(
+  row: ArticleRow,
+  category: CategorySummary | null,
+  tags: TagSummary[],
+): ArticleDetail {
   const article = articleRowSchema.parse(row);
 
   return {
@@ -32,7 +43,8 @@ export function mapArticleRowToDetail(row: ArticleRow): ArticleDetail {
     publishedAt: article.published_at,
     updatedAt: article.updated_at,
     status: article.status,
-    tags: article.tags,
+    category,
+    tags,
     readingTimeMinutes: article.reading_time_minutes,
     isFeatured: article.is_featured,
   };

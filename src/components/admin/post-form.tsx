@@ -9,6 +9,8 @@ import { z } from "zod";
 
 import { createPostAction, updatePostAction } from "@/features/posts/actions/post-actions";
 import type { ArticleDetail } from "@/features/posts/types/post";
+import type { CategorySummary } from "@/features/categories/types/category";
+import type { TagSummary } from "@/features/tags/types/tag";
 import { calculateReadingTimeMinutes } from "@/lib/markdown/reading-time";
 import { Button } from "@/components/ui/button";
 
@@ -21,7 +23,8 @@ const postEditorSchema = z.object({
   description: z.string().min(10, "Informe uma descrição mais completa."),
   contentMarkdown: z.string().min(20, "O artigo precisa de conteúdo."),
   status: z.enum(["draft", "published"]),
-  tagsText: z.string(),
+  categoryId: z.string(),
+  tagIds: z.array(z.string()),
   isFeatured: z.boolean(),
 });
 
@@ -29,6 +32,8 @@ type PostEditorValues = z.infer<typeof postEditorSchema>;
 
 type PostFormProps = {
   post?: ArticleDetail;
+  categories: CategorySummary[];
+  tags: TagSummary[];
 };
 
 function slugify(value: string): string {
@@ -40,14 +45,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function parseTags(tagsText: string): string[] {
-  return tagsText
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-}
-
-export function PostForm({ post }: PostFormProps) {
+export function PostForm({ post, categories, tags }: PostFormProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -59,7 +57,8 @@ export function PostForm({ post }: PostFormProps) {
       description: post?.description ?? "",
       contentMarkdown: post?.contentMarkdown ?? "",
       status: post?.status ?? "draft",
-      tagsText: post?.tags.join(", ") ?? "",
+      categoryId: post?.category?.id ?? "",
+      tagIds: post?.tags.map((tag) => tag.id) ?? [],
       isFeatured: post?.isFeatured ?? false,
     },
   });
@@ -71,7 +70,8 @@ export function PostForm({ post }: PostFormProps) {
       description: values.description,
       contentMarkdown: values.contentMarkdown,
       status: values.status,
-      tags: parseTags(values.tagsText),
+      categoryId: values.categoryId || null,
+      tagIds: values.tagIds,
       readingTimeMinutes: calculateReadingTimeMinutes(values.contentMarkdown),
       isFeatured: values.isFeatured,
     };
@@ -137,16 +137,40 @@ export function PostForm({ post }: PostFormProps) {
           />
           {form.formState.errors.contentMarkdown ? <p className="text-sm text-red-600">{form.formState.errors.contentMarkdown.message}</p> : null}
         </div>
-        <div className="grid gap-4 md:grid-cols-[1fr_180px_160px]">
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
           <div className="grid gap-2">
-            <label htmlFor="tagsText" className="text-sm font-medium">Tags</label>
-            <input
-              id="tagsText"
-              placeholder=".NET, Arquitetura, Clean Code"
+            <label htmlFor="categoryId" className="text-sm font-medium">Categoria</label>
+            <select
+              id="categoryId"
               className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950"
-              {...form.register("tagsText")}
-            />
+              {...form.register("categoryId")}
+            >
+              <option value="">Sem categoria</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}{category.isActive ? "" : " (inativa)"}
+                </option>
+              ))}
+            </select>
           </div>
+          <div className="grid gap-2">
+            <label htmlFor="tagIds" className="text-sm font-medium">Tags</label>
+            <select
+              id="tagIds"
+              multiple
+              className="min-h-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950"
+              {...form.register("tagIds")}
+            >
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}{tag.isActive ? "" : " (inativa)"}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-500">Use Ctrl/Command para selecionar mais de uma tag.</p>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-[180px_160px]">
           <div className="grid gap-2">
             <label htmlFor="status" className="text-sm font-medium">Status</label>
             <select

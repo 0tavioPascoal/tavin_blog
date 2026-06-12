@@ -1,4 +1,4 @@
-import { FileText, Home, LogOut, PenSquare } from "lucide-react";
+import { FileText, FolderKanban, Home, LogOut, PenSquare, Settings, Tags } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/features/auth/actions/auth-actions";
@@ -27,9 +27,25 @@ export function AdminShell({ user, children }: AdminShellProps) {
             <FileText className="size-4" />
             Posts
           </Link>
+          <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/projects">
+            <FolderKanban className="size-4" />
+            Projetos
+          </Link>
+          <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/categories">
+            <Tags className="size-4" />
+            Categorias
+          </Link>
+          <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/tags">
+            <Tags className="size-4" />
+            Tags
+          </Link>
           <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/posts/new">
             <PenSquare className="size-4" />
             Novo post
+          </Link>
+          <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/settings">
+            <Settings className="size-4" />
+            Configurações
           </Link>
         </nav>
         <form action={signOutAction} className="absolute bottom-6 left-6 right-6">

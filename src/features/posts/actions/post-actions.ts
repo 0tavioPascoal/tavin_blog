@@ -25,6 +25,19 @@ function toMutationInput(input: unknown): ArticleMutationInput {
   return postFormSchema.parse(input);
 }
 
+function revalidatePostPaths(slug?: string): void {
+  revalidatePath("/");
+  revalidatePath("/blog");
+  revalidatePath("/blog/categoria/[slug]", "page");
+  revalidatePath("/blog/tag/[slug]", "page");
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/admin/posts");
+
+  if (slug) {
+    revalidatePath(`/blog/${slug}`);
+  }
+}
+
 export async function createPostAction(input: unknown): Promise<PostActionState> {
   try {
     await requireAdmin();
@@ -37,9 +50,7 @@ export async function createPostAction(input: unknown): Promise<PostActionState>
     };
   }
 
-  revalidatePath("/");
-  revalidatePath("/blog");
-  revalidatePath("/admin/posts");
+  revalidatePostPaths();
 
   return {
     ok: true,
@@ -62,10 +73,7 @@ export async function updatePostAction(id: string, input: unknown): Promise<Post
     };
   }
 
-  revalidatePath("/");
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${slugToRevalidate}`);
-  revalidatePath("/admin/posts");
+  revalidatePostPaths(slugToRevalidate);
 
   return {
     ok: true,

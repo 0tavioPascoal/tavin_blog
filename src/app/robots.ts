@@ -1,12 +1,17 @@
 import type { MetadataRoute } from "next";
 
-export default function robots(): MetadataRoute.Robots {
+import { getSiteSettings } from "@/features/settings/repositories/settings-repository";
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const settings = await getSiteSettings();
+  const baseUrl = settings.siteUrl.replace(/\/$/, "");
+
   return {
     rules: {
       userAgent: "*",
       allow: "/",
       disallow: "/admin",
     },
-    sitemap: "https://otaviopascoal.dev/sitemap.xml",
+    sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

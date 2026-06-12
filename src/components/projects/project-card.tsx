@@ -1,20 +1,29 @@
-import { ExternalLink } from "lucide-react";
+import { Blocks, ChartNoAxesCombined, DatabaseZap, ExternalLink, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
-import type { Project } from "@/features/projects/types/project";
+import type { ProjectSummary } from "@/features/projects/types/project";
 
 type ProjectCardProps = {
-  project: Project;
+  project: ProjectSummary;
+};
+
+const iconMap: Record<string, LucideIcon> = {
+  blocks: Blocks,
+  chart: ChartNoAxesCombined,
+  database: DatabaseZap,
 };
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const Icon = project.icon;
+  const Icon = iconMap[project.iconName] ?? Blocks;
+  const href = project.demoUrl ?? project.repositoryUrl ?? `/projetos#${project.slug}`;
 
   return (
     <Link
-      id={project.id}
-      href={project.href}
+      id={project.slug}
+      href={href}
       className="group flex gap-4 border-l border-slate-200 py-4 pl-5 transition hover:border-blue-500 dark:border-slate-800"
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noreferrer" : undefined}
     >
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300">
         <Icon className="size-5" />
@@ -27,6 +36,15 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <span className="mt-1 block text-sm leading-6 text-slate-600 dark:text-slate-400">
           {project.description}
         </span>
+        {project.tags.length > 0 ? (
+          <span className="mt-3 flex flex-wrap gap-2">
+            {project.tags.map((tag) => (
+              <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-900 dark:text-slate-400">
+                {tag}
+              </span>
+            ))}
+          </span>
+        ) : null}
       </span>
     </Link>
   );

@@ -7,6 +7,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { SiteSettings } from "@/features/settings/types/settings";
 
 const navigation = [
   { href: "/", label: "Home" },
@@ -20,7 +21,11 @@ function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === href : pathname.startsWith(href);
 }
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  settings: SiteSettings;
+};
+
+export function SiteHeader({ settings }: SiteHeaderProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -58,16 +63,20 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="icon-sm" asChild aria-label="GitHub">
-            <a href="https://github.com/" target="_blank" rel="noreferrer">
-              <Code2 className="size-4" />
-            </a>
-          </Button>
-          <Button variant="ghost" size="icon-sm" asChild aria-label="LinkedIn">
-            <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
-              <Network className="size-4" />
-            </a>
-          </Button>
+          {settings.githubUrl ? (
+            <Button variant="ghost" size="icon-sm" asChild aria-label="GitHub">
+              <a href={settings.githubUrl} target="_blank" rel="noreferrer">
+                <Code2 className="size-4" />
+              </a>
+            </Button>
+          ) : null}
+          {settings.linkedinUrl ? (
+            <Button variant="ghost" size="icon-sm" asChild aria-label="LinkedIn">
+              <a href={settings.linkedinUrl} target="_blank" rel="noreferrer">
+                <Network className="size-4" />
+              </a>
+            </Button>
+          ) : null}
           <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Alternar tema">
             {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </Button>

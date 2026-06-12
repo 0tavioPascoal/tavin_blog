@@ -3,12 +3,12 @@ import { FeaturedProjectsSection } from "@/components/home/featured-projects-sec
 import { HeroSection } from "@/components/home/hero-section";
 import { ValuePillarsSection } from "@/components/home/value-pillars-section";
 import { listFeaturedArticles } from "@/features/posts/repositories/posts-repository";
-import { getFeaturedProjects } from "@/features/projects/data/projects";
+import { listFeaturedProjects } from "@/features/projects/repositories/projects-repository";
 
 export default async function HomePage() {
   const [articles, projects] = await Promise.all([
     listFeaturedArticles(),
-    Promise.resolve(getFeaturedProjects()),
+    listFeaturedProjects(),
   ]);
 
   return (

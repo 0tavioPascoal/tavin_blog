@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { getSiteUrlFallback } from "@/lib/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://otaviopascoal.dev"),
+  metadataBase: new URL(getSiteUrlFallback()),
   title: {
     default: "Otávio Pascoal | Blog e Portfólio",
     template: "%s | Otávio Pascoal",

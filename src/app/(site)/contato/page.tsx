@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { Code2, Mail, Network } from "lucide-react";
 
+import { getSiteSettings } from "@/features/settings/repositories/settings-repository";
+
 export const metadata: Metadata = {
   title: "Contato",
   description: "Entre em contato com Otávio Pascoal.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+
   return (
     <section className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
       <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Contato</p>
@@ -17,18 +21,22 @@ export default function ContactPage() {
         Para oportunidades, parcerias ou conversas técnicas, use um dos canais abaixo.
       </p>
       <div className="mt-10 grid gap-4 sm:grid-cols-3">
-        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href="mailto:contato@otaviopascoal.dev">
+        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href={`mailto:${settings.contactEmail}`}>
           <Mail className="mb-4 size-5 text-blue-600" />
           E-mail
         </a>
-        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href="https://github.com/" target="_blank" rel="noreferrer">
+        {settings.githubUrl ? (
+        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href={settings.githubUrl} target="_blank" rel="noreferrer">
           <Code2 className="mb-4 size-5 text-blue-600" />
           GitHub
         </a>
-        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
+        ) : null}
+        {settings.linkedinUrl ? (
+        <a className="rounded-lg border border-slate-200 bg-white p-5 font-medium shadow-sm transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950" href={settings.linkedinUrl} target="_blank" rel="noreferrer">
           <Network className="mb-4 size-5 text-blue-600" />
           LinkedIn
         </a>
+        ) : null}
       </div>
     </section>
   );

@@ -7,6 +7,9 @@ const supabaseEnvSchema = z.object({
 
 export type SupabaseConfig = z.infer<typeof supabaseEnvSchema>;
 
+const defaultSiteUrl = "http://localhost:3000";
+const defaultContactEmail = "contato@example.com";
+
 export function getSupabaseConfig(): SupabaseConfig | null {
   const parsed = supabaseEnvSchema.safeParse({
     SUPABASE_URL: process.env.SUPABASE_URL,
@@ -14,4 +17,28 @@ export function getSupabaseConfig(): SupabaseConfig | null {
   });
 
   return parsed.success ? parsed.data : null;
+}
+
+export function getSiteUrlFallback(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+
+  if (!siteUrl) {
+    return defaultSiteUrl;
+  }
+
+  const parsed = z.string().url().safeParse(siteUrl);
+
+  return parsed.success ? parsed.data : defaultSiteUrl;
+}
+
+export function getContactEmailFallback(): string {
+  const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL;
+
+  if (!contactEmail) {
+    return defaultContactEmail;
+  }
+
+  const parsed = z.email().safeParse(contactEmail);
+
+  return parsed.success ? parsed.data : defaultContactEmail;
 }

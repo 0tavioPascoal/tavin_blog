@@ -1,4 +1,6 @@
 import type { ArticleStatus } from "@/types/supabase";
+import type { CategorySummary } from "@/features/categories/types/category";
+import type { TagSummary } from "@/features/tags/types/tag";
 
 export type ArticleSummary = {
   id: string;
@@ -7,7 +9,8 @@ export type ArticleSummary = {
   description: string;
   publishedAt: string | null;
   status: ArticleStatus;
-  tags: string[];
+  category: CategorySummary | null;
+  tags: TagSummary[];
   readingTimeMinutes: number;
   isFeatured: boolean;
 };
@@ -23,7 +26,8 @@ export type ArticleMutationInput = {
   description: string;
   contentMarkdown: string;
   status: ArticleStatus;
-  tags: string[];
+  categoryId: string | null;
+  tagIds: string[];
   readingTimeMinutes: number;
   isFeatured: boolean;
 };
