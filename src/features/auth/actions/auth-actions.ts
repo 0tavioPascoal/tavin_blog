@@ -37,5 +37,5 @@ export async function loginAction(input: unknown): Promise<LoginActionState> {
 
 export async function signOutAction(): Promise<void> {
   await signOut();
-  redirect("/admin");
+  redirect("/");
 }

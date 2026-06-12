@@ -3,6 +3,24 @@ export type ArticleStatus = "draft" | "published";
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          user_id: string;
+          email: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          email: string;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          email?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       articles: {
         Row: {
           id: string;

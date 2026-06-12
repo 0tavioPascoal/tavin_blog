@@ -7,7 +7,11 @@ export type AuthUser = {
   email: string | null;
 };
 
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export type AdminUser = AuthUser & {
+  isAdmin: true;
+};
+
+async function resolveCurrentUser(): Promise<AuthUser | null> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -23,6 +27,39 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   return {
     id: data.user.id,
     email: data.user.email ?? null,
+  };
+}
+
+export async function getCurrentUser(): Promise<AuthUser | null> {
+  return resolveCurrentUser();
+}
+
+export async function getCurrentAdminUser(): Promise<AdminUser | null> {
+  const user = await resolveCurrentUser();
+
+  if (!user) {
+    return null;
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return null;
+  }
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return {
+    ...user,
+    isAdmin: true,
   };
 }
 

@@ -3,13 +3,33 @@ import Link from "next/link";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { LoginForm } from "@/components/admin/login-form";
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/features/auth/repositories/auth-repository";
+import { signOutAction } from "@/features/auth/actions/auth-actions";
+import { getCurrentAdminUser, getCurrentUser } from "@/features/auth/repositories/auth-repository";
 import { listAllArticlesForAdmin } from "@/features/posts/repositories/posts-repository";
 
 export default async function AdminPage() {
-  const user = await getCurrentUser();
+  const sessionUser = await getCurrentUser();
+  const user = await getCurrentAdminUser();
 
   if (!user) {
+    if (sessionUser) {
+      return (
+        <main className="grid min-h-screen place-items-center bg-slate-50 px-4 dark:bg-slate-950">
+          <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <h1 className="text-2xl font-semibold text-slate-950 dark:text-white">Acesso restrito</h1>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
+              Sua sessão está ativa, mas este usuário não está autorizado como administrador do blog.
+            </p>
+            <form action={signOutAction} className="mt-6">
+              <Button type="submit" variant="outline" className="w-full">
+                Sair e entrar com outro usuário
+              </Button>
+            </form>
+          </div>
+        </main>
+      );
+    }
+
     return (
       <main className="grid min-h-screen place-items-center bg-slate-50 px-4 dark:bg-slate-950">
         <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">

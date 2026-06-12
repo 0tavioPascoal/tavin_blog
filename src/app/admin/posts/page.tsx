@@ -5,12 +5,12 @@ import { redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/features/auth/repositories/auth-repository";
+import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { listAllArticlesForAdmin } from "@/features/posts/repositories/posts-repository";
 import { formatDate } from "@/lib/formatters";
 
 export default async function AdminPostsPage() {
-  const user = await getCurrentUser();
+  const user = await getCurrentAdminUser();
 
   if (!user) {
     redirect("/admin");

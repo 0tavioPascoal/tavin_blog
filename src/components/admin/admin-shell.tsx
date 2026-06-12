@@ -2,11 +2,11 @@ import { FileText, Home, LogOut, PenSquare } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/features/auth/actions/auth-actions";
-import type { AuthUser } from "@/features/auth/repositories/auth-repository";
+import type { AdminUser } from "@/features/auth/repositories/auth-repository";
 import { Button } from "@/components/ui/button";
 
 type AdminShellProps = {
-  user: AuthUser;
+  user: AdminUser;
   children: React.ReactNode;
 };
 

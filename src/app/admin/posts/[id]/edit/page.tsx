@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { PostForm } from "@/components/admin/post-form";
-import { getCurrentUser } from "@/features/auth/repositories/auth-repository";
+import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { getArticleByIdForAdmin } from "@/features/posts/repositories/posts-repository";
 
 type EditPostPageProps = {
@@ -10,7 +10,7 @@ type EditPostPageProps = {
 };
 
 export default async function EditPostPage({ params }: EditPostPageProps) {
-  const user = await getCurrentUser();
+  const user = await getCurrentAdminUser();
 
   if (!user) {
     redirect("/admin");

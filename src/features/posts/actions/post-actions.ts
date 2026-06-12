@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "@/features/auth/repositories/auth-repository";
+import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { postFormSchema } from "@/features/posts/schemas/post-schema";
 import { createArticle, updateArticle } from "@/features/posts/repositories/posts-repository";
 import type { ArticleMutationInput } from "@/features/posts/types/post";
@@ -14,10 +14,10 @@ export type PostActionState = {
 };
 
 async function requireAdmin(): Promise<void> {
-  const user = await getCurrentUser();
+  const user = await getCurrentAdminUser();
 
   if (!user) {
-    throw new Error("Você precisa estar autenticado para gerenciar posts.");
+    throw new Error("Você precisa estar autenticado como administrador para gerenciar posts.");
   }
 }
 
