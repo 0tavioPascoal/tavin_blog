@@ -6,6 +6,7 @@ import type { ProjectSummary } from "@/features/projects/types/project";
 
 type ProjectCardProps = {
   project: ProjectSummary;
+  compact?: true
 };
 
 const iconMap: Record<string, LucideIcon> = {

@@ -14,13 +14,19 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.6fr_1fr] lg:px-8">
-        <FeaturedArticlesSection articles={articles} />
-        <FeaturedProjectsSection projects={projects} />
-      </div>
-      <div className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <ValuePillarsSection />
-      </div>
+
+      <main className="border-t border-border/60 bg-background">
+        <div className="w-full px-6 py-10 sm:px-10 lg:px-[7vw]">
+          <div className="grid gap-10 lg:grid-cols-[1.65fr_1fr]">
+            <FeaturedArticlesSection articles={articles} />
+            <FeaturedProjectsSection projects={projects} />
+          </div>
+
+          <div className="mt-10">
+            <ValuePillarsSection />
+          </div>
+        </div>
+      </main>
     </>
   );
 }

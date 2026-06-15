@@ -45,8 +45,8 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/90 shadow-[0_4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
+      <div className="flex h-16 w-full items-center justify-between px-6 sm:px-10 lg:px-[7vw]">
         <Link
           href="/"
           className="flex items-center gap-3 font-semibold tracking-tight text-slate-950 dark:text-white"
@@ -150,7 +150,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
       </div>
 
       {isOpen ? (
-        <nav className="border-t border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-950 md:hidden">
+        <nav className="border-t border-border bg-background px-6 py-4 sm:px-10 md:hidden">
           <div className="grid gap-2">
             {navigation.map((item) => {
               const active = isActive(pathname, item.href);

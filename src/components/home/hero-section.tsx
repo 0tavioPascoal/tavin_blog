@@ -26,14 +26,17 @@ const heroImageSrc = "/images/hero-otavio.png?v=20260614";
 
 function TechnologyBadge({ technology }: { technology: Technology }) {
   return (
-    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-950 dark:text-slate-100" aria-label={technology.ariaLabel}>
+    <span
+      className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100"
+      aria-label={technology.ariaLabel}
+    >
       <Image
         src={technology.iconSrc}
         alt=""
-        width={28}
-        height={28}
+        width={26}
+        height={26}
         aria-hidden="true"
-        className="size-7 shrink-0 object-contain"
+        className="size-6 shrink-0 object-contain"
       />
       <span className="truncate">{technology.label}</span>
     </span>
@@ -42,47 +45,78 @@ function TechnologyBadge({ technology }: { technology: Technology }) {
 
 export function HeroSection() {
   return (
-    <section className="overflow-hidden border-b border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900">
-      <div className="mx-auto grid min-h-[620px] max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.95fr_1.05fr] lg:px-8 lg:py-0">
-        <div className="relative z-10 max-w-2xl">
-          <h1 className="text-4xl font-bold leading-tight tracking-normal text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
-            Transformo ideias em soluções de{" "}
-            <span className="text-blue-600">software</span>
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600 dark:text-slate-300">
-            Analista de Negócios, Analista de Sistemas, QA e Desenvolvedor Fullstack apaixonado por tecnologia,
-            arquitetura de software e resolução de problemas.
-          </p>
-          <div className="mt-8 grid grid-cols-2 gap-x-7 gap-y-5 sm:grid-cols-3 lg:max-w-xl lg:grid-cols-5">
-            {technologies.map((technology) => (
-              <TechnologyBadge key={technology.label} technology={technology} />
-            ))}
-          </div>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="h-12 rounded-lg bg-blue-600 px-6 text-white hover:bg-blue-700">
-              <Link href="/projetos">
-                Ver Projetos
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 rounded-lg px-6">
-              <Link href="/blog">
-                Ler Artigos
-                <FileText className="size-4" />
-              </Link>
-            </Button>
+    <section className="relative overflow-hidden border-b border-border bg-background">
+      <div className="relative grid min-h-[580px] w-full lg:grid-cols-[48%_52%]">
+        <div className="relative z-20 flex items-center px-6 py-14 sm:px-10 lg:py-0 lg:pl-[7vw] lg:pr-8">
+          <div className="max-w-[680px]">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
+              Transformo ideias em soluções de{" "}
+              <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                software
+              </span>
+            </h1>
+
+            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg sm:leading-8">
+              Analista de Negócios, Analista de Sistemas, QA e Desenvolvedor
+              Fullstack apaixonado por tecnologia, arquitetura de software e
+              resolução de problemas.
+            </p>
+
+            <div className="mt-8 grid grid-cols-2 gap-x-7 gap-y-5 sm:grid-cols-3 lg:max-w-xl lg:grid-cols-5">
+              {technologies.map((technology) => (
+                <TechnologyBadge key={technology.label} technology={technology} />
+              ))}
+            </div>
+
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <Button
+                asChild
+                size="lg"
+                className="h-12 rounded-xl bg-blue-600 px-6 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
+              >
+                <Link href="/projetos">
+                  Ver Projetos
+                  <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="h-12 rounded-xl border-border bg-card px-6 shadow-sm hover:bg-accent"
+              >
+                <Link href="/blog">
+                  Ler Artigos
+                  <FileText className="size-4" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
-        <div className="relative min-h-[360px] lg:min-h-[620px]">
+
+        <div className="relative hidden min-h-[580px] lg:block">
+          <div className="absolute inset-y-0 -left-1 z-10 w-80 bg-gradient-to-r from-background via-background/90 to-transparent" />
+
           <Image
             src={heroImageSrc}
-            alt="Profissional de software trabalhando em um notebook"
+            alt="Otávio Pascoal trabalhando em um notebook"
             fill
             priority
-            sizes="(min-width: 1024px) 55vw, 100vw"
-            className="rounded-xl object-cover object-center shadow-2xl lg:rounded-none lg:shadow-none"
+            sizes="52vw"
+            className="object-cover object-center"
           />
-          <div className="absolute inset-y-0 left-0 hidden w-32 bg-gradient-to-r from-slate-50 to-transparent dark:from-slate-950 lg:block" />
+        </div>
+
+        <div className="relative mx-6 mb-10 h-[420px] overflow-hidden rounded-3xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-10 lg:hidden">
+          <Image
+            src={heroImageSrc}
+            alt="Otávio Pascoal trabalhando em um notebook"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
         </div>
       </div>
     </section>
