@@ -1,6 +1,7 @@
 import { CalendarDays, Clock } from "lucide-react";
 import Link from "next/link";
 
+import { TagBadge } from "@/components/blog/tag-badge";
 import { formatDate } from "@/lib/formatters";
 import type { ArticleSummary } from "@/features/posts/types/post";
 
@@ -10,17 +11,19 @@ type ArticleCardProps = {
 
 export function ArticleCard({ article }: ArticleCardProps) {
   const [primaryTag] = article.tags;
-  const badgeLabel = article.category?.name ?? primaryTag?.name;
 
   return (
     <Link
       href={`/blog/${article.slug}`}
       className="group flex h-full flex-col rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-900"
     >
-      {badgeLabel ? (
+      {article.category ? (
         <span className="mb-4 w-fit rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold uppercase text-blue-700 dark:bg-blue-950 dark:text-blue-200">
-          {badgeLabel}
+          {article.category.name}
         </span>
+      ) : null}
+      {!article.category && primaryTag ? (
+        <TagBadge name={primaryTag.name} colorHex={primaryTag.colorHex} className="mb-4" />
       ) : null}
       <h3 className="text-lg font-semibold leading-7 text-slate-950 group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
         {article.title}

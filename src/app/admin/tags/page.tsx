@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { TagBadge } from "@/components/blog/tag-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
@@ -40,7 +41,7 @@ export default async function AdminTagsPage() {
                 <div key={tag.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold text-slate-950 dark:text-white">{tag.name}</h2>
+                      <TagBadge name={tag.name} colorHex={tag.colorHex} />
                       <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 dark:bg-slate-900 dark:text-slate-300">
                         /{tag.slug}
                       </span>

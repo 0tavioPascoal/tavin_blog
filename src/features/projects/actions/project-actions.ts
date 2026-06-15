@@ -30,7 +30,7 @@ function toMutationInput(input: unknown): ProjectMutationInput {
     coverImageUrl: normalizeOptionalText(project.coverImageUrl),
     iconName: project.iconName,
     status: project.status,
-    tags: project.tags,
+    tagIds: project.tagIds,
     isFeatured: project.isFeatured,
     sortOrder: project.sortOrder,
   };

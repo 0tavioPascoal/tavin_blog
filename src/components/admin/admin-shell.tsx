@@ -1,4 +1,4 @@
-import { FileText, FolderKanban, Home, LogOut, PenSquare, Settings, Tags } from "lucide-react";
+import { Award, FileText, FolderKanban, Home, LogOut, PenSquare, Settings, Tags } from "lucide-react";
 import Link from "next/link";
 
 import { signOutAction } from "@/features/auth/actions/auth-actions";
@@ -30,6 +30,10 @@ export function AdminShell({ user, children }: AdminShellProps) {
           <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/projects">
             <FolderKanban className="size-4" />
             Projetos
+          </Link>
+          <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/certificates">
+            <Award className="size-4" />
+            Certificados
           </Link>
           <Link className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-900" href="/admin/categories">
             <Tags className="size-4" />

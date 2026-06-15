@@ -35,7 +35,7 @@ export const projectFormSchema = z.object({
   coverImageUrl: z.union([z.string().url("Informe uma URL válida."), z.literal("")]),
   iconName: projectIconNameSchema,
   status: projectStatusSchema,
-  tags: z.array(z.string()),
+  tagIds: z.array(z.uuid()),
   isFeatured: z.boolean(),
   sortOrder: z.number().int(),
 });

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { MarkdownContent } from "@/components/blog/markdown-content";
+import { TagBadge } from "@/components/blog/tag-badge";
 import { formatDate } from "@/lib/formatters";
 import { getPublishedArticleBySlug } from "@/features/posts/repositories/posts-repository";
 
@@ -54,13 +55,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             </Link>
           ) : null}
           {article.tags.map((tag) => (
-            <Link
+            <TagBadge
               key={tag.id}
               href={`/blog/tag/${tag.slug}`}
-              className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold uppercase text-blue-700 transition hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
-            >
-              {tag.name}
-            </Link>
+              name={tag.name}
+              colorHex={tag.colorHex}
+            />
           ))}
         </div>
         <h1 className="mt-5 text-4xl font-bold tracking-normal text-slate-950 dark:text-white sm:text-5xl">

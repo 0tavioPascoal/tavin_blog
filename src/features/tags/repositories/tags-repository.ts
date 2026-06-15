@@ -20,6 +20,7 @@ function toInsert(input: TagMutationInput): TagInsert {
     name: input.name,
     slug: input.slug,
     description: normalizeDescription(input.description),
+    color_hex: input.colorHex,
     is_active: input.isActive,
     created_at: now,
     updated_at: now,
@@ -31,6 +32,7 @@ function toUpdate(input: TagMutationInput): TagUpdate {
     name: input.name,
     slug: input.slug,
     description: normalizeDescription(input.description),
+    color_hex: input.colorHex,
     is_active: input.isActive,
     updated_at: new Date().toISOString(),
   };

@@ -4,11 +4,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { TagBadge } from "@/components/blog/tag-badge";
 import { createTagAction, updateTagAction } from "@/features/tags/actions/tag-actions";
-import { tagFormSchema, type TagFormInput } from "@/features/tags/schemas/tag-schema";
+import { defaultTagColorHex, tagColorHexSchema, tagFormSchema, type TagFormInput } from "@/features/tags/schemas/tag-schema";
 import type { TagDetail } from "@/features/tags/types/tag";
 
 type TagFormProps = {
@@ -34,9 +35,13 @@ export function TagForm({ tag }: TagFormProps) {
       name: tag?.name ?? "",
       slug: tag?.slug ?? "",
       description: tag?.description ?? "",
+      colorHex: tag?.colorHex ?? defaultTagColorHex,
       isActive: tag?.isActive ?? true,
     },
   });
+  const colorHex = useWatch({ control: form.control, name: "colorHex" }) ?? defaultTagColorHex;
+  const name = useWatch({ control: form.control, name: "name" }) ?? "";
+  const colorPickerValue = tagColorHexSchema.safeParse(colorHex).success ? colorHex : defaultTagColorHex;
 
   function onSubmit(values: TagFormInput) {
     startTransition(async () => {
@@ -88,6 +93,36 @@ export function TagForm({ tag }: TagFormProps) {
             className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950"
             {...form.register("description")}
           />
+        </div>
+        <div className="grid gap-4 md:grid-cols-[120px_1fr]">
+          <div className="grid gap-2">
+            <label htmlFor="colorPicker" className="text-sm font-medium">Cor</label>
+            <input
+              id="colorPicker"
+              type="color"
+              className="h-10 w-full cursor-pointer rounded-lg border border-slate-300 bg-white p-1 dark:border-slate-800 dark:bg-slate-950"
+              value={colorPickerValue}
+              onChange={(event) => form.setValue("colorHex", event.target.value.toUpperCase(), { shouldDirty: true, shouldValidate: true })}
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="colorHex" className="text-sm font-medium">HEX</label>
+            <input
+              id="colorHex"
+              placeholder="#2563EB"
+              className="h-10 rounded-lg border border-slate-300 bg-white px-3 font-mono text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950"
+              {...form.register("colorHex", {
+                onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
+                  form.setValue("colorHex", event.target.value.toUpperCase(), { shouldDirty: true, shouldValidate: true });
+                },
+              })}
+            />
+            {form.formState.errors.colorHex ? <p className="text-sm text-red-600">{form.formState.errors.colorHex.message}</p> : null}
+          </div>
+        </div>
+        <div className="grid gap-2">
+          <span className="text-sm font-medium">Preview</span>
+          <TagBadge name={name || "Tag"} colorHex={colorHex} />
         </div>
         <label className="flex w-fit items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-800">
           <input type="checkbox" className="size-4" {...form.register("isActive")} />

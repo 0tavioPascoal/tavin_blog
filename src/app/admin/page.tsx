@@ -5,6 +5,7 @@ import { LoginForm } from "@/components/admin/login-form";
 import { Button } from "@/components/ui/button";
 import { signOutAction } from "@/features/auth/actions/auth-actions";
 import { getCurrentAdminUser, getCurrentUser } from "@/features/auth/repositories/auth-repository";
+import { listAllCertificatesForAdmin } from "@/features/certificates/repositories/certificates-repository";
 import { listAllArticlesForAdmin } from "@/features/posts/repositories/posts-repository";
 
 export default async function AdminPage() {
@@ -45,7 +46,10 @@ export default async function AdminPage() {
     );
   }
 
-  const articles = await listAllArticlesForAdmin();
+  const [articles, certificates] = await Promise.all([
+    listAllArticlesForAdmin(),
+    listAllCertificatesForAdmin(),
+  ]);
   const published = articles.filter((article) => article.status === "published").length;
   const drafts = articles.filter((article) => article.status === "draft").length;
 
@@ -61,7 +65,7 @@ export default async function AdminPage() {
             <Link href="/admin/posts/new">Novo post</Link>
           </Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-4">
           <div className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
             <p className="text-sm text-slate-500">Total de posts</p>
             <p className="mt-2 text-3xl font-semibold">{articles.length}</p>
@@ -73,6 +77,10 @@ export default async function AdminPage() {
           <div className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
             <p className="text-sm text-slate-500">Rascunhos</p>
             <p className="mt-2 text-3xl font-semibold">{drafts}</p>
+          </div>
+          <div className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
+            <p className="text-sm text-slate-500">Certificados</p>
+            <p className="mt-2 text-3xl font-semibold">{certificates.length}</p>
           </div>
         </div>
       </div>

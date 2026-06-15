@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-import { ArticleCard } from "@/components/blog/article-card";
+import { FeaturedArticleCard } from "@/components/home/featured-article-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SectionHeading } from "@/components/shared/section-heading";
 import type { ArticleSummary } from "@/features/posts/types/post";
@@ -23,9 +23,9 @@ export function FeaturedArticlesSection({ articles }: FeaturedArticlesSectionPro
         }
       />
       {articles.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {articles.map((article) => (
-            <ArticleCard key={article.id} article={article} />
+            <FeaturedArticleCard key={article.id} article={article} />
           ))}
         </div>
       ) : (

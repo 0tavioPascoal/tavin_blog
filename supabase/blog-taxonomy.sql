@@ -17,6 +17,7 @@ create table if not exists public.tags (
   name text not null,
   slug text not null unique,
   description text,
+  color_hex text not null default '#2563EB',
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -24,6 +25,9 @@ create table if not exists public.tags (
 
 alter table public.articles
   add column if not exists category_id uuid references public.categories(id) on delete set null;
+
+alter table public.tags
+  add column if not exists color_hex text not null default '#2563EB';
 
 create table if not exists public.article_tags (
   article_id uuid not null references public.articles(id) on delete cascade,

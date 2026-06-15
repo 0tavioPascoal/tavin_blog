@@ -12,6 +12,7 @@ export function mapTagRowToSummary(row: TagRow): TagSummary {
     name: tag.name,
     slug: tag.slug,
     description: tag.description,
+    colorHex: tag.color_hex,
     isActive: tag.is_active,
   };
 }
@@ -24,6 +25,7 @@ export function mapTagRowToDetail(row: TagRow): TagDetail {
     name: tag.name,
     slug: tag.slug,
     description: tag.description,
+    colorHex: tag.color_hex,
     isActive: tag.is_active,
     createdAt: tag.created_at,
     updatedAt: tag.updated_at,

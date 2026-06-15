@@ -1,4 +1,5 @@
 import type { ProjectStatus } from "@/types/supabase";
+import type { TagSummary } from "@/features/tags/types/tag";
 
 export type ProjectSummary = {
   id: string;
@@ -10,7 +11,7 @@ export type ProjectSummary = {
   coverImageUrl: string | null;
   iconName: string;
   status: ProjectStatus;
-  tags: string[];
+  tags: TagSummary[];
   isFeatured: boolean;
   sortOrder: number;
   updatedAt: string;
@@ -31,7 +32,7 @@ export type ProjectMutationInput = {
   coverImageUrl: string | null;
   iconName: string;
   status: ProjectStatus;
-  tags: string[];
+  tagIds: string[];
   isFeatured: boolean;
   sortOrder: number;
 };

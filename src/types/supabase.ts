@@ -1,4 +1,5 @@
 export type ArticleStatus = "draft" | "published";
+export type CertificateStatus = "draft" | "published";
 export type ProjectStatus = "draft" | "published";
 
 export type Database = {
@@ -84,6 +85,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      certificate_tags: {
+        Row: {
+          certificate_id: string;
+          tag_id: string;
+          created_at: string;
+        };
+        Insert: {
+          certificate_id: string;
+          tag_id: string;
+          created_at?: string;
+        };
+        Update: {
+          certificate_id?: string;
+          tag_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       categories: {
         Row: {
           id: string;
@@ -111,6 +130,52 @@ export type Database = {
           description?: string | null;
           sort_order?: number;
           is_active?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      certificates: {
+        Row: {
+          id: string;
+          title: string;
+          slug: string;
+          issuer: string;
+          description: string;
+          credential_url: string | null;
+          image_url: string | null;
+          issued_at: string;
+          expires_at: string | null;
+          status: CertificateStatus;
+          sort_order: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          title: string;
+          slug: string;
+          issuer: string;
+          description: string;
+          credential_url?: string | null;
+          image_url?: string | null;
+          issued_at: string;
+          expires_at?: string | null;
+          status?: CertificateStatus;
+          sort_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          title?: string;
+          slug?: string;
+          issuer?: string;
+          description?: string;
+          credential_url?: string | null;
+          image_url?: string | null;
+          issued_at?: string;
+          expires_at?: string | null;
+          status?: CertificateStatus;
+          sort_order?: number;
           updated_at?: string;
         };
         Relationships: [];
@@ -167,12 +232,31 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_tags: {
+        Row: {
+          project_id: string;
+          tag_id: string;
+          created_at: string;
+        };
+        Insert: {
+          project_id: string;
+          tag_id: string;
+          created_at?: string;
+        };
+        Update: {
+          project_id?: string;
+          tag_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       tags: {
         Row: {
           id: string;
           name: string;
           slug: string;
           description: string | null;
+          color_hex: string;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -182,6 +266,7 @@ export type Database = {
           name: string;
           slug: string;
           description?: string | null;
+          color_hex?: string;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -190,6 +275,7 @@ export type Database = {
           name?: string;
           slug?: string;
           description?: string | null;
+          color_hex?: string;
           is_active?: boolean;
           updated_at?: string;
         };

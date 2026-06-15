@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { ProjectForm } from "@/components/admin/project-form";
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { getProjectByIdForAdmin } from "@/features/projects/repositories/projects-repository";
+import { listAllTagsForAdmin } from "@/features/tags/repositories/tags-repository";
 
 type EditProjectPageProps = {
   params: Promise<{ id: string }>;
@@ -17,7 +18,10 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
   }
 
   const { id } = await params;
-  const project = await getProjectByIdForAdmin(id);
+  const [project, tags] = await Promise.all([
+    getProjectByIdForAdmin(id),
+    listAllTagsForAdmin(),
+  ]);
 
   if (!project) {
     notFound();
@@ -29,7 +33,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
         <p className="text-sm font-semibold uppercase tracking-wide text-blue-700">Editar projeto</p>
         <h1 className="mt-2 text-3xl font-bold text-slate-950 dark:text-white">{project.title}</h1>
       </div>
-      <ProjectForm project={project} />
+      <ProjectForm project={project} tags={tags} />
     </AdminShell>
   );
 }

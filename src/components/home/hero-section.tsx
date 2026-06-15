@@ -4,17 +4,41 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-const technologies = [
-  ".NET",
-  "C#",
-  "Java",
-  "TypeScript",
-  "Next.js",
-  "PostgreSQL",
-  "Docker",
-  "Redis",
-  "Spring",
+type Technology = {
+  label: string;
+  ariaLabel: string;
+  iconSrc: string;
+};
+
+const technologies: Technology[] = [
+  { label: ".NET", ariaLabel: ".NET", iconSrc: "/icons/asp%20net.png" },
+  { label: "C#", ariaLabel: "C Sharp", iconSrc: "/icons/csharp.png" },
+  { label: "Java", ariaLabel: "Java", iconSrc: "/icons/java.png" },
+  { label: "TypeScript", ariaLabel: "TypeScript", iconSrc: "/icons/ts.png" },
+  { label: "Next.js", ariaLabel: "Next.js", iconSrc: "/icons/nextjs.png" },
+  { label: "PostgreSQL", ariaLabel: "PostgreSQL", iconSrc: "/icons/postgresql.png" },
+  { label: "Docker", ariaLabel: "Docker", iconSrc: "/icons/docker.png" },
+  { label: "Redis", ariaLabel: "Redis", iconSrc: "/icons/redis.png" },
+  { label: "Spring", ariaLabel: "Spring", iconSrc: "/icons/spring.png" },
 ];
+
+const heroImageSrc = "/images/hero-otavio.png?v=20260614";
+
+function TechnologyBadge({ technology }: { technology: Technology }) {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-950 dark:text-slate-100" aria-label={technology.ariaLabel}>
+      <Image
+        src={technology.iconSrc}
+        alt=""
+        width={28}
+        height={28}
+        aria-hidden="true"
+        className="size-7 shrink-0 object-contain"
+      />
+      <span className="truncate">{technology.label}</span>
+    </span>
+  );
+}
 
 export function HeroSection() {
   return (
@@ -29,14 +53,9 @@ export function HeroSection() {
             Analista de Negócios, Analista de Sistemas, QA e Desenvolvedor Fullstack apaixonado por tecnologia,
             arquitetura de software e resolução de problemas.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 grid grid-cols-2 gap-x-7 gap-y-5 sm:grid-cols-3 lg:max-w-xl lg:grid-cols-5">
             {technologies.map((technology) => (
-              <span
-                key={technology}
-                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-800 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
-              >
-                {technology}
-              </span>
+              <TechnologyBadge key={technology.label} technology={technology} />
             ))}
           </div>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
@@ -56,7 +75,7 @@ export function HeroSection() {
         </div>
         <div className="relative min-h-[360px] lg:min-h-[620px]">
           <Image
-            src="/images/hero-otavio.png"
+            src={heroImageSrc}
             alt="Profissional de software trabalhando em um notebook"
             fill
             priority

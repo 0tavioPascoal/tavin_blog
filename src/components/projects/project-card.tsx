@@ -1,6 +1,7 @@
 import { Blocks, ChartNoAxesCombined, DatabaseZap, ExternalLink, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
+import { TagBadge } from "@/components/blog/tag-badge";
 import type { ProjectSummary } from "@/features/projects/types/project";
 
 type ProjectCardProps = {
@@ -39,9 +40,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         {project.tags.length > 0 ? (
           <span className="mt-3 flex flex-wrap gap-2">
             {project.tags.map((tag) => (
-              <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 dark:bg-slate-900 dark:text-slate-400">
-                {tag}
-              </span>
+              <TagBadge key={tag.id} name={tag.name} colorHex={tag.colorHex} />
             ))}
           </span>
         ) : null}

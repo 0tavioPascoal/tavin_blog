@@ -11,15 +11,15 @@ import { Button } from "@/components/ui/button";
 import { createProjectAction, updateProjectAction } from "@/features/projects/actions/project-actions";
 import { projectFormSchema } from "@/features/projects/schemas/project-schema";
 import type { ProjectDetail } from "@/features/projects/types/project";
+import type { TagSummary } from "@/features/tags/types/tag";
 
-const projectEditorSchema = projectFormSchema.extend({
-  tagsText: z.string(),
-}).omit({ tags: true });
+const projectEditorSchema = projectFormSchema;
 
 type ProjectEditorValues = z.infer<typeof projectEditorSchema>;
 
 type ProjectFormProps = {
   project?: ProjectDetail;
+  tags: TagSummary[];
 };
 
 function slugify(value: string): string {
@@ -31,14 +31,7 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function parseTags(tagsText: string): string[] {
-  return tagsText
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-}
-
-export function ProjectForm({ project }: ProjectFormProps) {
+export function ProjectForm({ project, tags }: ProjectFormProps) {
   const router = useRouter();
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -54,7 +47,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
       coverImageUrl: project?.coverImageUrl ?? "",
       iconName: project?.iconName === "chart" || project?.iconName === "database" ? project.iconName : "blocks",
       status: project?.status ?? "draft",
-      tagsText: project?.tags.join(", ") ?? "",
+      tagIds: project?.tags.map((tag) => tag.id) ?? [],
       isFeatured: project?.isFeatured ?? false,
       sortOrder: project?.sortOrder ?? 0,
     },
@@ -71,7 +64,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
       coverImageUrl: values.coverImageUrl,
       iconName: values.iconName,
       status: values.status,
-      tags: parseTags(values.tagsText),
+      tagIds: values.tagIds,
       isFeatured: values.isFeatured,
       sortOrder: values.sortOrder,
     };
@@ -141,8 +134,20 @@ export function ProjectForm({ project }: ProjectFormProps) {
         </div>
         <div className="grid gap-4 md:grid-cols-[1fr_160px_160px_120px]">
           <div className="grid gap-2">
-            <label htmlFor="tagsText" className="text-sm font-medium">Tags</label>
-            <input id="tagsText" placeholder="ASP.NET, PostgreSQL, Docker" className="h-10 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950" {...form.register("tagsText")} />
+            <label htmlFor="tagIds" className="text-sm font-medium">Tags</label>
+            <select
+              id="tagIds"
+              multiple
+              className="min-h-28 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-800 dark:bg-slate-950 dark:focus:ring-blue-950"
+              {...form.register("tagIds")}
+            >
+              {tags.map((tag) => (
+                <option key={tag.id} value={tag.id}>
+                  {tag.name}{tag.isActive ? "" : " (inativa)"}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-500">Use Ctrl/Command para selecionar mais de uma tag.</p>
           </div>
           <div className="grid gap-2">
             <label htmlFor="iconName" className="text-sm font-medium">Ícone</label>

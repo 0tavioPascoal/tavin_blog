@@ -3,6 +3,7 @@ export type TagSummary = {
   name: string;
   slug: string;
   description: string | null;
+  colorHex: string;
   isActive: boolean;
 };
 
@@ -15,5 +16,6 @@ export type TagMutationInput = {
   name: string;
   slug: string;
   description: string;
+  colorHex: string;
   isActive: boolean;
 };
