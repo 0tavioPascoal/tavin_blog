@@ -26,32 +26,37 @@ export default async function BlogPage() {
 
   const [featuredArticle, ...otherArticles] = articles;
   const [featuredTag] = featuredArticle?.tags ?? [];
+  const articlesToShow = featuredArticle ? otherArticles : articles;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">
-          Blog
-        </p>
+    <section className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
+      <div className="relative overflow-hidden rounded-3xl border border-slate-300/70 bg-card p-8 shadow-sm dark:border-slate-800 lg:p-10">
+        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
 
-        <h1 className="mt-3 text-4xl font-bold tracking-tight text-card-foreground md:text-5xl">
-          Artigos sobre software, arquitetura e qualidade.
-        </h1>
+        <div className="relative max-w-4xl">
+          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+            Blog
+          </p>
 
-        <p className="mt-5 text-lg leading-8 text-muted-foreground">
-          Compartilho aprendizados, experiências e boas práticas sobre .NET,
-          arquitetura de software, qualidade, bancos de dados e desenvolvimento
-          backend.
-        </p>
+          <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+            Artigos sobre software, arquitetura e qualidade.
+          </h1>
+
+          <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">
+            Compartilho aprendizados, experiências e boas práticas sobre .NET,
+            arquitetura de software, qualidade, bancos de dados e desenvolvimento
+            backend.
+          </p>
+        </div>
       </div>
 
       {featuredArticle ? (
         <Link
           href={`/blog/${featuredArticle.slug}`}
-          className="group mt-10 block rounded-3xl border border-border bg-card p-6 shadow-md shadow-slate-200/70 transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:shadow-black/20 dark:hover:border-blue-800 lg:p-8"
+          className="group mt-8 block rounded-3xl border border-slate-300/70 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:hover:border-blue-800 lg:p-8"
         >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
+            <div className="max-w-4xl">
               <div className="mb-5 flex flex-wrap items-center gap-3">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
                   Artigo em destaque
@@ -70,11 +75,11 @@ export default async function BlogPage() {
                 ) : null}
               </div>
 
-              <h2 className="text-2xl font-bold leading-tight text-card-foreground transition group-hover:text-blue-700 dark:group-hover:text-blue-300 md:text-3xl">
+              <h2 className="text-2xl font-bold leading-tight text-foreground transition group-hover:text-blue-600 dark:group-hover:text-blue-400 md:text-3xl">
                 {featuredArticle.title}
               </h2>
 
-              <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+              <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground">
                 {featuredArticle.description}
               </p>
 
@@ -91,7 +96,7 @@ export default async function BlogPage() {
               </div>
             </div>
 
-            <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600">
+            <div className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
               Ler artigo
               <ArrowRight className="size-4 transition group-hover:translate-x-1" />
             </div>
@@ -99,37 +104,46 @@ export default async function BlogPage() {
         </Link>
       ) : null}
 
-      <div className="mt-10">
-        <BlogTaxonomyFilters categories={categories} tags={tags} />
-      </div>
+      <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <main>
+          {articles.length > 0 ? (
+            <>
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                    Biblioteca
+                  </p>
 
-      <div className="mt-10">
-        {articles.length > 0 ? (
-          <>
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold text-card-foreground">
-                Últimos artigos
-              </h2>
+                  <h2 className="mt-1 text-2xl font-bold text-foreground">
+                    Últimos artigos
+                  </h2>
+                </div>
 
-              <span className="text-sm text-muted-foreground">
-                {articles.length} publicados
-              </span>
-            </div>
+                <span className="text-sm text-muted-foreground">
+                  {articles.length}{" "}
+                  {articles.length === 1 ? "artigo publicado" : "artigos publicados"}
+                </span>
+              </div>
 
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {(otherArticles.length > 0 ? otherArticles : articles).map(
-                (article) => (
-                  <ArticleCard key={article.id} article={article} />
-                ),
-              )}
-            </div>
-          </>
-        ) : (
-          <EmptyState
-            title="Nenhum artigo publicado"
-            description="Publique seu primeiro artigo para começar a construir sua biblioteca de conteúdo."
-          />
-        )}
+              <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
+                {(articlesToShow.length > 0 ? articlesToShow : articles).map(
+                  (article) => (
+                    <ArticleCard key={article.id} article={article} />
+                  ),
+                )}
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="Nenhum artigo publicado"
+              description="Publique seu primeiro artigo para começar a construir sua biblioteca de conteúdo."
+            />
+          )}
+        </main>
+
+        <aside className="xl:sticky xl:top-24 xl:self-start">
+          <BlogTaxonomyFilters categories={categories} tags={tags} />
+        </aside>
       </div>
     </section>
   );

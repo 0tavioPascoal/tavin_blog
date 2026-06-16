@@ -1,7 +1,10 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 
-import { defaultTagColorHex, tagColorHexSchema } from "@/features/tags/schemas/tag-schema";
+import {
+  defaultTagColorHex,
+  tagColorHexSchema,
+} from "@/features/tags/schemas/tag-schema";
 
 type TagBadgeProps = {
   name: string;
@@ -30,23 +33,58 @@ function hexToRgb(colorHex: string): { r: number; g: number; b: number } {
 function getTagBadgeStyle(colorHex: string, active: boolean): CSSProperties {
   const normalized = normalizeColorHex(colorHex);
   const { r, g, b } = hexToRgb(normalized);
-  const backgroundAlpha = active ? 0.18 : 0.1;
 
   return {
-    borderColor: active ? normalized : `rgba(${r}, ${g}, ${b}, 0.35)`,
-    backgroundColor: `rgba(${r}, ${g}, ${b}, ${backgroundAlpha})`,
+    borderColor: active
+      ? normalized
+      : `rgba(${r}, ${g}, ${b}, 0.35)`,
+    backgroundColor: active
+      ? `rgba(${r}, ${g}, ${b}, 0.18)`
+      : `rgba(${r}, ${g}, ${b}, 0.08)`,
     color: normalized,
-    boxShadow: active ? `inset 0 0 0 1px ${normalized}, 0 8px 18px rgba(${r}, ${g}, ${b}, 0.16)` : undefined,
+    boxShadow: active
+      ? `inset 0 0 0 1px ${normalized}, 0 8px 18px rgba(${r}, ${g}, ${b}, 0.14)`
+      : undefined,
   };
 }
 
-export function TagBadge({ name, colorHex, href, active = false, className = "" }: TagBadgeProps) {
-  const baseClassName = `inline-flex w-fit items-center justify-center rounded-md border px-2 py-1 text-xs font-semibold uppercase transition ${className}`;
+export function TagBadge({
+  name,
+  colorHex,
+  href,
+  active = false,
+  className = "",
+}: TagBadgeProps) {
   const style = getTagBadgeStyle(colorHex, active);
+
+  const baseClassName = `
+    inline-flex
+    w-fit
+    items-center
+    justify-center
+    rounded-full
+    border
+    px-2.5
+    py-1
+    text-xs
+    font-semibold
+    uppercase
+    tracking-wide
+    transition-all
+    duration-300
+    hover:-translate-y-0.5
+    hover:shadow-sm
+    ${className}
+  `;
 
   if (href) {
     return (
-      <Link href={href} className={baseClassName} style={style} aria-current={active ? "page" : undefined}>
+      <Link
+        href={href}
+        className={baseClassName}
+        style={style}
+        aria-current={active ? "page" : undefined}
+      >
         {name}
       </Link>
     );

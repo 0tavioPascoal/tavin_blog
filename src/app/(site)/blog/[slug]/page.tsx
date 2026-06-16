@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
+import { CalendarDays, Clock, ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { MarkdownContent } from "@/components/blog/markdown-content";
 import { TagBadge } from "@/components/blog/tag-badge";
-import { formatDate } from "@/lib/formatters";
 import { getPublishedArticleBySlug } from "@/features/posts/repositories/posts-repository";
+import { formatDate } from "@/lib/formatters";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const article = await getPublishedArticleBySlug(slug);
 
@@ -43,35 +46,66 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mb-10">
-        <div className="flex flex-wrap gap-2">
-          {article.category ? (
-            <Link
-              href={`/blog/categoria/${article.category.slug}`}
-              className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold uppercase text-slate-700 transition hover:bg-blue-50 hover:text-blue-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-blue-950 dark:hover:text-blue-200"
-            >
-              {article.category.name}
-            </Link>
-          ) : null}
-          {article.tags.map((tag) => (
-            <TagBadge
-              key={tag.id}
-              href={`/blog/tag/${tag.slug}`}
-              name={tag.name}
-              colorHex={tag.colorHex}
-            />
-          ))}
+    <article className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
+      <div className="mx-auto max-w-4xl">
+        <Link
+          href="/blog"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition hover:text-blue-600 dark:hover:text-blue-400"
+        >
+          <ArrowLeft className="size-4" />
+          Voltar para o blog
+        </Link>
+
+        <header className="relative overflow-hidden rounded-3xl border border-slate-300/70 bg-card p-8 shadow-sm dark:border-slate-800 lg:p-10">
+          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
+
+          <div className="relative">
+            <div className="flex flex-wrap gap-2">
+              {article.category ? (
+                <Link
+                  href={`/blog/categoria/${article.category.slug}`}
+                  className="rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition hover:border-blue-300 hover:text-blue-600 dark:hover:border-blue-800 dark:hover:text-blue-400"
+                >
+                  {article.category.name}
+                </Link>
+              ) : null}
+
+              {article.tags.map((tag) => (
+                <TagBadge
+                  key={tag.id}
+                  href={`/blog/tag/${tag.slug}`}
+                  name={tag.name}
+                  colorHex={tag.colorHex}
+                />
+              ))}
+            </div>
+
+            <h1 className="mt-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+              {article.title}
+            </h1>
+
+            <p className="mt-5 text-lg leading-8 text-muted-foreground">
+              {article.description}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center gap-5 border-t border-border pt-5 text-sm text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <CalendarDays className="size-4" />
+                {formatDate(article.publishedAt)}
+              </span>
+
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="size-4" />
+                {article.readingTimeMinutes} min de leitura
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div className="mt-8 rounded-3xl border border-slate-300/70 bg-card p-6 shadow-sm dark:border-slate-800 lg:p-10">
+          <MarkdownContent content={article.contentMarkdown} />
         </div>
-        <h1 className="mt-5 text-4xl font-bold tracking-normal text-slate-950 dark:text-white sm:text-5xl">
-          {article.title}
-        </h1>
-        <p className="mt-5 text-lg leading-8 text-slate-600 dark:text-slate-400">{article.description}</p>
-        <p className="mt-5 text-sm text-slate-500">
-          {formatDate(article.publishedAt)} · {article.readingTimeMinutes} min de leitura
-        </p>
       </div>
-      <MarkdownContent content={article.contentMarkdown} />
     </article>
   );
 }

@@ -17,7 +17,7 @@ export function FeaturedArticleCard({ article }: FeaturedArticleCardProps) {
       href={`/blog/${article.slug}`}
       className="
         group flex
-        min-h-[15rem]
+        min-h-60
         flex-col
         rounded-2xl
         border
