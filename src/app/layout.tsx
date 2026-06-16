@@ -40,7 +40,7 @@ export default function RootLayout({
       <body className="min-h-screen overflow-x-hidden bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
