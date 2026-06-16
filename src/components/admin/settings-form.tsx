@@ -3,9 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 
+import { useAdminToast } from "@/components/admin/admin-toast-provider";
 import { Button } from "@/components/ui/button";
 import { updateSettingsAction } from "@/features/settings/actions/settings-actions";
 import { siteSettingsFormSchema, type SiteSettingsFormInput } from "@/features/settings/schemas/settings-schema";
@@ -17,7 +18,7 @@ type SettingsFormProps = {
 
 export function SettingsForm({ settings }: SettingsFormProps) {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const form = useForm<SiteSettingsFormInput>({
     resolver: zodResolver(siteSettingsFormSchema),
@@ -31,8 +32,9 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
   function onSubmit(values: SiteSettingsFormInput) {
     startTransition(async () => {
+      const toastId = toast.info("Salvando configurações...");
       const result = await updateSettingsAction(values);
-      setMessage(result.message);
+      toast.handleActionResult(toastId, result);
 
       if (result.ok) {
         router.refresh();
@@ -66,7 +68,6 @@ export function SettingsForm({ settings }: SettingsFormProps) {
           </div>
         </div>
       </div>
-      {message ? <p className="text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" className="h-10 rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700" disabled={isPending}>
           <Save className="size-4" />

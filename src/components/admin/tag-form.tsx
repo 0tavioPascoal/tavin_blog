@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
+import { useAdminToast } from "@/components/admin/admin-toast-provider";
 import { TagBadge } from "@/components/blog/tag-badge";
+import { Button } from "@/components/ui/button";
 import { createTagAction, updateTagAction } from "@/features/tags/actions/tag-actions";
 import { defaultTagColorHex, tagColorHexSchema, tagFormSchema, type TagFormInput } from "@/features/tags/schemas/tag-schema";
 import type { TagDetail } from "@/features/tags/types/tag";
@@ -27,7 +28,7 @@ function slugify(value: string): string {
 
 export function TagForm({ tag }: TagFormProps) {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const form = useForm<TagFormInput>({
     resolver: zodResolver(tagFormSchema),
@@ -45,11 +46,12 @@ export function TagForm({ tag }: TagFormProps) {
 
   function onSubmit(values: TagFormInput) {
     startTransition(async () => {
+      const toastId = toast.info(tag ? "Atualizando tag..." : "Criando tag...");
       const result = tag
         ? await updateTagAction(tag.id, values)
         : await createTagAction(values);
 
-      setMessage(result.message);
+      toast.handleActionResult(toastId, result);
 
       if (result.ok) {
         router.push("/admin/tags");
@@ -129,7 +131,6 @@ export function TagForm({ tag }: TagFormProps) {
           Ativa
         </label>
       </div>
-      {message ? <p className="text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" className="h-10 rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700" disabled={isPending}>
           <Save className="size-4" />

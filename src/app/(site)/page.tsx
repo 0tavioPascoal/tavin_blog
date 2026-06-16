@@ -15,16 +15,16 @@ export default async function HomePage() {
     <>
       <HeroSection />
 
-      <main className="border-t border-border/60 bg-background">
-        <div className="w-full px-6 py-10 sm:px-10 lg:px-[7vw]">
-          <div className="grid gap-10 lg:grid-cols-[1.65fr_1fr]">
+      <main className="bg-background">
+        <div className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
+          <section className="grid gap-10 lg:grid-cols-[1.65fr_1fr]">
             <FeaturedArticlesSection articles={articles} />
             <FeaturedProjectsSection projects={projects} />
-          </div>
+          </section>
 
-          <div className="mt-10">
+          <section className="mt-14 border-t border-border pt-12">
             <ValuePillarsSection />
-          </div>
+          </section>
         </div>
       </main>
     </>

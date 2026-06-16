@@ -1,8 +1,9 @@
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminShell } from "@/components/admin/admin-shell";
+import { DeleteActionButton } from "@/components/admin/delete-action-button";
 import { TagBadge } from "@/components/blog/tag-badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -60,17 +61,7 @@ export default async function AdminTagsPage() {
                         Editar
                       </Link>
                     </Button>
-                    <form
-                      action={async () => {
-                        "use server";
-                        await deleteTagAction(tag.id);
-                      }}
-                    >
-                      <Button type="submit" variant="destructive" size="sm">
-                        <Trash2 className="size-4" />
-                        Remover
-                      </Button>
-                    </form>
+                    <DeleteActionButton action={deleteTagAction.bind(null, tag.id)} pendingMessage="Removendo tag..." />
                   </div>
                 </div>
               ))}

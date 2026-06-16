@@ -45,15 +45,16 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/90 shadow-[0_4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
+    <header className="sticky top-0 z-50 border-b border-border bg-card/90 shadow-[0_4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
       <div className="flex h-16 w-full items-center justify-between px-6 sm:px-10 lg:px-[7vw]">
         <Link
           href="/"
-          className="flex items-center gap-3 font-semibold tracking-tight text-slate-950 dark:text-white"
+          className="flex items-center gap-3 font-semibold tracking-tight text-foreground"
         >
           <span className="text-2xl text-blue-600 dark:text-blue-400">
             &lt;/&gt;
           </span>
+
           <span className="text-lg">
             OTÁVIO <span className="font-normal">PASCOAL</span>
           </span>
@@ -68,7 +69,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative py-5 text-sm font-medium text-slate-700 transition hover:text-blue-700 dark:text-slate-300 dark:hover:text-blue-300",
+                  "relative py-5 text-sm font-medium text-muted-foreground transition hover:text-blue-700 dark:hover:text-blue-300",
                   active && "text-blue-700 dark:text-blue-300",
                 )}
               >
@@ -87,7 +88,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-xl text-slate-600 transition-all hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+              className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
               asChild
               aria-label="GitHub"
             >
@@ -101,7 +102,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-xl text-slate-600 transition-all hover:bg-slate-100 hover:text-blue-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-blue-400"
+              className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-blue-600 dark:hover:text-blue-400"
               asChild
               aria-label="LinkedIn"
             >
@@ -114,7 +115,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-xl text-slate-600 transition-all hover:bg-slate-100 hover:text-amber-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-amber-400"
+            className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-amber-500 dark:hover:text-amber-400"
             onClick={toggleTheme}
             aria-label="Alternar tema"
           >
@@ -128,7 +129,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-xl text-slate-600 transition-all hover:bg-slate-100 hover:text-emerald-600 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-emerald-400"
+            className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-emerald-600 dark:hover:text-emerald-400"
             asChild
             aria-label="Admin"
           >
@@ -150,7 +151,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
       </div>
 
       {isOpen ? (
-        <nav className="border-t border-border bg-background px-6 py-4 sm:px-10 md:hidden">
+        <nav className="border-t border-border bg-card px-6 py-4 sm:px-10 md:hidden">
           <div className="grid gap-2">
             {navigation.map((item) => {
               const active = isActive(pathname, item.href);
@@ -161,7 +162,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                   href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+                    "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
                     active &&
                       "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
                   )}
@@ -175,7 +176,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
               href="/admin"
               onClick={() => setIsOpen(false)}
               className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+                "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
                 isActive(pathname, "/admin") &&
                   "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
               )}

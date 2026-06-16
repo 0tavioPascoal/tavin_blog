@@ -1,7 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
-
 import { loginSchema } from "@/features/auth/schemas/auth-schema";
 import { signInWithPassword, signOut } from "@/features/auth/repositories/auth-repository";
 
@@ -35,7 +33,18 @@ export async function loginAction(input: unknown): Promise<LoginActionState> {
   };
 }
 
-export async function signOutAction(): Promise<void> {
-  await signOut();
-  redirect("/");
+export async function signOutAction(): Promise<LoginActionState> {
+  try {
+    await signOut();
+  } catch (error) {
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "Não foi possível sair.",
+    };
+  }
+
+  return {
+    ok: true,
+    message: "Sessão encerrada.",
+  };
 }

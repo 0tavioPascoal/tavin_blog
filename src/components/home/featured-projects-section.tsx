@@ -19,7 +19,7 @@ export function FeaturedProjectsSection({
         action={
           <Link
             href="/projetos"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-all hover:gap-2 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             Ver todos os projetos
             <ArrowRight className="size-4" />
@@ -27,10 +27,12 @@ export function FeaturedProjectsSection({
         }
       />
 
-      <div className="mt-5 divide-y divide-border">
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} compact />
-        ))}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-slate-300/70 bg-card dark:border-slate-800">
+        <div className="divide-y divide-slate-300/70 dark:divide-slate-800">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} compact />
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -27,18 +27,35 @@ const heroImageSrc = "/images/hero-otavio.png?v=20260614";
 function TechnologyBadge({ technology }: { technology: Technology }) {
   return (
     <span
-      className="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100"
       aria-label={technology.ariaLabel}
+      title={technology.label}
+      className="
+        inline-flex h-11 w-full min-w-0 items-center justify-center gap-2
+        rounded-xl
+        border border-border
+        bg-card
+        px-3
+        text-sm font-semibold text-foreground
+        shadow-sm
+        transition-all duration-300
+        hover:-translate-y-0.5
+        hover:border-blue-300
+        hover:shadow-md
+        dark:hover:border-blue-800
+      "
     >
       <Image
         src={technology.iconSrc}
         alt=""
-        width={26}
-        height={26}
+        width={22}
+        height={22}
         aria-hidden="true"
-        className="size-6 shrink-0 object-contain"
+        className="size-5 shrink-0 object-contain"
       />
-      <span className="truncate">{technology.label}</span>
+
+      <span className="min-w-0 truncate">
+        {technology.label}
+      </span>
     </span>
   );
 }
@@ -46,23 +63,23 @@ function TechnologyBadge({ technology }: { technology: Technology }) {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden border-b border-border bg-background">
-      <div className="relative grid min-h-[580px] w-full lg:grid-cols-[48%_52%]">
+      <div className="relative grid min-h-145 w-full lg:grid-cols-[48%_52%]">
         <div className="relative z-20 flex items-center px-6 py-14 sm:px-10 lg:py-0 lg:pl-[7vw] lg:pr-8">
-          <div className="max-w-[680px]">
+          <div className="max-w-170">
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
               Transformo ideias em soluções de{" "}
-              <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                 software
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg sm:leading-8">
-              Analista de Negócios, Analista de Sistemas, QA e Desenvolvedor
-              Fullstack apaixonado por tecnologia, arquitetura de software e
-              resolução de problemas.
+            <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground sm:text-lg">
+              Construo soluções que conectam negócio, arquitetura e qualidade.
+              Compartilho aprendizados sobre .NET, Java, TypeScript, testes,
+              produto e engenharia de software.
             </p>
 
-            <div className="mt-8 grid grid-cols-2 gap-x-7 gap-y-5 sm:grid-cols-3 lg:max-w-xl lg:grid-cols-5">
+            <div className="mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5">
               {technologies.map((technology) => (
                 <TechnologyBadge key={technology.label} technology={technology} />
               ))}
@@ -95,8 +112,8 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="relative hidden min-h-[580px] lg:block">
-          <div className="absolute inset-y-0 -left-1 z-10 w-80 bg-gradient-to-r from-background via-background/90 to-transparent" />
+        <div className="relative hidden min-h-145 lg:block">
+          <div className="absolute inset-y-0 -left-1 z-10 w-80 bg-linear-to-r from-background via-background/90 to-transparent" />
 
           <Image
             src={heroImageSrc}
@@ -108,7 +125,7 @@ export function HeroSection() {
           />
         </div>
 
-        <div className="relative mx-6 mb-10 h-[420px] overflow-hidden rounded-3xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-10 lg:hidden">
+        <div className="relative mx-6 mb-10 h-105 overflow-hidden rounded-3xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-10 lg:hidden">
           <Image
             src={heroImageSrc}
             alt="Otávio Pascoal trabalhando em um notebook"

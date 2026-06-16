@@ -2,8 +2,8 @@ import Link from "next/link";
 
 import { AdminShell } from "@/components/admin/admin-shell";
 import { LoginForm } from "@/components/admin/login-form";
+import { LogoutButton } from "@/components/admin/logout-button";
 import { Button } from "@/components/ui/button";
-import { signOutAction } from "@/features/auth/actions/auth-actions";
 import { getCurrentAdminUser, getCurrentUser } from "@/features/auth/repositories/auth-repository";
 import { listAllCertificatesForAdmin } from "@/features/certificates/repositories/certificates-repository";
 import { listAllArticlesForAdmin } from "@/features/posts/repositories/posts-repository";
@@ -21,11 +21,9 @@ export default async function AdminPage() {
             <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">
               Sua sessão está ativa, mas este usuário não está autorizado como administrador do blog.
             </p>
-            <form action={signOutAction} className="mt-6">
-              <Button type="submit" variant="outline" className="w-full">
-                Sair e entrar com outro usuário
-              </Button>
-            </form>
+            <div className="mt-6">
+              <LogoutButton label="Sair e entrar com outro usuário" showIcon={false} className="w-full" />
+            </div>
           </div>
         </main>
       );

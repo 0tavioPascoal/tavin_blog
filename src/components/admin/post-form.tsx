@@ -3,16 +3,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useAdminToast } from "@/components/admin/admin-toast-provider";
+import { Button } from "@/components/ui/button";
 import { createPostAction, updatePostAction } from "@/features/posts/actions/post-actions";
 import type { ArticleDetail } from "@/features/posts/types/post";
 import type { CategorySummary } from "@/features/categories/types/category";
 import type { TagSummary } from "@/features/tags/types/tag";
 import { calculateReadingTimeMinutes } from "@/lib/markdown/reading-time";
-import { Button } from "@/components/ui/button";
 
 const postEditorSchema = z.object({
   title: z.string().min(3, "Informe um título com pelo menos 3 caracteres."),
@@ -47,7 +48,7 @@ function slugify(value: string): string {
 
 export function PostForm({ post, categories, tags }: PostFormProps) {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const form = useForm<PostEditorValues>({
     resolver: zodResolver(postEditorSchema),
@@ -77,11 +78,12 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
     };
 
     startTransition(async () => {
+      const toastId = toast.info(post ? "Atualizando post..." : "Criando post...");
       const result = post
         ? await updatePostAction(post.id, actionInput)
         : await createPostAction(actionInput);
 
-      setMessage(result.message);
+      toast.handleActionResult(toastId, result);
 
       if (result.ok) {
         router.push("/admin/posts");
@@ -188,7 +190,6 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
           </label>
         </div>
       </div>
-      {message ? <p className="text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" className="h-10 rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700" disabled={isPending}>
           <Save className="size-4" />

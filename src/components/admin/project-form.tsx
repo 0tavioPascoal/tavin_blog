@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useAdminToast } from "@/components/admin/admin-toast-provider";
 import { Button } from "@/components/ui/button";
 import { createProjectAction, updateProjectAction } from "@/features/projects/actions/project-actions";
 import { projectFormSchema } from "@/features/projects/schemas/project-schema";
@@ -33,7 +34,7 @@ function slugify(value: string): string {
 
 export function ProjectForm({ project, tags }: ProjectFormProps) {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const form = useForm<ProjectEditorValues>({
     resolver: zodResolver(projectEditorSchema),
@@ -70,11 +71,12 @@ export function ProjectForm({ project, tags }: ProjectFormProps) {
     };
 
     startTransition(async () => {
+      const toastId = toast.info(project ? "Atualizando projeto..." : "Criando projeto...");
       const result = project
         ? await updateProjectAction(project.id, actionInput)
         : await createProjectAction(actionInput);
 
-      setMessage(result.message);
+      toast.handleActionResult(toastId, result);
 
       if (result.ok) {
         router.push("/admin/projects");
@@ -174,7 +176,6 @@ export function ProjectForm({ project, tags }: ProjectFormProps) {
           Destaque na home
         </label>
       </div>
-      {message ? <p className="text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" className="h-10 rounded-lg bg-blue-600 px-5 text-white hover:bg-blue-700" disabled={isPending}>
           <Save className="size-4" />

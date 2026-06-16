@@ -1,9 +1,8 @@
-import { Award, FileText, FolderKanban, Home, LogOut, PenSquare, Settings, Tags } from "lucide-react";
+import { Award, FileText, FolderKanban, Home, PenSquare, Settings, Tags } from "lucide-react";
 import Link from "next/link";
 
-import { signOutAction } from "@/features/auth/actions/auth-actions";
+import { LogoutButton } from "@/components/admin/logout-button";
 import type { AdminUser } from "@/features/auth/repositories/auth-repository";
-import { Button } from "@/components/ui/button";
 
 type AdminShellProps = {
   user: AdminUser;
@@ -52,20 +51,15 @@ export function AdminShell({ user, children }: AdminShellProps) {
             Configurações
           </Link>
         </nav>
-        <form action={signOutAction} className="absolute bottom-6 left-6 right-6">
-          <Button variant="outline" className="w-full" type="submit">
-            <LogOut className="size-4" />
-            Sair
-          </Button>
-        </form>
+        <div className="absolute bottom-6 left-6 right-6">
+          <LogoutButton className="w-full" />
+        </div>
       </aside>
       <div className="lg:pl-64">
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 px-4 py-4 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90 lg:hidden">
           <div className="flex items-center justify-between">
             <Link href="/admin" className="font-semibold">Admin Otávio</Link>
-            <form action={signOutAction}>
-              <Button variant="ghost" size="sm" type="submit">Sair</Button>
-            </form>
+            <LogoutButton variant="ghost" size="sm" showIcon={false} />
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">{children}</main>

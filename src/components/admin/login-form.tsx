@@ -2,16 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 
+import { useAdminToast } from "@/components/admin/admin-toast-provider";
+import { Button } from "@/components/ui/button";
 import { loginAction } from "@/features/auth/actions/auth-actions";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas/auth-schema";
-import { Button } from "@/components/ui/button";
 
 export function LoginForm() {
   const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
+  const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -23,8 +24,9 @@ export function LoginForm() {
 
   function onSubmit(values: LoginInput) {
     startTransition(async () => {
+      const toastId = toast.info("Validando suas credenciais...");
       const result = await loginAction(values);
-      setMessage(result.message);
+      toast.handleActionResult(toastId, result);
 
       if (result.ok) {
         router.refresh();
@@ -58,7 +60,6 @@ export function LoginForm() {
           <p className="text-sm text-red-600">{form.formState.errors.password.message}</p>
         ) : null}
       </div>
-      {message ? <p className="text-sm text-slate-600 dark:text-slate-400">{message}</p> : null}
       <Button type="submit" className="h-10 rounded-lg bg-blue-600 text-white hover:bg-blue-700" disabled={isPending}>
         {isPending ? "Entrando..." : "Entrar"}
       </Button>

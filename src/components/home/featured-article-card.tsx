@@ -15,7 +15,24 @@ export function FeaturedArticleCard({ article }: FeaturedArticleCardProps) {
   return (
     <Link
       href={`/blog/${article.slug}`}
-      className="group flex min-h-[14.5rem] flex-col rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md dark:border-slate-800 dark:bg-slate-950 dark:hover:border-blue-900"
+      className="
+        group flex
+        min-h-[15rem]
+        flex-col
+        rounded-2xl
+        border
+        border-slate-300/80
+        bg-card
+        p-5
+        shadow-sm
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-blue-300
+        hover:shadow-lg
+        dark:border-slate-800
+        dark:hover:border-blue-900
+      "
     >
       <div className="min-h-7">
         {primaryTag ? (
@@ -26,18 +43,52 @@ export function FeaturedArticleCard({ article }: FeaturedArticleCardProps) {
           />
         ) : null}
       </div>
-      <h3 className="mt-2 line-clamp-2 text-base font-semibold leading-6 text-slate-950 group-hover:text-blue-700 dark:text-white dark:group-hover:text-blue-300">
+
+      <h3 className="
+        mt-3
+        line-clamp-2
+        text-lg
+        font-semibold
+        leading-7
+        text-foreground
+        transition-colors
+        group-hover:text-blue-600
+        dark:group-hover:text-blue-400
+      ">
         {article.title}
       </h3>
-      <p className="mt-3 line-clamp-3 flex-1 text-sm leading-6 text-slate-600 dark:text-slate-400">
+
+      <p className="
+        mt-3
+        line-clamp-3
+        flex-1
+        text-sm
+        leading-6
+        text-muted-foreground
+      ">
         {article.description}
       </p>
-      <div className="mt-6 flex items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-500">
+
+      <div className="
+        mt-6
+        flex
+        items-center
+        justify-between
+        gap-3
+        border-t
+        border-border
+        pt-4
+        text-xs
+        text-muted-foreground
+      ">
         <span className="inline-flex min-w-0 items-center gap-1.5">
           <CalendarDays className="size-3.5 shrink-0" />
-          <span className="truncate">{formatDate(article.publishedAt)}</span>
+          <span className="truncate">
+            {formatDate(article.publishedAt)}
+          </span>
         </span>
-        <span className="shrink-0 inline-flex items-center gap-1.5">
+
+        <span className="inline-flex shrink-0 items-center gap-1.5">
           <Clock className="size-3.5" />
           {article.readingTimeMinutes} min
         </span>

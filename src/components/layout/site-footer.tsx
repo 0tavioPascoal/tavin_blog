@@ -1,19 +1,18 @@
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="mt-auto border-t border-border bg-card">
       <div className="px-6 py-8 sm:px-10 lg:px-[7vw]">
-        <div className="flex flex-col items-center justify-between gap-3 text-sm sm:flex-row">
-          <div>
-            <p className="font-medium text-slate-900 dark:text-white">
-              Otávio Pascoal
-            </p>
-            <p className="text-slate-500">
-              Analista de Negócios • QA • Desenvolvedor Fullstack
-            </p>
-          </div>
+        <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-medium text-foreground">
+            Otávio Pascoal
+          </p>
 
-          <p className="text-slate-500">
-            © {new Date().getFullYear()} Todos os direitos reservados.
+          <p className="text-muted-foreground">
+            Compartilhando aprendizados sobre .NET, Java, Arquitetura de Software e Tecnologia.
+          </p>
+
+          <p className="text-muted-foreground">
+            © {new Date().getFullYear()}
           </p>
         </div>
       </div>

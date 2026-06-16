@@ -20,7 +20,7 @@ export function FeaturedArticlesSection({
         action={
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition hover:gap-2 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
             Ver todos os artigos
             <ArrowRight className="size-4" />
@@ -29,8 +29,8 @@ export function FeaturedArticlesSection({
       />
 
       {articles.length > 0 ? (
-        <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {articles.map((article) => (
+        <div className="mt-5 grid gap-5 md:grid-cols-3">
+          {articles.slice(0, 3).map((article) => (
             <FeaturedArticleCard key={article.id} article={article} />
           ))}
         </div>
