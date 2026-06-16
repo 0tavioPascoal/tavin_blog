@@ -1,7 +1,13 @@
 "use client";
 
 import { CheckCircle2, Info, X, XCircle } from "lucide-react";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 import { Toast } from "radix-ui";
 
 import { Button } from "@/components/ui/button";
@@ -42,27 +48,43 @@ function createToastId(): string {
 }
 
 function getDefaultTitle(variant: AdminToastVariant): string {
-  if (variant === "success") {
-    return "Tudo certo";
-  }
-
-  if (variant === "error") {
-    return "Algo deu errado";
-  }
-
+  if (variant === "success") return "Tudo certo";
+  if (variant === "error") return "Algo deu errado";
   return "Processando";
 }
 
 function ToastIcon({ variant }: { variant: AdminToastVariant }) {
+  const className = "mt-0.5 size-5 shrink-0";
+
   if (variant === "success") {
-    return <CheckCircle2 className="mt-0.5 size-4 text-emerald-600 dark:text-emerald-400" />;
+    return (
+      <CheckCircle2
+        className={cn(className, "text-emerald-600 dark:text-emerald-400")}
+      />
+    );
   }
 
   if (variant === "error") {
-    return <XCircle className="mt-0.5 size-4 text-red-600 dark:text-red-400" />;
+    return (
+      <XCircle className={cn(className, "text-red-600 dark:text-red-400")} />
+    );
   }
 
-  return <Info className="mt-0.5 size-4 text-blue-600 dark:text-blue-400" />;
+  return (
+    <Info className={cn(className, "text-blue-600 dark:text-blue-400")} />
+  );
+}
+
+function getToastClassName(variant: AdminToastVariant) {
+  if (variant === "success") {
+    return "border-emerald-300/70 dark:border-emerald-900/80";
+  }
+
+  if (variant === "error") {
+    return "border-red-300/70 dark:border-red-900/80";
+  }
+
+  return "border-blue-300/70 dark:border-blue-900/80";
 }
 
 export function AdminToastProvider({ children }: { children: React.ReactNode }) {
@@ -88,9 +110,7 @@ export function AdminToastProvider({ children }: { children: React.ReactNode }) 
   const update = useCallback((id: string, input: ShowToastInput) => {
     setToasts((current) =>
       current.map((toast) => {
-        if (toast.id !== id) {
-          return toast;
-        }
+        if (toast.id !== id) return toast;
 
         const variant = input.variant ?? toast.variant;
 
@@ -128,40 +148,47 @@ export function AdminToastProvider({ children }: { children: React.ReactNode }) 
     <AdminToastContext.Provider value={value}>
       <Toast.Provider swipeDirection="right" duration={4200}>
         {children}
+
         {toasts.map((toast) => (
           <Toast.Root
             key={toast.id}
-            className={cn(
-              "grid w-[calc(100vw-2rem)] max-w-sm grid-cols-[1fr_auto] gap-3 rounded-lg border bg-white p-4 shadow-lg outline-none data-[state=closed]:animate-out data-[state=open]:animate-in data-[swipe=end]:animate-out dark:bg-slate-950 sm:w-96",
-              toast.variant === "success" && "border-emerald-200 dark:border-emerald-900",
-              toast.variant === "error" && "border-red-200 dark:border-red-900",
-              toast.variant === "info" && "border-blue-200 dark:border-blue-900",
-            )}
             open
             onOpenChange={(open: boolean) => {
-              if (!open) {
-                remove(toast.id);
-              }
+              if (!open) remove(toast.id);
             }}
+            className={cn(
+              "grid w-[calc(100vw-2rem)] max-w-sm grid-cols-[1fr_auto] gap-3 rounded-2xl border bg-card p-4 shadow-xl shadow-slate-900/10 outline-none backdrop-blur transition-all data-[state=closed]:animate-out data-[state=open]:animate-in data-[swipe=end]:animate-out dark:shadow-black/30 sm:w-96",
+              getToastClassName(toast.variant),
+            )}
           >
             <div className="flex gap-3">
               <ToastIcon variant={toast.variant} />
+
               <div className="grid gap-1">
-                <Toast.Title className="text-sm font-semibold text-slate-950 dark:text-white">
+                <Toast.Title className="text-sm font-semibold text-foreground">
                   {toast.title}
                 </Toast.Title>
-                <Toast.Description className="text-sm leading-5 text-slate-600 dark:text-slate-400">
+
+                <Toast.Description className="text-sm leading-5 text-muted-foreground">
                   {toast.message}
                 </Toast.Description>
               </div>
             </div>
+
             <Toast.Close asChild>
-              <Button type="button" variant="ghost" size="icon-sm" aria-label="Fechar aviso">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Fechar aviso"
+                className="rounded-xl text-muted-foreground hover:text-foreground"
+              >
                 <X className="size-4" />
               </Button>
             </Toast.Close>
           </Toast.Root>
         ))}
+
         <Toast.Viewport className="fixed right-4 top-4 z-50 grid gap-3 outline-none" />
       </Toast.Provider>
     </AdminToastContext.Provider>
@@ -172,7 +199,9 @@ export function useAdminToast() {
   const context = useContext(AdminToastContext);
 
   if (!context) {
-    throw new Error("useAdminToast precisa ser usado dentro de AdminToastProvider.");
+    throw new Error(
+      "useAdminToast precisa ser usado dentro de AdminToastProvider.",
+    );
   }
 
   return context;
