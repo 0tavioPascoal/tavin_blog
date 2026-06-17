@@ -35,12 +35,12 @@ const pillars = [
 export function ValuePillarsSection() {
   return (
     <section>
-      <div className="mb-8">
+      <div className="mb-7 sm:mb-8">
         <span className="text-sm font-semibold uppercase tracking-wider text-blue-600">
           Diferenciais
         </span>
 
-        <h2 className="mt-2 text-3xl font-bold text-foreground">
+        <h2 className="mt-2 text-2xl font-bold text-foreground sm:text-3xl">
           Como eu penso software
         </h2>
 
@@ -64,7 +64,7 @@ export function ValuePillarsSection() {
                 border
                 border-border
                 bg-card
-                p-6
+                p-5
                 shadow-sm
                 transition-all
                 duration-300
@@ -72,6 +72,7 @@ export function ValuePillarsSection() {
                 hover:border-blue-300
                 hover:shadow-lg
                 dark:hover:border-blue-800
+                sm:p-6
               "
             >
               <div

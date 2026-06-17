@@ -4,7 +4,7 @@ import { Menu, Moon, ShieldCheck, Sun, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,10 @@ function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === href : pathname.startsWith(href);
 }
 
+function subscribe() {
+  return () => {};
+}
+
 type SiteHeaderProps = {
   settings: SiteSettings;
 };
@@ -32,13 +36,13 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribe,
+    () => true,
+    () => false,
+  );
 
   const isDark = resolvedTheme === "dark";
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   function toggleTheme() {
     setTheme(isDark ? "light" : "dark");
@@ -46,16 +50,16 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/90 shadow-[0_4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
-      <div className="flex h-16 w-full items-center justify-between px-6 sm:px-10 lg:px-[7vw]">
+      <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-[7vw]">
         <Link
           href="/"
-          className="flex items-center gap-3 font-semibold tracking-tight text-foreground"
+          className="flex min-w-0 items-center gap-2 font-semibold tracking-tight text-foreground sm:gap-3"
         >
-          <span className="text-2xl text-blue-600 dark:text-blue-400">
+          <span className="shrink-0 text-xl text-blue-600 dark:text-blue-400 sm:text-2xl">
             &lt;/&gt;
           </span>
 
-          <span className="text-lg">
+          <span className="truncate text-base sm:text-lg">
             OTÁVIO <span className="font-normal">PASCOAL</span>
           </span>
         </Link>
@@ -151,7 +155,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
       </div>
 
       {isOpen ? (
-        <nav className="border-t border-border bg-card px-6 py-4 sm:px-10 md:hidden">
+        <nav className="border-t border-border bg-card px-4 py-4 shadow-lg shadow-slate-900/5 sm:px-6 md:hidden">
           <div className="grid gap-2">
             {navigation.map((item) => {
               const active = isActive(pathname, item.href);
@@ -183,6 +187,50 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             >
               Admin
             </Link>
+          </div>
+
+          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-4">
+            {settings.githubUrl ? (
+              <Button
+                variant="outline"
+                className="h-10 rounded-xl"
+                asChild
+                aria-label="GitHub"
+              >
+                <a href={settings.githubUrl} target="_blank" rel="noreferrer">
+                  <FaGithub className="size-4" />
+                  GitHub
+                </a>
+              </Button>
+            ) : null}
+
+            {settings.linkedinUrl ? (
+              <Button
+                variant="outline"
+                className="h-10 rounded-xl"
+                asChild
+                aria-label="LinkedIn"
+              >
+                <a href={settings.linkedinUrl} target="_blank" rel="noreferrer">
+                  <FaLinkedinIn className="size-4" />
+                  LinkedIn
+                </a>
+              </Button>
+            ) : null}
+
+            <Button
+              variant="outline"
+              className="h-10 rounded-xl"
+              onClick={toggleTheme}
+              aria-label="Alternar tema"
+            >
+              {mounted && isDark ? (
+                <Sun className="size-4" />
+              ) : (
+                <Moon className="size-4" />
+              )}
+              Tema
+            </Button>
           </div>
         </nav>
       ) : null}

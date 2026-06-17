@@ -1,10 +1,7 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
 
-import {
-  defaultTagColorHex,
-  tagColorHexSchema,
-} from "@/features/tags/schemas/tag-schema";
+import { normalizeTagColorHex } from "@/features/tags/utils/colors";
 
 type TagBadgeProps = {
   name: string;
@@ -14,13 +11,8 @@ type TagBadgeProps = {
   className?: string;
 };
 
-function normalizeColorHex(colorHex: string): string {
-  const parsed = tagColorHexSchema.safeParse(colorHex);
-  return parsed.success ? parsed.data : defaultTagColorHex;
-}
-
 function hexToRgb(colorHex: string): { r: number; g: number; b: number } {
-  const normalized = normalizeColorHex(colorHex).slice(1);
+  const normalized = normalizeTagColorHex(colorHex).slice(1);
   const value = Number.parseInt(normalized, 16);
 
   return {
@@ -31,7 +23,7 @@ function hexToRgb(colorHex: string): { r: number; g: number; b: number } {
 }
 
 function getTagBadgeStyle(colorHex: string, active: boolean): CSSProperties {
-  const normalized = normalizeColorHex(colorHex);
+  const normalized = normalizeTagColorHex(colorHex);
   const { r, g, b } = hexToRgb(normalized);
 
   return {

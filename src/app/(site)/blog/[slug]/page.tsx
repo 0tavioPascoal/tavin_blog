@@ -46,7 +46,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <article className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
+    <article className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
       <div className="mx-auto max-w-4xl">
         <Link
           href="/blog"
@@ -56,8 +56,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           Voltar para o blog
         </Link>
 
-        <header className="relative overflow-hidden rounded-3xl border border-slate-300/70 bg-card p-8 shadow-sm dark:border-slate-800 lg:p-10">
-          <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
+        <header className="relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:rounded-3xl sm:p-8 lg:p-10">
+          <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5 sm:-right-24 sm:-top-24 sm:size-72" />
 
           <div className="relative">
             <div className="flex flex-wrap gap-2">
@@ -80,11 +80,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               ))}
             </div>
 
-            <h1 className="mt-6 text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+            <h1 className="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
               {article.title}
             </h1>
 
-            <p className="mt-5 text-lg leading-8 text-muted-foreground">
+            <p className="mt-4 text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
               {article.description}
             </p>
 
@@ -102,7 +102,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </header>
 
-        <div className="mt-8 rounded-3xl border border-slate-300/70 bg-card p-6 shadow-sm dark:border-slate-800 lg:p-10">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:mt-8 sm:rounded-3xl sm:p-6 lg:p-10">
           <MarkdownContent content={article.contentMarkdown} />
         </div>
       </div>

@@ -29,7 +29,7 @@ export function FeaturedArticlesSection({
       />
 
       {articles.length > 0 ? (
-        <div className="mt-5 grid gap-5 md:grid-cols-3">
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {articles.slice(0, 3).map((article) => (
             <FeaturedArticleCard key={article.id} article={article} />
           ))}

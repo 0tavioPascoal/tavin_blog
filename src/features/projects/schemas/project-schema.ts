@@ -4,6 +4,12 @@ export const projectStatusSchema = z.enum(["draft", "published"]);
 
 export const projectIconNameSchema = z.enum(["blocks", "chart", "database"]);
 
+const optionalUrlOrLocalPathSchema = z.union([
+  z.string().url("Informe uma URL válida."),
+  z.string().regex(/^\/(?!\/).+/, "Informe uma URL válida ou um caminho local iniciado por /."),
+  z.literal(""),
+]);
+
 export const projectRowSchema = z.object({
   id: z.uuid(),
   title: z.string().min(1),
@@ -32,7 +38,7 @@ export const projectFormSchema = z.object({
   contentMarkdown: z.string(),
   repositoryUrl: z.union([z.string().url("Informe uma URL válida."), z.literal("")]),
   demoUrl: z.union([z.string().url("Informe uma URL válida."), z.literal("")]),
-  coverImageUrl: z.union([z.string().url("Informe uma URL válida."), z.literal("")]),
+  coverImageUrl: optionalUrlOrLocalPathSchema,
   iconName: projectIconNameSchema,
   status: projectStatusSchema,
   tagIds: z.array(z.uuid()),

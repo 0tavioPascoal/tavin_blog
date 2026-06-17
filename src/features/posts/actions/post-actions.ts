@@ -55,7 +55,7 @@ function sanitizeImageAlt(value: string): string {
   return normalized || "imagem";
 }
 
-function revalidatePostPaths(slug?: string): void {
+function revalidatePostPaths(slugs: string[] = []): void {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/blog/categoria/[slug]", "page");
@@ -63,15 +63,22 @@ function revalidatePostPaths(slug?: string): void {
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/posts");
 
-  if (slug) {
+  uniqueSlugs(slugs).forEach((slug) => {
     revalidatePath(`/blog/${slug}`);
-  }
+  });
+}
+
+function uniqueSlugs(slugs: Array<string | null | undefined>): string[] {
+  return Array.from(new Set(slugs.filter((slug): slug is string => Boolean(slug))));
 }
 
 export async function createPostAction(input: unknown): Promise<PostActionState> {
+  let slugsToRevalidate: string[] = [];
+
   try {
     await requireAdmin();
     const postInput = toMutationInput(input);
+    slugsToRevalidate = [postInput.slug];
     await createArticle(postInput);
   } catch (error) {
     return {
@@ -80,7 +87,7 @@ export async function createPostAction(input: unknown): Promise<PostActionState>
     };
   }
 
-  revalidatePostPaths();
+  revalidatePostPaths(slugsToRevalidate);
 
   return {
     ok: true,
@@ -89,13 +96,13 @@ export async function createPostAction(input: unknown): Promise<PostActionState>
 }
 
 export async function updatePostAction(id: string, input: unknown): Promise<PostActionState> {
-  let slugToRevalidate = "";
+  let slugsToRevalidate: string[] = [];
 
   try {
     await requireAdmin();
     const postInput = toMutationInput(input);
-    slugToRevalidate = postInput.slug;
-    await updateArticle(id, postInput);
+    const { previousSlug } = await updateArticle(id, postInput);
+    slugsToRevalidate = [previousSlug, postInput.slug].filter((slug): slug is string => Boolean(slug));
   } catch (error) {
     return {
       ok: false,
@@ -103,7 +110,7 @@ export async function updatePostAction(id: string, input: unknown): Promise<Post
     };
   }
 
-  revalidatePostPaths(slugToRevalidate);
+  revalidatePostPaths(slugsToRevalidate);
 
   return {
     ok: true,

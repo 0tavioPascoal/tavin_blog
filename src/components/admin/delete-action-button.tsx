@@ -15,9 +15,14 @@ type ActionResult = {
 type DeleteActionButtonProps = {
   action: () => Promise<ActionResult>;
   pendingMessage: string;
+  className?: string;
 };
 
-export function DeleteActionButton({ action, pendingMessage }: DeleteActionButtonProps) {
+export function DeleteActionButton({
+  action,
+  pendingMessage,
+  className,
+}: DeleteActionButtonProps) {
   const router = useRouter();
   const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
@@ -36,7 +41,14 @@ export function DeleteActionButton({ action, pendingMessage }: DeleteActionButto
   }
 
   return (
-    <Button type="button" variant="destructive" size="sm" onClick={handleClick} disabled={isPending}>
+    <Button
+      type="button"
+      variant="destructive"
+      size="sm"
+      onClick={handleClick}
+      disabled={isPending}
+      className={className}
+    >
       <Trash2 className="size-4" />
       {isPending ? "Removendo..." : "Remover"}
     </Button>

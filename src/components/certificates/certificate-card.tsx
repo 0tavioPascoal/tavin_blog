@@ -11,6 +11,7 @@ type CertificateCardProps = {
 function CertificateMedia({ certificate }: CertificateCardProps) {
   if (certificate.imageUrl) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={certificate.imageUrl}
         alt={`Certificado ${certificate.title}`}

@@ -78,7 +78,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-3xl border border-slate-300 bg-card p-6 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
         <div className="mb-6">
           <h2 className="text-lg font-bold text-foreground">
             Informações da categoria
@@ -173,7 +173,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                 <input
                   id="sortOrder"
                   type="number"
-                  className="h-18 w-full rounded-2xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                  className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600 md:h-18 md:rounded-2xl"
                   {...form.register("sortOrder", { valueAsNumber: true })}
                 />
               </div>
@@ -184,7 +184,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
                 Status
               </span>
 
-              <label className="flex h-18 cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-slate-50 px-4 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20">
+              <label className="flex min-h-18 cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20">
                 <span>
                   <span className="block text-sm font-semibold text-foreground">
                     Categoria ativa
@@ -206,12 +206,12 @@ export function CategoryForm({ category }: CategoryFormProps) {
         </div>
       </section>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
-          className="h-11 rounded-xl border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
+          className="h-11 w-full rounded-xl border-slate-300 bg-white px-5 sm:w-auto text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
           disabled={isPending}
         >
           <ArrowLeft className="size-4" />
@@ -220,7 +220,7 @@ export function CategoryForm({ category }: CategoryFormProps) {
 
         <Button
           type="submit"
-          className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+          className="h-11 w-full rounded-xl bg-blue-600 px-5 sm:w-auto text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
           disabled={isPending}
         >
           <Save className="size-4" />

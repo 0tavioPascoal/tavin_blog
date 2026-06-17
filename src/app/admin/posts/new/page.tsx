@@ -22,7 +22,7 @@ export default async function NewPostPage() {
   return (
     <AdminShell user={user}>
       <div className="grid gap-8">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-300/80 bg-card p-8 shadow-lg shadow-slate-200/70 dark:border-slate-800 dark:shadow-black/20">
+        <section className="relative overflow-hidden rounded-2xl border border-slate-300/80 bg-card p-5 sm:rounded-3xl sm:p-8 shadow-lg shadow-slate-200/70 dark:border-slate-800 dark:shadow-black/20">
           <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
 
           <div className="relative">

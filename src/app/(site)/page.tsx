@@ -16,7 +16,7 @@ export default async function HomePage() {
       <HeroSection />
 
       <main className="bg-background">
-        <div className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
+        <div className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
           <section className="grid gap-10 lg:grid-cols-[1.65fr_1fr]">
             <FeaturedArticlesSection articles={articles} />
             <FeaturedProjectsSection projects={projects} />

@@ -11,6 +11,11 @@ export type AdminUser = AuthUser & {
   isAdmin: true;
 };
 
+export type AdminAuthState = {
+  sessionUser: AuthUser | null;
+  adminUser: AdminUser | null;
+};
+
 async function resolveCurrentUser(): Promise<AuthUser | null> {
   const supabase = await createSupabaseServerClient();
 
@@ -60,6 +65,42 @@ export async function getCurrentAdminUser(): Promise<AdminUser | null> {
   return {
     ...user,
     isAdmin: true,
+  };
+}
+
+export async function getAdminAuthState(): Promise<AdminAuthState> {
+  const sessionUser = await resolveCurrentUser();
+
+  if (!sessionUser) {
+    return {
+      sessionUser: null,
+      adminUser: null,
+    };
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return {
+      sessionUser,
+      adminUser: null,
+    };
+  }
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", sessionUser.id)
+    .maybeSingle();
+
+  return {
+    sessionUser,
+    adminUser: error || !data
+      ? null
+      : {
+          ...sessionUser,
+          isAdmin: true,
+        },
   };
 }
 

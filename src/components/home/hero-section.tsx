@@ -63,33 +63,33 @@ function TechnologyBadge({ technology }: { technology: Technology }) {
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden border-b border-border bg-background">
-      <div className="relative grid min-h-145 w-full lg:grid-cols-[48%_52%]">
-        <div className="relative z-20 flex items-center px-6 py-14 sm:px-10 lg:py-0 lg:pl-[7vw] lg:pr-8">
+      <div className="relative grid w-full lg:min-h-145 lg:grid-cols-[48%_52%]">
+        <div className="relative z-20 flex items-center px-4 py-10 sm:px-6 sm:py-14 lg:py-0 lg:pl-[7vw] lg:pr-8">
           <div className="max-w-170">
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl">
               Transformo ideias em soluções de{" "}
               <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                 software
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground sm:text-lg">
+            <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground sm:mt-6 sm:text-lg sm:leading-8">
               Construo soluções que conectam negócio, arquitetura e qualidade.
               Compartilho aprendizados sobre .NET, Java, TypeScript, testes,
               produto e engenharia de software.
             </p>
 
-            <div className="mt-8 grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5">
+            <div className="mt-7 grid max-w-2xl grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-5">
               {technologies.map((technology) => (
                 <TechnologyBadge key={technology.label} technology={technology} />
               ))}
             </div>
 
-            <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
                 size="lg"
-                className="h-12 rounded-xl bg-blue-600 px-6 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700"
+                className="h-12 w-full rounded-xl bg-blue-600 px-6 text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 sm:w-auto"
               >
                 <Link href="/projetos">
                   Ver Projetos
@@ -101,7 +101,7 @@ export function HeroSection() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="h-12 rounded-xl border-border bg-card px-6 shadow-sm hover:bg-accent"
+                className="h-12 w-full rounded-xl border-border bg-card px-6 shadow-sm hover:bg-accent sm:w-auto"
               >
                 <Link href="/blog">
                   Ler Artigos
@@ -119,19 +119,19 @@ export function HeroSection() {
             src={heroImageSrc}
             alt="Otávio Pascoal trabalhando em um notebook"
             fill
-            priority
+            preload
             sizes="52vw"
             className="object-cover object-center"
           />
         </div>
 
-        <div className="relative mx-6 mb-10 h-105 overflow-hidden rounded-3xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-10 lg:hidden">
+        <div className="relative mx-4 mb-8 h-72 overflow-hidden rounded-2xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-6 sm:h-105 sm:rounded-3xl lg:hidden">
           <Image
             src={heroImageSrc}
             alt="Otávio Pascoal trabalhando em um notebook"
             fill
-            priority
-            sizes="100vw"
+            preload
+            sizes="(max-width: 1024px) calc(100vw - 2rem), 52vw"
             className="object-cover object-center"
           />
         </div>

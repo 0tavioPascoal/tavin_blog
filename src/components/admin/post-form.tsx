@@ -22,8 +22,8 @@ import { Button } from "@/components/ui/button";
 import type { CategorySummary } from "@/features/categories/types/category";
 import {
   createPostAction,
-  uploadPostImageAction,
   updatePostAction,
+  uploadPostImageAction,
 } from "@/features/posts/actions/post-actions";
 import type { ArticleDetail } from "@/features/posts/types/post";
 import type { TagSummary } from "@/features/tags/types/tag";
@@ -54,11 +54,7 @@ type PostFormProps = {
   tags: TagSummary[];
 };
 
-type FieldErrorProps = {
-  message?: string;
-};
-
-function FieldError({ message }: FieldErrorProps) {
+function FieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return <p className="text-sm text-red-600 dark:text-red-400">{message}</p>;
@@ -98,6 +94,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
   const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
   const [isUploadingImage, startImageUploadTransition] = useTransition();
+
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const markdownTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -114,6 +111,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
       isFeatured: post?.isFeatured ?? false,
     },
   });
+
   const contentMarkdownField = form.register("contentMarkdown");
 
   function onSubmit(values: PostEditorValues) {
@@ -155,24 +153,22 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
     const [file] = Array.from(event.target.files ?? []);
     event.target.value = "";
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     startImageUploadTransition(async () => {
       const toastId = toast.info("Enviando imagem...");
+
       const formData = new FormData();
       formData.append("image", file);
 
       const result = await uploadPostImageAction(formData);
       toast.handleActionResult(toastId, result);
 
-      if (!result.ok || !result.markdown) {
-        return;
-      }
+      if (!result.ok || !result.markdown) return;
 
       const textarea = markdownTextareaRef.current;
       const currentValue = form.getValues("contentMarkdown");
+
       const { nextValue, cursorPosition } = insertMarkdownAtCursor(
         currentValue,
         result.markdown,
@@ -197,7 +193,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-3xl border border-slate-300 bg-card p-6 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
         <div className="mb-6">
           <h2 className="text-lg font-bold text-foreground">
             Informações do artigo
@@ -285,14 +281,32 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
             <FieldError message={form.formState.errors.description?.message} />
           </div>
 
-          <div className="grid gap-2">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <label
-                htmlFor="contentMarkdown"
-                className="text-sm font-semibold text-foreground"
+          <div className="grid gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <label
+                  htmlFor="contentMarkdown"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Conteúdo Markdown
+                </label>
+
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                  Escreva o conteúdo do artigo e envie imagens para inserir
+                  automaticamente no cursor.
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleImageButtonClick}
+                disabled={isUploadingImage}
+                className="h-10 w-full rounded-xl border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400 sm:w-auto"
               >
-                Conteúdo Markdown
-              </label>
+                <ImagePlus className="size-4" />
+                {isUploadingImage ? "Enviando..." : "Enviar imagem"}
+              </Button>
 
               <input
                 ref={imageInputRef}
@@ -301,30 +315,38 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                 className="hidden"
                 onChange={handleImageChange}
               />
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleImageButtonClick}
-                disabled={isPending || isUploadingImage}
-                className="h-11 rounded-xl border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
-              >
-                <ImagePlus className="size-4" />
-                {isUploadingImage ? "Enviando..." : "Imagem"}
-              </Button>
             </div>
 
-            <textarea
-              id="contentMarkdown"
-              rows={18}
-              placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
-              className="min-h-112 rounded-xl border border-slate-400/70 bg-card px-4 py-3 font-mono text-sm leading-6 text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-              {...contentMarkdownField}
-              ref={(element) => {
-                contentMarkdownField.ref(element);
-                markdownTextareaRef.current = element;
-              }}
-            />
+            <div className="rounded-2xl border border-dashed border-slate-400/80 bg-slate-50 p-3 shadow-sm transition hover:border-blue-400 hover:bg-blue-50/50 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20 sm:p-4">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
+                  <ImagePlus className="size-5" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Upload de imagens do artigo
+                  </p>
+
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Clique em enviar imagem para fazer upload e inserir o
+                    Markdown automaticamente no conteúdo abaixo.
+                  </p>
+                </div>
+              </div>
+
+              <textarea
+                id="contentMarkdown"
+                rows={18}
+                placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
+                className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 font-mono text-sm leading-6 text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-card dark:hover:border-slate-600 sm:min-h-112"
+                {...contentMarkdownField}
+                ref={(element) => {
+                  contentMarkdownField.ref(element);
+                  markdownTextareaRef.current = element;
+                }}
+              />
+            </div>
 
             <FieldError
               message={form.formState.errors.contentMarkdown?.message}
@@ -407,7 +429,9 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <span className="text-sm font-semibold text-foreground">Tags</span>
+              <span className="text-sm font-semibold text-foreground">
+                Tags
+              </span>
 
               <div className="rounded-2xl border border-slate-300 bg-slate-50 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/30">
                 {tags.length > 0 ? (
@@ -451,12 +475,12 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
         </div>
       </section>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
-          className="h-11 rounded-xl border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
+          className="h-11 w-full rounded-xl border-slate-300 bg-white px-5 sm:w-auto text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
           disabled={isPending}
         >
           <ArrowLeft className="size-4" />
@@ -465,7 +489,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
 
         <Button
           type="submit"
-          className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+          className="h-11 w-full rounded-xl bg-blue-600 px-5 sm:w-auto text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
           disabled={isPending}
         >
           <Save className="size-4" />

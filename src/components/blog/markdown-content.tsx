@@ -22,16 +22,20 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         prose-h2:border-b
         prose-h2:border-border
         prose-h2:pb-3
-        prose-h2:text-3xl
+        prose-h2:text-2xl
+        sm:prose-h2:text-3xl
 
         prose-h3:mt-10
-        prose-h3:text-2xl
+        prose-h3:text-xl
+        sm:prose-h3:text-2xl
 
         prose-p:text-muted-foreground
-        prose-p:leading-8
+        prose-p:leading-7
+        sm:prose-p:leading-8
 
         prose-li:text-muted-foreground
-        prose-li:leading-8
+        prose-li:leading-7
+        sm:prose-li:leading-8
 
         prose-strong:text-foreground
 
@@ -52,6 +56,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         prose-img:border
         prose-img:border-border
         prose-img:shadow-sm
+        prose-img:max-w-full
 
         prose-code:rounded-md
         prose-code:bg-slate-100
@@ -68,9 +73,14 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         prose-pre:border-slate-800
         prose-pre:bg-slate-950
         prose-pre:shadow-xl
+        prose-pre:max-w-full
+        prose-pre:overflow-x-auto
 
         prose-table:border
         prose-table:border-border
+        prose-table:block
+        prose-table:max-w-full
+        prose-table:overflow-x-auto
 
         prose-th:border-border
         prose-td:border-border

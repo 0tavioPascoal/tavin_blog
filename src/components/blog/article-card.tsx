@@ -15,7 +15,7 @@ export function ArticleCard({ article }: ArticleCardProps) {
   return (
     <Link
       href={`/blog/${article.slug}`}
-      className="group flex h-full min-h-60 flex-col rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:hover:border-blue-800"
+      className="group flex h-full min-h-0 flex-col rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:hover:border-blue-800 sm:min-h-60 sm:p-5"
     >
       <div className="min-h-7">
         {article.category ? (

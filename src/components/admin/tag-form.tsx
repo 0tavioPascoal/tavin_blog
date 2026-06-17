@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, BackpackIcon, Hash, Palette, Save, Tag, Text } from "lucide-react";
+import { ArrowLeft, Hash, Palette, Save, Tag, Text } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -85,7 +85,7 @@ export function TagForm({ tag }: TagFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-3xl border border-slate-300 bg-card p-6 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
         <div className="mb-6">
           <h2 className="text-lg font-bold text-foreground">
             Informações da tag
@@ -228,7 +228,7 @@ export function TagForm({ tag }: TagFormProps) {
             </div>
           </div>
 
-          <label className="flex w-fit items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-foreground transition hover:border-slate-400 dark:border-slate-800 dark:bg-slate-900/30">
+          <label className="flex w-full items-center gap-2 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-medium text-foreground transition hover:border-slate-400 dark:border-slate-800 dark:bg-slate-900/30 sm:w-fit">
             <input
               type="checkbox"
               className="size-4 accent-blue-600"
@@ -239,12 +239,12 @@ export function TagForm({ tag }: TagFormProps) {
         </div>
       </section>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button
           type="button"
           variant="outline"
           onClick={() => router.back()}
-          className="h-11 rounded-xl border-slate-300 bg-white px-5 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
+          className="h-11 w-full rounded-xl border-slate-300 bg-white px-5 sm:w-auto text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
           disabled={isPending}
         >
           <ArrowLeft className="size-4" />
@@ -253,7 +253,7 @@ export function TagForm({ tag }: TagFormProps) {
 
         <Button
           type="submit"
-          className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+          className="h-11 w-full rounded-xl bg-blue-600 px-5 sm:w-auto text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
           disabled={isPending}
         >
           <Save className="size-4" />

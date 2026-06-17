@@ -138,11 +138,24 @@ export async function createTag(input: TagMutationInput): Promise<string> {
   return data.id;
 }
 
-export async function updateTag(id: string, input: TagMutationInput): Promise<void> {
+export async function updateTag(
+  id: string,
+  input: TagMutationInput,
+): Promise<{ previousSlug: string | null }> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     throw new Error("Supabase não está configurado.");
+  }
+
+  const { data: current, error: currentError } = await supabase
+    .from("tags")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (currentError) {
+    throw new Error(`Não foi possível carregar a tag: ${currentError.message}`);
   }
 
   const { error } = await supabase
@@ -153,6 +166,10 @@ export async function updateTag(id: string, input: TagMutationInput): Promise<vo
   if (error) {
     throw new Error(`Não foi possível atualizar a tag: ${error.message}`);
   }
+
+  return {
+    previousSlug: current?.slug ?? null,
+  };
 }
 
 export async function deleteTag(id: string): Promise<void> {

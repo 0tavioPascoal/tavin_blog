@@ -33,7 +33,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   return (
     <AdminShell user={user}>
       <div className="grid gap-8">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-300 bg-card p-8 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+        <section className="relative overflow-hidden rounded-2xl border border-slate-300 bg-card p-5 sm:rounded-3xl sm:p-8 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
           <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
 
           <div className="relative max-w-3xl">
@@ -45,7 +45,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
               Editar post
             </p>
 
-            <h1 className="mt-3 line-clamp-2 text-4xl font-bold tracking-tight text-foreground">
+            <h1 className="mt-3 line-clamp-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {post.title}
             </h1>
 

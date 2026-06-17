@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-export const defaultTagColorHex = "#2563EB";
+import { defaultTagColorHex } from "@/features/tags/utils/colors";
+
+export { defaultTagColorHex };
 
 export const tagColorHexSchema = z
   .string()

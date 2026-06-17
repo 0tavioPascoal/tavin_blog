@@ -396,7 +396,10 @@ export async function createArticle(input: ArticleMutationInput): Promise<string
   return data.id;
 }
 
-export async function updateArticle(id: string, input: ArticleMutationInput): Promise<void> {
+export async function updateArticle(
+  id: string,
+  input: ArticleMutationInput,
+): Promise<{ previousSlug: string | null }> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -414,4 +417,8 @@ export async function updateArticle(id: string, input: ArticleMutationInput): Pr
   }
 
   await replaceArticleTags(supabase, id, input.tagIds);
+
+  return {
+    previousSlug: current?.slug ?? null,
+  };
 }

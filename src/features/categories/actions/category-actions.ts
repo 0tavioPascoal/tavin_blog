@@ -24,16 +24,20 @@ function toMutationInput(input: unknown): CategoryMutationInput {
   return categoryFormSchema.parse(input);
 }
 
-function revalidateCategoryPaths(slug?: string): void {
+function revalidateCategoryPaths(slugs: Array<string | null | undefined> = []): void {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/blog/categoria/[slug]", "page");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/categories");
 
-  if (slug) {
+  uniqueSlugs(slugs).forEach((slug) => {
     revalidatePath(`/blog/categoria/${slug}`);
-  }
+  });
+}
+
+function uniqueSlugs(slugs: Array<string | null | undefined>): string[] {
+  return Array.from(new Set(slugs.filter((slug): slug is string => Boolean(slug))));
 }
 
 export async function createCategoryAction(input: unknown): Promise<CategoryActionState> {
@@ -41,7 +45,7 @@ export async function createCategoryAction(input: unknown): Promise<CategoryActi
     await requireAdmin();
     const categoryInput = toMutationInput(input);
     await createCategory(categoryInput);
-    revalidateCategoryPaths(categoryInput.slug);
+    revalidateCategoryPaths([categoryInput.slug]);
   } catch (error) {
     return {
       ok: false,
@@ -59,8 +63,8 @@ export async function updateCategoryAction(id: string, input: unknown): Promise<
   try {
     await requireAdmin();
     const categoryInput = toMutationInput(input);
-    await updateCategory(id, categoryInput);
-    revalidateCategoryPaths(categoryInput.slug);
+    const { previousSlug } = await updateCategory(id, categoryInput);
+    revalidateCategoryPaths([previousSlug, categoryInput.slug]);
   } catch (error) {
     return {
       ok: false,

@@ -127,7 +127,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-3xl border border-slate-300 bg-card p-6 shadow-sm shadow-slate-200/50 dark:border-slate-800 dark:shadow-black/20">
+      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/50 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
         <div className="mb-6">
           <h2 className="text-lg font-bold text-foreground">
             Informações públicas
@@ -184,7 +184,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       <div className="flex justify-end">
         <Button
           type="submit"
-          className="h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+          className="h-11 w-full rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 sm:w-auto"
           disabled={isPending}
         >
           <Save className="size-4" />

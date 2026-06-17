@@ -140,11 +140,24 @@ export async function createCategory(input: CategoryMutationInput): Promise<stri
   return data.id;
 }
 
-export async function updateCategory(id: string, input: CategoryMutationInput): Promise<void> {
+export async function updateCategory(
+  id: string,
+  input: CategoryMutationInput,
+): Promise<{ previousSlug: string | null }> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
     throw new Error("Supabase não está configurado.");
+  }
+
+  const { data: current, error: currentError } = await supabase
+    .from("categories")
+    .select("slug")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (currentError) {
+    throw new Error(`Não foi possível carregar a categoria: ${currentError.message}`);
   }
 
   const { error } = await supabase
@@ -155,6 +168,10 @@ export async function updateCategory(id: string, input: CategoryMutationInput): 
   if (error) {
     throw new Error(`Não foi possível atualizar a categoria: ${error.message}`);
   }
+
+  return {
+    previousSlug: current?.slug ?? null,
+  };
 }
 
 export async function deleteCategory(id: string): Promise<void> {

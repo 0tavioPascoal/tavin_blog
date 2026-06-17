@@ -5,8 +5,8 @@ type SectionHeadingProps = {
 
 export function SectionHeading({ title, action }: SectionHeadingProps) {
   return (
-    <div className="mb-5 flex items-center justify-between gap-4">
-      <h2 className="border-l-4 border-blue-600 pl-3 text-lg font-semibold text-slate-950 dark:text-white">
+    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+      <h2 className="border-l-4 border-blue-600 pl-3 text-base font-semibold text-slate-950 dark:text-white sm:text-lg">
         {title}
       </h2>
       {action}

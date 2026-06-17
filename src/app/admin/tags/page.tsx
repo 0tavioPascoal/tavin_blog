@@ -23,7 +23,7 @@ export default async function AdminTagsPage() {
   return (
     <AdminShell user={user}>
       <div className="grid gap-8">
-        <section className="relative overflow-hidden rounded-3xl border border-slate-300 bg-card p-8 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+        <section className="relative overflow-hidden rounded-2xl border border-slate-300 bg-card p-5 sm:rounded-3xl sm:p-8 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
           <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
 
           <div className="relative flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
@@ -36,7 +36,7 @@ export default async function AdminTagsPage() {
                 Tags
               </p>
 
-              <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground">
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 Assuntos do blog
               </h1>
 
@@ -48,7 +48,7 @@ export default async function AdminTagsPage() {
 
             <Button
               asChild
-              className="h-11 rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
+              className="h-11 w-full rounded-xl bg-blue-600 px-5 text-white sm:w-auto shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
             >
               <Link href="/admin/tags/new">
                 <Plus className="size-4" />
@@ -59,7 +59,7 @@ export default async function AdminTagsPage() {
         </section>
 
         {tags.length > 0 ? (
-          <section className="overflow-hidden rounded-3xl border border-slate-300 bg-card shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
+          <section className="overflow-hidden rounded-2xl border border-slate-300 bg-card shadow-sm sm:rounded-3xl shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20">
             <div className="border-b border-slate-300 bg-slate-50 px-5 py-4 dark:border-slate-800 dark:bg-slate-900/30">
               <h2 className="text-base font-semibold text-foreground">
                 Tags cadastradas
@@ -74,7 +74,7 @@ export default async function AdminTagsPage() {
               {tags.map((tag) => (
                 <div
                   key={tag.id}
-                  className="flex flex-col gap-4 p-5 transition hover:bg-slate-50 dark:hover:bg-slate-900/30 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 p-4 transition sm:p-5 hover:bg-slate-50 dark:hover:bg-slate-900/30 sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -102,12 +102,12 @@ export default async function AdminTagsPage() {
                     ) : null}
                   </div>
 
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
                     <Button
                       asChild
                       variant="outline"
                       size="sm"
-                      className="rounded-xl border-slate-300 bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
+                      className="w-full rounded-xl border-slate-300 sm:w-auto bg-white text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400"
                     >
                       <Link href={`/admin/tags/${tag.id}/edit`}>
                         <Edit className="size-4" />
@@ -118,6 +118,7 @@ export default async function AdminTagsPage() {
                     <DeleteActionButton
                       action={deleteTagAction.bind(null, tag.id)}
                       pendingMessage="Removendo tag..."
+                      className="w-full sm:w-auto"
                     />
                   </div>
                 </div>

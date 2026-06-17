@@ -48,32 +48,32 @@ export default async function BlogTagPage({ params }: BlogTagPageProps) {
   ]);
 
   return (
-    <section className="w-full px-6 py-12 sm:px-10 lg:px-[7vw]">
-      <div className="relative overflow-hidden rounded-3xl border border-slate-300/70 bg-card p-8 shadow-sm dark:border-slate-800 lg:p-10">
-        <div className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
+    <section className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:rounded-3xl sm:p-8 lg:p-10">
+        <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5 sm:-right-24 sm:-top-24 sm:size-72" />
 
         <div className="relative max-w-4xl">
           <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
             Tag
           </p>
 
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-foreground md:text-5xl">
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
             {tag.name}
           </h1>
 
           {tag.description ? (
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
               {tag.description}
             </p>
           ) : (
-            <p className="mt-5 max-w-3xl text-lg leading-8 text-muted-foreground">
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
               Artigos publicados com a tag {tag.name}.
             </p>
           )}
         </div>
       </div>
 
-      <div className="mt-12 grid gap-10 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="mt-10 grid gap-8 xl:mt-12 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10">
         <main>
           {articles.length > 0 ? (
             <>
@@ -96,7 +96,7 @@ export default async function BlogTagPage({ params }: BlogTagPageProps) {
                 </span>
               </div>
 
-              <div className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
                 {articles.map((article) => (
                   <ArticleCard key={article.id} article={article} />
                 ))}

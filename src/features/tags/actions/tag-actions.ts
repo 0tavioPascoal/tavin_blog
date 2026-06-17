@@ -24,16 +24,20 @@ function toMutationInput(input: unknown): TagMutationInput {
   return tagFormSchema.parse(input);
 }
 
-function revalidateTagPaths(slug?: string): void {
+function revalidateTagPaths(slugs: Array<string | null | undefined> = []): void {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/blog/tag/[slug]", "page");
   revalidatePath("/sitemap.xml");
   revalidatePath("/admin/tags");
 
-  if (slug) {
+  uniqueSlugs(slugs).forEach((slug) => {
     revalidatePath(`/blog/tag/${slug}`);
-  }
+  });
+}
+
+function uniqueSlugs(slugs: Array<string | null | undefined>): string[] {
+  return Array.from(new Set(slugs.filter((slug): slug is string => Boolean(slug))));
 }
 
 export async function createTagAction(input: unknown): Promise<TagActionState> {
@@ -41,7 +45,7 @@ export async function createTagAction(input: unknown): Promise<TagActionState> {
     await requireAdmin();
     const tagInput = toMutationInput(input);
     await createTag(tagInput);
-    revalidateTagPaths(tagInput.slug);
+    revalidateTagPaths([tagInput.slug]);
   } catch (error) {
     return {
       ok: false,
@@ -59,8 +63,8 @@ export async function updateTagAction(id: string, input: unknown): Promise<TagAc
   try {
     await requireAdmin();
     const tagInput = toMutationInput(input);
-    await updateTag(id, tagInput);
-    revalidateTagPaths(tagInput.slug);
+    const { previousSlug } = await updateTag(id, tagInput);
+    revalidateTagPaths([previousSlug, tagInput.slug]);
   } catch (error) {
     return {
       ok: false,
