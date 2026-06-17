@@ -1,0 +1,39 @@
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
+
+import { ProjectCard } from "@/components/projects/project-card";
+import { SectionHeading } from "@/components/shared/section-heading";
+import type { ProjectSummary } from "@/features/projects/types/project";
+
+type FeaturedProjectsSectionProps = {
+  projects: ProjectSummary[];
+};
+
+export function FeaturedProjectsSection({
+  projects,
+}: FeaturedProjectsSectionProps) {
+  return (
+    <section>
+      <SectionHeading
+        title="Projetos em Destaque"
+        action={
+          <Link
+            href="/projetos"
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 transition-all hover:gap-2 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Ver todos os projetos
+            <ArrowRight className="size-4" />
+          </Link>
+        }
+      />
+
+      <div className="mt-5 overflow-hidden rounded-2xl border border-slate-300/70 bg-card dark:border-slate-800">
+        <div className="divide-y divide-slate-300/70 dark:divide-slate-800">
+          {projects.map((project) => (
+            <ProjectCard key={project.id} project={project} compact />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
