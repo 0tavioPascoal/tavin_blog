@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TagDetail, TagMutationInput, TagSummary } from "@/features/tags/types/tag";
 import { mapTagRowToDetail, mapTagRowToSummary } from "@/features/tags/utils/mappers";
@@ -77,7 +79,9 @@ export async function listAllTagsForAdmin(): Promise<TagSummary[]> {
   return data.map(mapTagRowToSummary);
 }
 
-export async function getTagBySlug(slug: string): Promise<TagDetail | null> {
+export const getTagBySlug = cache(async function getTagBySlug(
+  slug: string,
+): Promise<TagDetail | null> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -96,7 +100,7 @@ export async function getTagBySlug(slug: string): Promise<TagDetail | null> {
   }
 
   return data ? mapTagRowToDetail(data) : null;
-}
+});
 
 export async function getTagByIdForAdmin(id: string): Promise<TagDetail | null> {
   const supabase = await createSupabaseServerClient();

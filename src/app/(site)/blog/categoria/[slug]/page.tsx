@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard } from "@/components/blog/article-card";
 import { BlogTaxonomyFilters } from "@/components/blog/blog-taxonomy-filters";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHero } from "@/components/shared/page-hero";
 import {
   getCategoryBySlug,
   listActiveCategories,
@@ -52,29 +53,15 @@ export default async function BlogCategoryPage({
 
   return (
     <section className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
-      <div className="relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:rounded-3xl sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5 sm:-right-24 sm:-top-24 sm:size-72" />
-
-        <div className="relative max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
-            Categoria
+      <PageHero
+        eyebrow="Categoria"
+        title={category.name}
+        description={
+          <p>
+            {category.description ?? `Artigos publicados na categoria ${category.name}.`}
           </p>
-
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            {category.name}
-          </h1>
-
-          {category.description ? (
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
-              {category.description}
-            </p>
-          ) : (
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
-              Artigos publicados na categoria {category.name}.
-            </p>
-          )}
-        </div>
-      </div>
+        }
+      />
 
       <div className="mt-10 grid gap-8 xl:mt-12 xl:grid-cols-[minmax(0,1fr)_340px] xl:gap-10">
         <main>

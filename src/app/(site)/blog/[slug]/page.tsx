@@ -49,7 +49,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     <article className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
       <div className="mx-auto max-w-4xl">
         <Link
-          href="/blog"
+          href="/blog/artigos"
           className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground transition hover:text-blue-600 dark:hover:text-blue-400"
         >
           <ArrowLeft className="size-4" />

@@ -6,6 +6,7 @@ import { ArticleCard } from "@/components/blog/article-card";
 import { BlogTaxonomyFilters } from "@/components/blog/blog-taxonomy-filters";
 import { TagBadge } from "@/components/blog/tag-badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHero } from "@/components/shared/page-hero";
 import { listActiveCategories } from "@/features/categories/repositories/categories-repository";
 import { listPublishedArticles } from "@/features/posts/repositories/posts-repository";
 import { listActiveTags } from "@/features/tags/repositories/tags-repository";
@@ -26,29 +27,25 @@ export default async function BlogPage() {
 
   const [featuredArticle, ...otherArticles] = articles;
   const [featuredTag] = featuredArticle?.tags ?? [];
-  const articlesToShow = featuredArticle ? otherArticles : articles;
+
+  const articlesToShow = (featuredArticle ? otherArticles : articles).slice(
+    0,
+    3,
+  );
 
   return (
     <section className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
-      <div className="relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:rounded-3xl sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5 sm:-right-24 sm:-top-24 sm:size-72" />
-
-        <div className="relative max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
-            Blog
-          </p>
-
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            Artigos sobre software, arquitetura e qualidade.
-          </h1>
-
-          <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
+      <PageHero
+        eyebrow="Blog"
+        title="Artigos sobre software, arquitetura e qualidade."
+        description={
+          <p>
             Compartilho aprendizados, experiências e boas práticas sobre .NET,
             arquitetura de software, qualidade, bancos de dados e desenvolvimento
             backend.
           </p>
-        </div>
-      </div>
+        }
+      />
 
       {featuredArticle ? (
         <Link
@@ -108,30 +105,33 @@ export default async function BlogPage() {
         <main>
           {articles.length > 0 ? (
             <>
-              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
-                    Biblioteca
-                  </p>
+              <div className="mb-6">
+                <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                  Biblioteca
+                </p>
 
-                  <h2 className="mt-1 text-2xl font-bold text-foreground">
-                    Últimos artigos
-                  </h2>
-                </div>
-
-                <span className="text-sm text-muted-foreground">
-                  {articles.length}{" "}
-                  {articles.length === 1 ? "artigo publicado" : "artigos publicados"}
-                </span>
+                <h2 className="mt-1 text-2xl font-bold text-foreground">
+                  Últimos artigos
+                </h2>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 2xl:grid-cols-3">
-                {(articlesToShow.length > 0 ? articlesToShow : articles).map(
-                  (article) => (
-                    <ArticleCard key={article.id} article={article} />
-                  ),
-                )}
+                {articlesToShow.map((article) => (
+                  <ArticleCard key={article.id} article={article} />
+                ))}
               </div>
+
+              {articles.length > articlesToShow.length ? (
+                <div className="mt-8 flex justify-center">
+                  <Link
+                    href="/blog/artigos"
+                    className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-300/70 bg-card px-5 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400"
+                  >
+                    Ver todos os artigos
+                    <ArrowRight className="size-4" />
+                  </Link>
+                </div>
+              ) : null}
             </>
           ) : (
             <EmptyState
@@ -142,7 +142,10 @@ export default async function BlogPage() {
         </main>
 
         <aside className="xl:sticky xl:top-24 xl:self-start">
-          <BlogTaxonomyFilters categories={categories} tags={tags} />
+          <BlogTaxonomyFilters
+            categories={categories}
+            tags={tags}
+          />
         </aside>
       </div>
     </section>

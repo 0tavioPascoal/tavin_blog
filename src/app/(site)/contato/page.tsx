@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ArrowUpRight, Mail } from "lucide-react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
+import { PageHero } from "@/components/shared/page-hero";
 import { getSiteSettings } from "@/features/settings/repositories/settings-repository";
 
 export const metadata: Metadata = {
@@ -14,25 +15,17 @@ export default async function ContactPage() {
 
   return (
     <section className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
-      <div className="relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:rounded-3xl sm:p-8 lg:p-10">
-        <div className="pointer-events-none absolute -right-32 -top-32 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5 sm:-right-24 sm:-top-24 sm:size-72" />
-
-        <div className="relative max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
-            Contato
-          </p>
-
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-            Vamos conversar.
-          </h1>
-
-          <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:mt-5 sm:text-lg sm:leading-8">
+      <PageHero
+        eyebrow="Contato"
+        title="Vamos conversar."
+        description={
+          <p>
             Estou sempre aberto para trocar ideias sobre tecnologia,
             desenvolvimento de software, arquitetura, qualidade, oportunidades
             profissionais e projetos interessantes.
           </p>
-        </div>
-      </div>
+        }
+      />
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <a

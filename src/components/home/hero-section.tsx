@@ -2,6 +2,7 @@ import { ArrowRight, FileText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { HeroThemeImage } from "@/components/home/hero-theme-image";
 import { Button } from "@/components/ui/button";
 
 type Technology = {
@@ -22,27 +23,12 @@ const technologies: Technology[] = [
   { label: "Spring", ariaLabel: "Spring", iconSrc: "/icons/spring.png" },
 ];
 
-const heroImageSrc = "/images/hero-otavio.png?v=20260614";
-
 function TechnologyBadge({ technology }: { technology: Technology }) {
   return (
     <span
       aria-label={technology.ariaLabel}
       title={technology.label}
-      className="
-        inline-flex h-11 w-full min-w-0 items-center justify-center gap-2
-        rounded-xl
-        border border-border
-        bg-card
-        px-3
-        text-sm font-semibold text-foreground
-        shadow-sm
-        transition-all duration-300
-        hover:-translate-y-0.5
-        hover:border-blue-300
-        hover:shadow-md
-        dark:hover:border-blue-800
-      "
+      className="inline-flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md dark:hover:border-blue-800"
     >
       <Image
         src={technology.iconSrc}
@@ -53,9 +39,7 @@ function TechnologyBadge({ technology }: { technology: Technology }) {
         className="size-5 shrink-0 object-contain"
       />
 
-      <span className="min-w-0 truncate">
-        {technology.label}
-      </span>
+      <span className="min-w-0 truncate">{technology.label}</span>
     </span>
   );
 }
@@ -81,7 +65,10 @@ export function HeroSection() {
 
             <div className="mt-7 grid max-w-2xl grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-3 xl:grid-cols-5">
               {technologies.map((technology) => (
-                <TechnologyBadge key={technology.label} technology={technology} />
+                <TechnologyBadge
+                  key={technology.label}
+                  technology={technology}
+                />
               ))}
             </div>
 
@@ -103,7 +90,7 @@ export function HeroSection() {
                 size="lg"
                 className="h-12 w-full rounded-xl border-border bg-card px-6 shadow-sm hover:bg-accent sm:w-auto"
               >
-                <Link href="/blog">
+                <Link href="/blog/artigos">
                   Ler Artigos
                   <FileText className="size-4" />
                 </Link>
@@ -112,26 +99,12 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="relative hidden min-h-145 lg:block">
-          <div className="absolute inset-y-0 -left-1 z-10 w-80 bg-linear-to-r from-background via-background/90 to-transparent" />
+        <div className="relative mx-4 mb-8 h-72 overflow-hidden rounded-2xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-6 sm:h-105 sm:rounded-3xl lg:mx-0 lg:mb-0 lg:h-auto lg:min-h-145 lg:rounded-none lg:border-0 lg:bg-transparent lg:shadow-none">
+          <div className="pointer-events-none absolute inset-y-0 -left-1 z-10 hidden w-80 bg-linear-to-r from-background via-background/90 to-transparent lg:block" />
 
-          <Image
-            src={heroImageSrc}
+          <HeroThemeImage
             alt="Otávio Pascoal trabalhando em um notebook"
-            fill
-            preload
-            sizes="52vw"
-            className="object-cover object-center"
-          />
-        </div>
-
-        <div className="relative mx-4 mb-8 h-72 overflow-hidden rounded-2xl border border-border bg-card shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:mx-6 sm:h-105 sm:rounded-3xl lg:hidden">
-          <Image
-            src={heroImageSrc}
-            alt="Otávio Pascoal trabalhando em um notebook"
-            fill
-            preload
-            sizes="(max-width: 1024px) calc(100vw - 2rem), 52vw"
+            sizes="(max-width: 1023px) calc(100vw - 2rem), 52vw"
             className="object-cover object-center"
           />
         </div>

@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { CategoryDetail, CategoryMutationInput, CategorySummary } from "@/features/categories/types/category";
 import { mapCategoryRowToDetail, mapCategoryRowToSummary } from "@/features/categories/utils/mappers";
@@ -79,7 +81,9 @@ export async function listAllCategoriesForAdmin(): Promise<CategorySummary[]> {
   return data.map(mapCategoryRowToSummary);
 }
 
-export async function getCategoryBySlug(slug: string): Promise<CategoryDetail | null> {
+export const getCategoryBySlug = cache(async function getCategoryBySlug(
+  slug: string,
+): Promise<CategoryDetail | null> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -98,7 +102,7 @@ export async function getCategoryBySlug(slug: string): Promise<CategoryDetail | 
   }
 
   return data ? mapCategoryRowToDetail(data) : null;
-}
+});
 
 export async function getCategoryByIdForAdmin(id: string): Promise<CategoryDetail | null> {
   const supabase = await createSupabaseServerClient();

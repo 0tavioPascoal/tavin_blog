@@ -1,9 +1,32 @@
 import ReactMarkdown from "react-markdown";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import type { ComponentProps } from "react";
 
 type MarkdownContentProps = {
   content: string;
 };
+
+type ReactMarkdownProps = ComponentProps<typeof ReactMarkdown>;
+
+const rehypePlugins: ReactMarkdownProps["rehypePlugins"] = [
+  rehypeSlug,
+  [
+    rehypeAutolinkHeadings,
+    {
+      behavior: "append",
+      content: {
+        type: "text",
+        value: "#",
+      },
+      properties: {
+        ariaLabel: "Link direto para esta seção",
+        className: ["heading-anchor"],
+      },
+    },
+  ],
+];
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
   return (
@@ -16,6 +39,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         dark:prose-invert
 
         prose-headings:font-bold
+        prose-headings:scroll-mt-24
         prose-headings:text-foreground
 
         prose-h2:mt-12
@@ -49,8 +73,18 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         dark:prose-blockquote:bg-blue-950/20
 
         prose-a:text-blue-600
-        prose-a:no-underline
+        prose-a:font-semibold
+        prose-a:underline
+        prose-a:decoration-blue-500/30
+        prose-a:underline-offset-4
         hover:prose-a:text-blue-500
+        hover:prose-a:decoration-blue-500
+
+        [&_.heading-anchor]:ml-2
+        [&_.heading-anchor]:text-blue-500/0
+        [&_.heading-anchor]:no-underline
+        [&_.heading-anchor]:transition-colors
+        hover:[&_.heading-anchor]:text-blue-500/70
 
         prose-img:rounded-2xl
         prose-img:border
@@ -81,12 +115,16 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
         prose-table:block
         prose-table:max-w-full
         prose-table:overflow-x-auto
+        prose-table:whitespace-nowrap
 
         prose-th:border-border
         prose-td:border-border
       "
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={rehypePlugins}
+      >
         {content}
       </ReactMarkdown>
     </article>

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import {
   BadgeCheck,
   BriefcaseBusiness,
@@ -8,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { CertificateCard } from "@/components/certificates/certificate-card";
+import { HeroThemeImage } from "@/components/home/hero-theme-image";
 import { listPublishedCertificates } from "@/features/certificates/repositories/certificates-repository";
 
 export const metadata: Metadata = {
@@ -40,8 +40,6 @@ const highlights = [
   },
 ];
 
-const aboutImageSrc = "/images/hero-otavio.png?v=20260614";
-
 export default async function AboutPage() {
   const certificates = await listPublishedCertificates();
 
@@ -52,10 +50,8 @@ export default async function AboutPage() {
 
         <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)] lg:items-center">
           <div className="relative order-first min-h-80 overflow-hidden rounded-2xl border border-border bg-background shadow-md shadow-slate-200/70 dark:shadow-black/20 sm:min-h-96 lg:order-last lg:min-h-125">
-            <Image
-              src={aboutImageSrc}
+            <HeroThemeImage
               alt="Otávio Pascoal trabalhando em um notebook"
-              fill
               sizes="(max-width: 1024px) calc(100vw - 2.5rem), 34vw"
               className="object-cover object-center"
             />

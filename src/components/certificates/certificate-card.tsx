@@ -17,6 +17,7 @@ function CertificateMedia({ certificate }: CertificateCardProps) {
         alt={`Certificado ${certificate.title}`}
         className="h-24 w-full object-cover transition duration-300 group-hover:scale-105"
         loading="lazy"
+        decoding="async"
       />
     );
   }

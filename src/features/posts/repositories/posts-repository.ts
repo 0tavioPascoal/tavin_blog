@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { CategorySummary } from "@/features/categories/types/category";
 import { mapCategoryRowToSummary } from "@/features/categories/utils/mappers";
@@ -333,7 +335,9 @@ export async function listAllArticlesForAdmin(): Promise<ArticleSummary[]> {
   return hydrateArticleSummaries(supabase, data, true);
 }
 
-export async function getPublishedArticleBySlug(slug: string): Promise<ArticleDetail | null> {
+export const getPublishedArticleBySlug = cache(async function getPublishedArticleBySlug(
+  slug: string,
+): Promise<ArticleDetail | null> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -352,7 +356,7 @@ export async function getPublishedArticleBySlug(slug: string): Promise<ArticleDe
   }
 
   return data ? hydrateArticleDetail(supabase, data, false) : null;
-}
+});
 
 export async function getArticleByIdForAdmin(id: string): Promise<ArticleDetail | null> {
   const supabase = await createSupabaseServerClient();

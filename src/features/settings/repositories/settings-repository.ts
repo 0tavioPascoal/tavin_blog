@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { getContactEmailFallback, getSiteUrlFallback } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { siteSettingsRowSchema } from "@/features/settings/schemas/settings-schema";
@@ -13,7 +15,7 @@ const fallbackSettings: SiteSettings = {
   updatedAt: null,
 };
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export const getSiteSettings = cache(async function getSiteSettings(): Promise<SiteSettings> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -39,7 +41,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     linkedinUrl: settings.linkedin_url,
     updatedAt: settings.updated_at,
   };
-}
+});
 
 export async function updateSiteSettings(input: SiteSettingsMutationInput): Promise<void> {
   const supabase = await createSupabaseServerClient();
