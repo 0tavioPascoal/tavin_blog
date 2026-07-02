@@ -122,13 +122,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           </h1>
         </div>
 
-        <Link
-          href="/blog/artigos"
-          className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-slate-300/70 bg-card px-4 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400"
-        >
-          <ArrowLeft className="size-4" />
-          Voltar ao blog
-        </Link>
+       
       </div>
 
       <div className="mt-8 rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:p-5">

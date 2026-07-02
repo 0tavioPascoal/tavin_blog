@@ -2,7 +2,7 @@ import ReactMarkdown from "react-markdown";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactNode } from "react";
 
 type MarkdownContentProps = {
   content: string;
@@ -27,6 +27,47 @@ const rehypePlugins: ReactMarkdownProps["rehypePlugins"] = [
     },
   ],
 ];
+
+function isExternalUrl(value?: string) {
+  return value ? /^https?:\/\//i.test(value) : false;
+}
+
+function safeUrlTransform(value: string) {
+  const trimmedValue = value.trim();
+
+  if (
+    trimmedValue.startsWith("#") ||
+    trimmedValue.startsWith("/") && !trimmedValue.startsWith("//") ||
+    trimmedValue.startsWith("./") ||
+    trimmedValue.startsWith("../")
+  ) {
+    return value;
+  }
+
+  try {
+    const url = new URL(trimmedValue);
+    const allowedProtocols = new Set(["http:", "https:", "mailto:", "tel:"]);
+
+    return allowedProtocols.has(url.protocol) ? value : "";
+  } catch {
+    return "";
+  }
+}
+
+const markdownComponents: ReactMarkdownProps["components"] = {
+  a({ href, children, ...props }) {
+    return (
+      <a
+        {...props}
+        href={href}
+        target={isExternalUrl(href) ? "_blank" : undefined}
+        rel={isExternalUrl(href) ? "noopener noreferrer" : undefined}
+      >
+        {children as ReactNode}
+      </a>
+    );
+  },
+};
 
 export function MarkdownContent({ content }: MarkdownContentProps) {
   return (
@@ -124,6 +165,8 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={rehypePlugins}
+        urlTransform={safeUrlTransform}
+        components={markdownComponents}
       >
         {content}
       </ReactMarkdown>
