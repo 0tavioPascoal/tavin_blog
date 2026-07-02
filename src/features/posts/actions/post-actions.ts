@@ -29,6 +29,8 @@ const imageContentTypes = {
   "image/webp": "webp",
 } as const;
 
+type SupportedImageContentType = keyof typeof imageContentTypes;
+
 async function requireAdmin(): Promise<void> {
   const user = await getCurrentAdminUser();
 
@@ -43,6 +45,40 @@ function toMutationInput(input: unknown): ArticleMutationInput {
 
 function getImageExtension(contentType: string): string | null {
   return imageContentTypes[contentType as keyof typeof imageContentTypes] ?? null;
+}
+
+function detectImageContentType(bytes: ArrayBuffer): SupportedImageContentType | null {
+  const signature = new Uint8Array(bytes.slice(0, 12));
+
+  const isPng =
+    signature[0] === 0x89 &&
+    signature[1] === 0x50 &&
+    signature[2] === 0x4e &&
+    signature[3] === 0x47 &&
+    signature[4] === 0x0d &&
+    signature[5] === 0x0a &&
+    signature[6] === 0x1a &&
+    signature[7] === 0x0a;
+
+  if (isPng) {
+    return "image/png";
+  }
+
+  if (signature[0] === 0xff && signature[1] === 0xd8 && signature[2] === 0xff) {
+    return "image/jpeg";
+  }
+
+  const header = String.fromCharCode(...signature);
+
+  if (header.startsWith("GIF87a") || header.startsWith("GIF89a")) {
+    return "image/gif";
+  }
+
+  if (header.startsWith("RIFF") && header.slice(8, 12) === "WEBP") {
+    return "image/webp";
+  }
+
+  return null;
 }
 
 function sanitizeImageAlt(value: string): string {
@@ -138,7 +174,18 @@ export async function uploadPostImageAction(formData: FormData): Promise<PostIma
       throw new Error("A imagem deve ter no máximo 5 MB.");
     }
 
-    const extension = getImageExtension(image.type);
+    if (!getImageExtension(image.type)) {
+      throw new Error("Use uma imagem PNG, JPG, WEBP ou GIF.");
+    }
+
+    const bytes = await image.arrayBuffer();
+    const detectedContentType = detectImageContentType(bytes);
+
+    if (!detectedContentType || detectedContentType !== image.type) {
+      throw new Error("O arquivo enviado não corresponde a uma imagem válida.");
+    }
+
+    const extension = getImageExtension(detectedContentType);
 
     if (!extension) {
       throw new Error("Use uma imagem PNG, JPG, WEBP ou GIF.");
@@ -148,12 +195,11 @@ export async function uploadPostImageAction(formData: FormData): Promise<PostIma
     const year = now.getUTCFullYear();
     const month = String(now.getUTCMonth() + 1).padStart(2, "0");
     const path = `articles/${year}/${month}/${randomUUID()}.${extension}`;
-    const bytes = await image.arrayBuffer();
 
     const { error } = await supabase.storage
       .from(articleImagesBucket)
       .upload(path, bytes, {
-        contentType: image.type,
+        contentType: detectedContentType,
         upsert: false,
       });
 

@@ -4,17 +4,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
   Bookmark,
+  Eye,
   Folder,
   Hash,
   ImagePlus,
+  PencilLine,
   Save,
   Star,
   Text,
   Type,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useRef, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useRef, useState, useTransition } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
@@ -47,12 +50,27 @@ const postEditorSchema = z.object({
 });
 
 type PostEditorValues = z.infer<typeof postEditorSchema>;
+type EditorMode = "write" | "preview";
 
 type PostFormProps = {
   post?: ArticleDetail;
   categories: CategorySummary[];
   tags: TagSummary[];
 };
+
+const MarkdownPreview = dynamic(
+  () =>
+    import("@/components/blog/markdown-content").then(
+      (module) => module.MarkdownContent,
+    ),
+  {
+    loading: () => (
+      <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center text-sm text-muted-foreground dark:border-slate-800 dark:bg-slate-900/30 sm:min-h-104">
+        Carregando preview...
+      </div>
+    ),
+  },
+);
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -92,6 +110,7 @@ function insertMarkdownAtCursor(
 export function PostForm({ post, categories, tags }: PostFormProps) {
   const router = useRouter();
   const toast = useAdminToast();
+  const [editorMode, setEditorMode] = useState<EditorMode>("write");
   const [isPending, startTransition] = useTransition();
   const [isUploadingImage, startImageUploadTransition] = useTransition();
 
@@ -113,6 +132,11 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
   });
 
   const contentMarkdownField = form.register("contentMarkdown");
+  const contentMarkdownPreview =
+    useWatch({
+      control: form.control,
+      name: "contentMarkdown",
+    }) ?? "";
 
   function onSubmit(values: PostEditorValues) {
     const actionInput = {
@@ -282,7 +306,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
           </div>
 
           <div className="grid gap-3">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
               <div>
                 <label
                   htmlFor="contentMarkdown"
@@ -296,56 +320,105 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                   automaticamente no cursor.
                 </p>
               </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleImageButtonClick}
-                disabled={isUploadingImage}
-                className="h-10 w-full rounded-xl border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400 sm:w-auto"
-              >
-                <ImagePlus className="size-4" />
-                {isUploadingImage ? "Enviando..." : "Enviar imagem"}
-              </Button>
-
-              <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/gif"
-                className="hidden"
-                onChange={handleImageChange}
-              />
             </div>
 
             <div className="rounded-2xl border border-dashed border-slate-400/80 bg-slate-50 p-3 shadow-sm transition hover:border-blue-400 hover:bg-blue-50/50 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20 sm:p-4">
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start">
-                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
-                  <ImagePlus className="size-5" />
+              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
+                    <ImagePlus className="size-5" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">
+                      Editor do artigo
+                    </p>
+
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      Escreva em Markdown, envie imagens e alterne para revisar
+                      o resultado renderizado.
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    Upload de imagens do artigo
-                  </p>
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  <div
+                    className="grid w-full grid-cols-2 rounded-xl border border-slate-300 bg-white p-1 dark:border-slate-800 dark:bg-card sm:w-auto"
+                    aria-label="Modo do editor Markdown"
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={editorMode === "write"}
+                      onClick={() => setEditorMode("write")}
+                      className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
+                        editorMode === "write"
+                          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                          : "text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
+                      }`}
+                    >
+                      <PencilLine className="size-4" />
+                      Escrever
+                    </button>
 
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Clique em enviar imagem para fazer upload e inserir o
-                    Markdown automaticamente no conteúdo abaixo.
-                  </p>
+                    <button
+                      type="button"
+                      aria-pressed={editorMode === "preview"}
+                      onClick={() => setEditorMode("preview")}
+                      className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
+                        editorMode === "preview"
+                          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                          : "text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
+                      }`}
+                    >
+                      <Eye className="size-4" />
+                      Preview
+                    </button>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleImageButtonClick}
+                    disabled={isUploadingImage}
+                    className="h-11 w-full rounded-xl border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400 sm:w-auto"
+                  >
+                    <ImagePlus className="size-4" />
+                    {isUploadingImage ? "Enviando..." : "Enviar imagem"}
+                  </Button>
                 </div>
+
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={handleImageChange}
+                />
               </div>
 
-              <textarea
-                id="contentMarkdown"
-                rows={18}
-                placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
-                className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 font-mono text-sm leading-6 text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-card dark:hover:border-slate-600 sm:min-h-112"
-                {...contentMarkdownField}
-                ref={(element) => {
-                  contentMarkdownField.ref(element);
-                  markdownTextareaRef.current = element;
-                }}
-              />
+              {editorMode === "write" ? (
+                <textarea
+                  id="contentMarkdown"
+                  rows={18}
+                  placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
+                  className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 font-mono text-sm leading-6 text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-card dark:hover:border-slate-600 sm:min-h-112"
+                  {...contentMarkdownField}
+                  ref={(element) => {
+                    contentMarkdownField.ref(element);
+                    markdownTextareaRef.current = element;
+                  }}
+                />
+              ) : (
+                <div className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-card sm:min-h-112">
+                  {contentMarkdownPreview.trim().length > 0 ? (
+                    <MarkdownPreview content={contentMarkdownPreview} />
+                  ) : (
+                    <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center text-sm text-muted-foreground dark:border-slate-800 dark:bg-slate-900/30 sm:min-h-104">
+                      O preview do Markdown aparecerá aqui.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <FieldError
