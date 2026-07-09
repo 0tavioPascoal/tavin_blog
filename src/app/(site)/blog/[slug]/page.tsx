@@ -3,7 +3,7 @@ import { CalendarDays, Clock, ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-import { MarkdownContent } from "@/components/blog/markdown-content";
+import { HighlightedMarkdownContent } from "@/components/blog/markdown-content-highlighted";
 import { TagBadge } from "@/components/blog/tag-badge";
 import { getPublishedArticleBySlug } from "@/features/posts/repositories/posts-repository";
 import { formatDate } from "@/lib/formatters";
@@ -103,9 +103,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </header>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:mt-8 sm:rounded-3xl sm:p-6 lg:p-10">
-          <MarkdownContent content={article.contentMarkdown} />
+          <HighlightedMarkdownContent content={article.contentMarkdown} />
         </div>
       </div>
     </article>
   );
 }
+

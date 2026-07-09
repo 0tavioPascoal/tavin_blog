@@ -60,8 +60,8 @@ type PostFormProps = {
 
 const MarkdownPreview = dynamic(
   () =>
-    import("@/components/blog/markdown-content").then(
-      (module) => module.MarkdownContent,
+    import("@/components/admin/admin-markdown-preview").then(
+      (module) => module.AdminMarkdownPreview,
     ),
   {
     loading: () => (

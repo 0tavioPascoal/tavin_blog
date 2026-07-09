@@ -17,12 +17,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useState, useSyncExternalStore } from "react";
 
 import { LogoutButton } from "@/components/admin/logout-button";
 import type { AdminUser } from "@/features/auth/repositories/auth-repository";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/providers/theme-provider";
 
 type AdminShellClientProps = {
   user: AdminUser;

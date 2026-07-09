@@ -4,13 +4,14 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import type { ComponentProps, ReactNode } from "react";
 
-type MarkdownContentProps = {
-  content: string;
-};
-
 type ReactMarkdownProps = ComponentProps<typeof ReactMarkdown>;
 
-const rehypePlugins: ReactMarkdownProps["rehypePlugins"] = [
+export type MarkdownContentProps = {
+  content: string;
+  rehypePlugins?: ReactMarkdownProps["rehypePlugins"];
+};
+
+export const baseRehypePlugins: ReactMarkdownProps["rehypePlugins"] = [
   rehypeSlug,
   [
     rehypeAutolinkHeadings,
@@ -32,7 +33,7 @@ function isExternalUrl(value?: string) {
   return value ? /^https?:\/\//i.test(value) : false;
 }
 
-function safeUrlTransform(value: string) {
+export function safeUrlTransform(value: string) {
   const trimmedValue = value.trim();
 
   if (
@@ -54,7 +55,7 @@ function safeUrlTransform(value: string) {
   }
 }
 
-const markdownComponents: ReactMarkdownProps["components"] = {
+export const markdownComponents: ReactMarkdownProps["components"] = {
   a({ href, children, ...props }) {
     return (
       <a
@@ -69,10 +70,7 @@ const markdownComponents: ReactMarkdownProps["components"] = {
   },
 };
 
-export function MarkdownContent({ content }: MarkdownContentProps) {
-  return (
-    <article
-      className="
+export const markdownContentClassName = `
         prose
         prose-slate
         max-w-none
@@ -145,11 +143,17 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
 
         prose-pre:rounded-2xl
         prose-pre:border
-        prose-pre:border-slate-800
-        prose-pre:bg-slate-950
-        prose-pre:shadow-xl
+        prose-pre:border-slate-200
+        prose-pre:bg-slate-50
+        prose-pre:text-slate-900
+        prose-pre:shadow-sm
         prose-pre:max-w-full
         prose-pre:overflow-x-auto
+
+        dark:prose-pre:border-slate-800
+        dark:prose-pre:bg-slate-950
+        dark:prose-pre:text-slate-100
+        dark:prose-pre:shadow-xl
 
         prose-table:border
         prose-table:border-border
@@ -160,7 +164,15 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
 
         prose-th:border-border
         prose-td:border-border
-      "
+      `;
+
+export function MarkdownContent({
+  content,
+  rehypePlugins = baseRehypePlugins,
+}: MarkdownContentProps) {
+  return (
+    <article
+      className={markdownContentClassName}
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
@@ -173,3 +185,4 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
     </article>
   );
 }
+

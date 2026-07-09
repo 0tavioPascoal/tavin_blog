@@ -3,7 +3,7 @@
 import { Menu, Moon, ShieldCheck, Sun, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/providers/theme-provider";
 import { useState, useSyncExternalStore } from "react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
@@ -237,3 +237,4 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
     </header>
   );
 }
+
