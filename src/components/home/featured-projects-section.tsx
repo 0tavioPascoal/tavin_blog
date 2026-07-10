@@ -57,9 +57,32 @@ export function FeaturedProjectsSection({
           {projects.map((project) => (
             <div
               key={project.id}
-              className="transition-colors hover:bg-muted/35"
+              className="
+                group/project
+                relative
+                overflow-hidden
+                transition-all
+                duration-300
+                ease-out
+                before:absolute
+                before:inset-y-0
+                before:left-0
+                before:w-1
+                before:origin-center
+                before:scale-y-0
+                before:bg-blue-500
+                before:transition-transform
+                before:duration-300
+                hover:bg-blue-50/55
+                hover:shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)]
+                hover:before:scale-y-100
+                dark:hover:bg-blue-950/20
+                dark:hover:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.1)]
+              "
             >
-              <ProjectCard project={project} compact />
+              <div className="transition-transform duration-300 ease-out group-hover/project:translate-x-1">
+                <ProjectCard project={project} compact />
+              </div>
             </div>
           ))}
         </div>
