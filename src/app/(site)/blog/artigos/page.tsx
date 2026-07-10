@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 
 import { ArticleCard } from "@/components/blog/article-card";
 import { TagBadge } from "@/components/blog/tag-badge";
 import { EmptyState } from "@/components/shared/empty-state";
+import type { CategorySummary } from "@/features/categories/types/category";
 import { listActiveCategories } from "@/features/categories/repositories/categories-repository";
 import { listPublishedArticles } from "@/features/posts/repositories/posts-repository";
 import { listActiveTags } from "@/features/tags/repositories/tags-repository";
+import type { TagSummary } from "@/features/tags/types/tag";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -55,6 +64,102 @@ function normalizePage(value?: string) {
   }
 
   return Math.floor(parsed);
+}
+
+type ArticleFilterOptionsProps = {
+  categories: CategorySummary[];
+  tags: TagSummary[];
+  searchTerm: string;
+  activeCategorySlug: string;
+  activeTagSlug: string;
+};
+
+function ArticleFilterOptions({
+  categories,
+  tags,
+  searchTerm,
+  activeCategorySlug,
+  activeTagSlug,
+}: ArticleFilterOptionsProps) {
+  return (
+    <div className="grid gap-5">
+      {categories.length > 0 ? (
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Categorias
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link
+              href={buildArticlesUrl({ q: searchTerm, tag: activeTagSlug })}
+              aria-current={!activeCategorySlug ? "page" : undefined}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                !activeCategorySlug
+                  ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                  : "border-slate-300 bg-background text-muted-foreground hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
+              )}
+            >
+              Todas
+            </Link>
+
+            {categories.map((category) => {
+              const active = activeCategorySlug === category.slug;
+
+              return (
+                <Link
+                  key={category.id}
+                  href={buildArticlesUrl({
+                    q: searchTerm,
+                    categoria: active ? undefined : category.slug,
+                    tag: activeTagSlug,
+                  })}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
+                    active
+                      ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
+                      : "border-slate-300 bg-background text-muted-foreground hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
+                  )}
+                >
+                  {active ? `${category.name} ×` : category.name}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {tags.length > 0 ? (
+        <div className="border-t border-border pt-5">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Tags
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {tags.map((currentTag) => {
+              const active = activeTagSlug === currentTag.slug;
+
+              return (
+                <TagBadge
+                  key={currentTag.id}
+                  href={buildArticlesUrl({
+                    q: searchTerm,
+                    categoria: activeCategorySlug,
+                    tag: active ? undefined : currentTag.slug,
+                  })}
+                  name={active ? `${currentTag.name} ×` : currentTag.name}
+                  colorHex={currentTag.colorHex}
+                  active={active}
+                  className="h-8 px-3 text-[11px]"
+                />
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
@@ -108,6 +213,8 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
   );
 
   const hasFilters = Boolean(searchTerm || activeCategorySlug || activeTagSlug);
+  const activeFiltersCount = Number(Boolean(activeCategorySlug)) +
+    Number(Boolean(activeTagSlug));
 
   return (
     <section className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
@@ -120,22 +227,39 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Explore os conteúdos
           </h1>
-        </div>
 
-       
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+            Encontre artigos por assunto, tecnologia ou etapa da jornada de
+            desenvolvimento.
+          </p>
+        </div>
       </div>
 
       <div className="mt-8 rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:p-5">
         <form>
+          <label htmlFor="article-search" className="sr-only">
+            Buscar artigos
+          </label>
+
           <div className="relative">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <input
+              id="article-search"
               name="q"
               defaultValue={searchTerm}
               placeholder="Buscar por título, descrição, categoria ou tag..."
-              className="h-12 w-full rounded-xl border border-slate-300/70 bg-background pl-11 pr-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800 dark:hover:border-slate-700"
+              className="h-12 w-full rounded-xl border border-slate-300/70 bg-background pl-11 pr-12 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800 dark:hover:border-slate-700"
             />
+
+            <button
+              type="submit"
+              aria-label="Buscar artigos"
+              title="Buscar"
+              className="absolute right-1.5 top-1/2 inline-flex size-9 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            >
+              <Search className="size-4" />
+            </button>
           </div>
 
           {activeCategorySlug ? (
@@ -147,78 +271,44 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           ) : null}
         </form>
 
-        {categories.length > 0 ? (
-          <div className="mt-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Categorias
-            </p>
-
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link
-                href={buildArticlesUrl({ q: searchTerm, tag: activeTagSlug })}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
-                  !activeCategorySlug
-                    ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
-                    : "border-slate-300 bg-background text-muted-foreground hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
-                )}
-              >
-                Todas
-              </Link>
-
-              {categories.map((category) => {
-                const active = activeCategorySlug === category.slug;
-
-                return (
-                  <Link
-                    key={category.id}
-                    href={buildArticlesUrl({
-                      q: searchTerm,
-                      categoria: active ? undefined : category.slug,
-                      tag: activeTagSlug,
-                    })}
-                    className={cn(
-                      "rounded-full border px-3 py-1.5 text-xs font-semibold transition",
-                      active
-                        ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-300"
-                        : "border-slate-300 bg-background text-muted-foreground hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
-                    )}
-                  >
-                    {active ? `${category.name} ×` : category.name}
-                  </Link>
-                );
-              })}
+        {categories.length > 0 || tags.length > 0 ? (
+          <>
+            <div className="mt-5 hidden border-t border-border pt-5 md:block">
+              <ArticleFilterOptions
+                categories={categories}
+                tags={tags}
+                searchTerm={searchTerm}
+                activeCategorySlug={activeCategorySlug}
+                activeTagSlug={activeTagSlug}
+              />
             </div>
-          </div>
-        ) : null}
 
-        {tags.length > 0 ? (
-          <div className="mt-5 border-t border-border pt-5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Tags
-            </p>
+            <details className="group mt-5 md:hidden">
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm font-semibold text-foreground transition hover:border-blue-300 [&::-webkit-details-marker]:hidden">
+                <span className="inline-flex items-center gap-2">
+                  <SlidersHorizontal className="size-4 text-blue-600 dark:text-blue-400" />
+                  Categorias e tags
+                  {activeFiltersCount > 0 ? (
+                    <span className="inline-flex size-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+                      {activeFiltersCount}
+                    </span>
+                  ) : null}
+                </span>
 
-            <div className="mt-3 flex flex-wrap gap-2">
-              {tags.map((currentTag) => {
-                const active = activeTagSlug === currentTag.slug;
+                <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+              </summary>
 
-                return (
-                  <TagBadge
-                    key={currentTag.id}
-                    href={buildArticlesUrl({
-                      q: searchTerm,
-                      categoria: activeCategorySlug,
-                      tag: active ? undefined : currentTag.slug,
-                    })}
-                    name={active ? `${currentTag.name} ×` : currentTag.name}
-                    colorHex={currentTag.colorHex}
-                    active={active}
-                    className="h-8 px-3 text-[11px]"
-                  />
-                );
-              })}
-            </div>
-          </div>
+              <div className="mt-4 border-t border-border pt-4">
+                <ArticleFilterOptions
+                  categories={categories}
+                  tags={tags}
+                  searchTerm={searchTerm}
+                  activeCategorySlug={activeCategorySlug}
+                  activeTagSlug={activeTagSlug}
+                />
+              </div>
+            </details>
+          </>
         ) : null}
       </div>
 
@@ -238,8 +328,9 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         {hasFilters ? (
           <Link
             href="/blog/artigos"
-            className="w-fit text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
           >
+            <X className="size-3.5" />
             Limpar filtros
           </Link>
         ) : null}
@@ -247,14 +338,17 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
 
       {paginatedArticles.length > 0 ? (
         <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {paginatedArticles.map((article) => (
               <ArticleCard key={article.id} article={article} />
             ))}
           </div>
 
           {totalPages > 1 ? (
-            <nav className="mt-8 flex flex-wrap items-center justify-center gap-2">
+            <nav
+              aria-label="Paginação de artigos"
+              className="mt-8 flex flex-wrap items-center justify-center gap-2"
+            >
               <Link
                 href={buildArticlesUrl({
                   q: searchTerm,
@@ -263,12 +357,14 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                   page: safeCurrentPage - 1,
                 })}
                 aria-disabled={safeCurrentPage === 1}
+                aria-label="Página anterior"
                 className={cn(
-                  "inline-flex h-10 items-center rounded-xl border border-slate-300/70 bg-card px-4 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
+                  "inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-300/70 bg-card px-3 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400 sm:px-4",
                   safeCurrentPage === 1 && "pointer-events-none opacity-50",
                 )}
               >
-                Anterior
+                <ChevronLeft className="size-4" />
+                <span className="hidden sm:inline">Anterior</span>
               </Link>
 
               {Array.from({ length: totalPages }).map((_, index) => {
@@ -305,13 +401,15 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
                   page: safeCurrentPage + 1,
                 })}
                 aria-disabled={safeCurrentPage === totalPages}
+                aria-label="Próxima página"
                 className={cn(
-                  "inline-flex h-10 items-center rounded-xl border border-slate-300/70 bg-card px-4 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400",
+                  "inline-flex h-10 items-center gap-1.5 rounded-xl border border-slate-300/70 bg-card px-3 text-sm font-semibold text-foreground shadow-sm transition hover:border-blue-300 hover:text-blue-600 dark:border-slate-800 dark:hover:border-blue-800 dark:hover:text-blue-400 sm:px-4",
                   safeCurrentPage === totalPages &&
                     "pointer-events-none opacity-50",
                 )}
               >
-                Próxima
+                <span className="hidden sm:inline">Próxima</span>
+                <ChevronRight className="size-4" />
               </Link>
             </nav>
           ) : null}
