@@ -117,7 +117,7 @@ export default async function ProjectsPage({
   return (
     <main className="w-full px-4 py-8 sm:px-6 sm:py-10 lg:px-[7vw] lg:py-12">
       <section className="relative isolate overflow-hidden rounded-[2rem] border border-slate-300/70 bg-card px-5 py-8 shadow-sm dark:border-slate-800 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
-        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_right,rgba(15,23,42,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.045)_1px,transparent_1px)] bg-[size:32px_32px] dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.04)_1px,transparent_1px)]" />
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_right,rgba(15,23,42,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.045)_1px,transparent_1px)] bg-size-[32px_32px] dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.04)_1px,transparent_1px)]" />
         <div className="pointer-events-none absolute -right-20 -top-24 -z-10 size-72 rounded-full bg-blue-500/15 blur-3xl dark:bg-blue-500/10" />
         <div className="pointer-events-none absolute -bottom-32 left-1/3 -z-10 size-72 rounded-full bg-cyan-400/10 blur-3xl dark:bg-cyan-500/5" />
 
@@ -355,7 +355,7 @@ export default async function ProjectsPage({
             <>
               <div className="mt-6 grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
                 {paginatedProjects.map((project) => (
-                  <div key={project.id} className="h-full [&>*]:h-full">
+                  <div key={project.id} className="h-full *:h-full">
                     <ProjectCard project={project} />
                   </div>
                 ))}
