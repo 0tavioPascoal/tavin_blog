@@ -6,17 +6,19 @@ import {
   Award,
   Bookmark,
   CalendarDays,
+  ExternalLink,
   Hash,
   ImageIcon,
   LinkIcon,
   ListOrdered,
   Save,
+  Tags,
   Text,
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
 import { Button } from "@/components/ui/button";
@@ -40,10 +42,22 @@ type FieldErrorProps = {
   message?: string;
 };
 
-function FieldError({ message }: FieldErrorProps) {
-  if (!message) return null;
+const inputClassName =
+  "h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600";
 
-  return <p className="text-sm text-red-600 dark:text-red-400">{message}</p>;
+function FieldError({ message }: FieldErrorProps) {
+  if (!message) {
+    return null;
+  }
+
+  return (
+    <p
+      role="alert"
+      className="text-sm font-medium text-red-600 dark:text-red-400"
+    >
+      {message}
+    </p>
+  );
 }
 
 function slugify(value: string): string {
@@ -59,7 +73,10 @@ function formatDateInputValue(value: string | null): string {
   return value ? value.slice(0, 10) : "";
 }
 
-export function CertificateForm({ certificate, tags }: CertificateFormProps) {
+export function CertificateForm({
+  certificate,
+  tags,
+}: CertificateFormProps) {
   const router = useRouter();
   const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
@@ -81,10 +98,24 @@ export function CertificateForm({ certificate, tags }: CertificateFormProps) {
     },
   });
 
+  const selectedTagIds =
+    useWatch({
+      control: form.control,
+      name: "tagIds",
+    }) ?? [];
+
+  const credentialUrl =
+    useWatch({
+      control: form.control,
+      name: "credentialUrl",
+    }) ?? "";
+
   function onSubmit(values: CertificateFormInput) {
     startTransition(async () => {
       const toastId = toast.info(
-        certificate ? "Atualizando certificado..." : "Criando certificado...",
+        certificate
+          ? "Atualizando certificado..."
+          : "Criando certificado...",
       );
 
       const result = certificate
@@ -102,48 +133,119 @@ export function CertificateForm({ certificate, tags }: CertificateFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-foreground">
-            Informações do certificado
-          </h2>
+      <section className="relative isolate overflow-hidden rounded-[2rem] border border-slate-300/70 bg-card px-5 py-7 shadow-sm dark:border-slate-800 sm:px-7 sm:py-8">
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-size-[32px_32px] dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.03)_1px,transparent_1px)]" />
+        <div className="pointer-events-none absolute -right-20 -top-24 -z-10 size-64 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/5" />
 
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            Configure título, emissor, links, datas, status e tags relacionadas
-            ao certificado.
-          </p>
+        <div className="flex items-start gap-3">
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50/90 text-blue-600 shadow-sm dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-400">
+            <Award className="size-5" aria-hidden="true" />
+          </span>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400">
+              Formação e competências
+            </p>
+
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {certificate ? "Editar certificado" : "Novo certificado"}
+            </h1>
+
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Cadastre a credencial, o emissor, as datas e os temas relacionados
+              ao certificado.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+        <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <Text className="size-4" aria-hidden="true" />
+          </span>
+
+          <div>
+            <h2 className="text-base font-bold text-foreground">
+              Informações principais
+            </h2>
+
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Dados usados na listagem pública e na identificação da
+              credencial.
+            </p>
+          </div>
         </div>
 
         <div className="grid gap-5">
-          <div className="grid gap-2">
-            <label htmlFor="title" className="text-sm font-semibold text-foreground">
-              Título
-            </label>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="grid gap-2">
+              <label
+                htmlFor="title"
+                className="text-sm font-semibold text-foreground"
+              >
+                Título
+              </label>
 
-            <div className="relative">
-              <Award className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="relative">
+                <Award className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
-              <input
-                id="title"
-                placeholder="Oracle Java Foundations"
-                className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                {...form.register("title", {
-                  onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                    if (!certificate) {
-                      form.setValue("slug", slugify(event.target.value), {
-                        shouldValidate: true,
-                      });
-                    }
-                  },
-                })}
+                <input
+                  id="title"
+                  placeholder="Oracle Java Foundations"
+                  className={`${inputClassName} pl-10 pr-3`}
+                  aria-invalid={Boolean(form.formState.errors.title)}
+                  {...form.register("title", {
+                    onChange: (
+                      event: React.ChangeEvent<HTMLInputElement>,
+                    ) => {
+                      if (!certificate) {
+                        form.setValue("slug", slugify(event.target.value), {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        });
+                      }
+                    },
+                  })}
+                />
+              </div>
+
+              <FieldError
+                message={form.formState.errors.title?.message}
               />
             </div>
 
-            <FieldError message={form.formState.errors.title?.message} />
+            <div className="grid gap-2">
+              <label
+                htmlFor="issuer"
+                className="text-sm font-semibold text-foreground"
+              >
+                Emissor
+              </label>
+
+              <div className="relative">
+                <UserRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+                <input
+                  id="issuer"
+                  placeholder="Oracle"
+                  className={`${inputClassName} pl-10 pr-3`}
+                  aria-invalid={Boolean(form.formState.errors.issuer)}
+                  {...form.register("issuer")}
+                />
+              </div>
+
+              <FieldError
+                message={form.formState.errors.issuer?.message}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2">
-            <label htmlFor="slug" className="text-sm font-semibold text-foreground">
+            <label
+              htmlFor="slug"
+              className="text-sm font-semibold text-foreground"
+            >
               Slug
             </label>
 
@@ -153,31 +255,18 @@ export function CertificateForm({ certificate, tags }: CertificateFormProps) {
               <input
                 id="slug"
                 placeholder="oracle-java-foundations"
-                className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                className={`${inputClassName} pl-10 pr-3 font-mono`}
+                aria-invalid={Boolean(form.formState.errors.slug)}
                 {...form.register("slug")}
               />
             </div>
 
+            <p className="text-xs leading-5 text-muted-foreground">
+              Usado na URL pública. Utilize apenas letras minúsculas, números e
+              hífens.
+            </p>
+
             <FieldError message={form.formState.errors.slug?.message} />
-          </div>
-
-          <div className="grid gap-2">
-            <label htmlFor="issuer" className="text-sm font-semibold text-foreground">
-              Emissor
-            </label>
-
-            <div className="relative">
-              <UserRound className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="issuer"
-                placeholder="Oracle"
-                className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                {...form.register("issuer")}
-              />
-            </div>
-
-            <FieldError message={form.formState.errors.issuer?.message} />
           </div>
 
           <div className="grid gap-2">
@@ -189,226 +278,317 @@ export function CertificateForm({ certificate, tags }: CertificateFormProps) {
             </label>
 
             <div className="relative">
-              <Text className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
+              <Text className="pointer-events-none absolute left-3 top-3.5 size-4 text-muted-foreground" />
 
               <textarea
                 id="description"
-                rows={3}
-                placeholder="Resumo curto sobre o certificado, conteúdo estudado e competência reforçada."
-                className="w-full rounded-xl border border-slate-400/70 bg-card py-3 pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                rows={4}
+                placeholder="Resumo sobre o certificado, conteúdo estudado e competência reforçada."
+                className="w-full resize-y rounded-xl border border-slate-300/80 bg-background py-3 pl-10 pr-3 text-sm leading-6 text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                aria-invalid={Boolean(
+                  form.formState.errors.description,
+                )}
                 {...form.register("description")}
               />
             </div>
 
-            <FieldError message={form.formState.errors.description?.message} />
+            <FieldError
+              message={form.formState.errors.description?.message}
+            />
           </div>
+        </div>
+      </section>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="grid gap-2">
-              <label
-                htmlFor="credentialUrl"
-                className="text-sm font-semibold text-foreground"
-              >
-                URL da credencial
-              </label>
+      <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+        <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <LinkIcon className="size-4" aria-hidden="true" />
+          </span>
 
-              <div className="relative">
-                <LinkIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div>
+            <h2 className="text-base font-bold text-foreground">
+              Links e imagem
+            </h2>
 
-                <input
-                  id="credentialUrl"
-                  placeholder="https://..."
-                  className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                  {...form.register("credentialUrl")}
-                />
-              </div>
-
-              <FieldError message={form.formState.errors.credentialUrl?.message} />
-            </div>
-
-            <div className="grid gap-2">
-              <label
-                htmlFor="imageUrl"
-                className="text-sm font-semibold text-foreground"
-              >
-                URL da imagem
-              </label>
-
-              <div className="relative">
-                <ImageIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-                <input
-                  id="imageUrl"
-                  placeholder="/images/certificado.png"
-                  className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                  {...form.register("imageUrl")}
-                />
-              </div>
-
-              <FieldError message={form.formState.errors.imageUrl?.message} />
-            </div>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Informe o endereço oficial da credencial e a imagem exibida no
+              portfólio.
+            </p>
           </div>
+        </div>
 
-          <div className="grid gap-5 xl:grid-cols-[1.3fr_1fr]">
-            <div className="grid gap-2">
-              <span className="text-sm font-semibold text-foreground">
-                Tags
-              </span>
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-2">
+            <label
+              htmlFor="credentialUrl"
+              className="text-sm font-semibold text-foreground"
+            >
+              URL da credencial
+            </label>
 
-              <div className="rounded-2xl border border-slate-300 bg-slate-50 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/30">
-                {tags.length > 0 ? (
-                  <div className="grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                    {tags.map((tag) => (
-                      <label
-                        key={tag.id}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
-                      >
-                        <input
-                          type="checkbox"
-                          value={tag.id}
-                          className="size-4 accent-blue-600"
-                          {...form.register("tagIds")}
-                        />
+            <div className="relative">
+              <LinkIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
-                        <span className="min-w-0 flex-1 truncate">
-                          {tag.name}
-                        </span>
-
-                        {!tag.isActive ? (
-                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                            Inativa
-                          </span>
-                        ) : null}
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Nenhuma tag cadastrada.
-                  </p>
+              <input
+                id="credentialUrl"
+                type="url"
+                placeholder="https://..."
+                className={`${inputClassName} pl-10 pr-3`}
+                aria-invalid={Boolean(
+                  form.formState.errors.credentialUrl,
                 )}
-              </div>
+                {...form.register("credentialUrl")}
+              />
+            </div>
 
-              <p className="text-xs text-muted-foreground">
-                Selecione as tags relacionadas ao certificado.
+            <FieldError
+              message={form.formState.errors.credentialUrl?.message}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="imageUrl"
+              className="text-sm font-semibold text-foreground"
+            >
+              URL da imagem
+            </label>
+
+            <div className="relative">
+              <ImageIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+              <input
+                id="imageUrl"
+                placeholder="/images/certificado.png"
+                className={`${inputClassName} pl-10 pr-3`}
+                aria-invalid={Boolean(form.formState.errors.imageUrl)}
+                {...form.register("imageUrl")}
+              />
+            </div>
+
+            <FieldError
+              message={form.formState.errors.imageUrl?.message}
+            />
+          </div>
+        </div>
+
+        {credentialUrl.trim() ? (
+          <a
+            href={credentialUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-border bg-background px-3.5 text-sm font-semibold text-muted-foreground transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
+          >
+            Abrir credencial
+            <ExternalLink className="size-4" aria-hidden="true" />
+          </a>
+        ) : null}
+      </section>
+
+      <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+        <div className="mb-6 flex items-start justify-between gap-3 border-b border-border pb-5">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+              <Tags className="size-4" aria-hidden="true" />
+            </span>
+
+            <div>
+              <h2 className="text-base font-bold text-foreground">
+                Tags relacionadas
+              </h2>
+
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Relacione as tecnologias, áreas e competências da certificação.
               </p>
             </div>
+          </div>
 
-            <div className="grid content-start gap-5">
-              <div className="grid gap-5 md:grid-cols-2">
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="issuedAt"
-                    className="text-sm font-semibold text-foreground"
-                  >
-                    Emissão
-                  </label>
+          <span className="inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 px-2 text-xs font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+            {selectedTagIds.length}
+          </span>
+        </div>
 
-                  <div className="relative">
-                    <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        {tags.length > 0 ? (
+          <div className="grid max-h-80 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3">
+            {tags.map((tag) => {
+              const selected = selectedTagIds.includes(tag.id);
 
-                    <input
-                      id="issuedAt"
-                      type="date"
-                      className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                      {...form.register("issuedAt")}
-                    />
-                  </div>
+              return (
+                <label
+                  key={tag.id}
+                  className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                    selected
+                      ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300"
+                      : "border-border bg-background text-muted-foreground hover:border-blue-300 hover:bg-blue-50/50 hover:text-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/20"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    value={tag.id}
+                    className="size-4 shrink-0 accent-blue-600"
+                    {...form.register("tagIds")}
+                  />
 
-                  <FieldError message={form.formState.errors.issuedAt?.message} />
-                </div>
+                  <span className="min-w-0 flex-1 truncate">
+                    {tag.name}
+                  </span>
 
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="expiresAt"
-                    className="text-sm font-semibold text-foreground"
-                  >
-                    Expiração
-                  </label>
+                  {!tag.isActive ? (
+                    <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                      Inativa
+                    </span>
+                  ) : null}
+                </label>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Nenhuma tag cadastrada.
+          </p>
+        )}
+      </section>
 
-                  <div className="relative">
-                    <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+      <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+        <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <CalendarDays className="size-4" aria-hidden="true" />
+          </span>
 
-                    <input
-                      id="expiresAt"
-                      type="date"
-                      className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                      {...form.register("expiresAt")}
-                    />
-                  </div>
+          <div>
+            <h2 className="text-base font-bold text-foreground">
+              Publicação e validade
+            </h2>
 
-                  <FieldError message={form.formState.errors.expiresAt?.message} />
-                </div>
-              </div>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Defina as datas, o status público e a posição do certificado.
+            </p>
+          </div>
+        </div>
 
-              <div className="grid items-stretch gap-5 md:grid-cols-[1fr_180px]">
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="status"
-                    className="text-sm font-semibold text-foreground"
-                  >
-                    Status
-                  </label>
+        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-2">
+            <label
+              htmlFor="issuedAt"
+              className="text-sm font-semibold text-foreground"
+            >
+              Emissão
+            </label>
 
-                  <div className="relative">
-                    <Bookmark className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="relative">
+              <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
-                    <select
-                      id="status"
-                      className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600 md:h-20 md:rounded-2xl"
-                      {...form.register("status")}
-                    >
-                      <option value="draft">Rascunho</option>
-                      <option value="published">Publicado</option>
-                    </select>
-                  </div>
-                </div>
+              <input
+                id="issuedAt"
+                type="date"
+                className={`${inputClassName} pl-10 pr-3`}
+                aria-invalid={Boolean(form.formState.errors.issuedAt)}
+                {...form.register("issuedAt")}
+              />
+            </div>
 
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="sortOrder"
-                    className="text-sm font-semibold text-foreground"
-                  >
-                    Ordem
-                  </label>
+            <FieldError
+              message={form.formState.errors.issuedAt?.message}
+            />
+          </div>
 
-                  <div className="relative">
-                    <ListOrdered className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="grid gap-2">
+            <label
+              htmlFor="expiresAt"
+              className="text-sm font-semibold text-foreground"
+            >
+              Expiração
+            </label>
 
-                    <input
-                      id="sortOrder"
-                      type="number"
-                      className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600 md:h-20 md:rounded-2xl"
-                      {...form.register("sortOrder", { valueAsNumber: true })}
-                    />
-                  </div>
-                </div>
-              </div>
+            <div className="relative">
+              <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+              <input
+                id="expiresAt"
+                type="date"
+                className={`${inputClassName} pl-10 pr-3`}
+                aria-invalid={Boolean(form.formState.errors.expiresAt)}
+                {...form.register("expiresAt")}
+              />
+            </div>
+
+            <FieldError
+              message={form.formState.errors.expiresAt?.message}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="status"
+              className="text-sm font-semibold text-foreground"
+            >
+              Status
+            </label>
+
+            <div className="relative">
+              <Bookmark className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+              <select
+                id="status"
+                className={`${inputClassName} pl-10 pr-3`}
+                {...form.register("status")}
+              >
+                <option value="draft">Rascunho</option>
+                <option value="published">Publicado</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <label
+              htmlFor="sortOrder"
+              className="text-sm font-semibold text-foreground"
+            >
+              Ordem
+            </label>
+
+            <div className="relative">
+              <ListOrdered className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+              <input
+                id="sortOrder"
+                type="number"
+                className={`${inputClassName} pl-10 pr-3`}
+                {...form.register("sortOrder", {
+                  valueAsNumber: true,
+                })}
+              />
             </div>
           </div>
         </div>
       </section>
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          className="h-11 w-full rounded-xl border-slate-300 bg-white px-5 sm:w-auto text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
-          disabled={isPending}
-        >
-          <ArrowLeft className="size-4" />
-          Voltar
-        </Button>
+      <div className="flex flex-col-reverse gap-3 rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs leading-5 text-muted-foreground">
+          Revise os dados, as datas e a URL antes de salvar.
+        </p>
 
-        <Button
-          type="submit"
-          className="h-11 w-full rounded-xl bg-blue-600 px-5 sm:w-auto text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
-          disabled={isPending}
-        >
-          <Save className="size-4" />
-          {isPending ? "Salvando..." : "Salvar certificado"}
-        </Button>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            className="h-11 w-full rounded-xl px-5 sm:w-auto"
+            disabled={isPending}
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Voltar
+          </Button>
+
+          <Button
+            type="submit"
+            className="h-11 w-full rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 sm:w-auto"
+            disabled={isPending}
+          >
+            <Save className="size-4" aria-hidden="true" />
+            {isPending ? "Salvando..." : "Salvar certificado"}
+          </Button>
+        </div>
       </div>
     </form>
   );

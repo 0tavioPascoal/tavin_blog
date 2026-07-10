@@ -1,4 +1,9 @@
-import { MarkdownAsync } from "react-markdown";
+import "server-only";
+
+import {
+  MarkdownAsync,
+  type Options as ReactMarkdownOptions,
+} from "react-markdown";
 import rehypePrettyCode, {
   type Options as RehypePrettyCodeOptions,
 } from "rehype-pretty-code";
@@ -24,8 +29,18 @@ const prettyCodeOptions: RehypePrettyCodeOptions = {
   },
 };
 
-const highlightedRehypePlugins: MarkdownContentProps["rehypePlugins"] = [
-  ...(baseRehypePlugins ?? []),
+const remarkPlugins: NonNullable<
+  ReactMarkdownOptions["remarkPlugins"]
+> = [remarkGfm];
+
+const normalizedBaseRehypePlugins: NonNullable<
+  ReactMarkdownOptions["rehypePlugins"]
+> = baseRehypePlugins ?? [];
+
+const highlightedRehypePlugins: NonNullable<
+  ReactMarkdownOptions["rehypePlugins"]
+> = [
+  ...normalizedBaseRehypePlugins,
   [rehypePrettyCode, prettyCodeOptions],
 ];
 
@@ -35,7 +50,7 @@ export async function HighlightedMarkdownContent({
   return (
     <article className={markdownContentClassName}>
       <MarkdownAsync
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={remarkPlugins}
         rehypePlugins={highlightedRehypePlugins}
         urlTransform={safeUrlTransform}
         components={markdownComponents}
