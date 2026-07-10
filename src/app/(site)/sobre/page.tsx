@@ -116,19 +116,25 @@ const journeyItems: JourneyItem[] = [
 
 export default function AboutPage() {
   return (
-    <main className="site-container py-10 sm:py-12">
+    <main className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
       {/* Apresentação */}
-      <section className="overflow-hidden border-y border-border bg-card/50">
+      <section className="relative isolate overflow-hidden rounded-3xl border border-slate-300/70 bg-card shadow-sm dark:border-slate-800">
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(to_right,rgba(15,23,42,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.045)_1px,transparent_1px)] bg-[size:42px_42px] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)]" />
+
+        <div className="pointer-events-none absolute -left-20 top-10 -z-10 size-72 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/10" />
+
+        <div className="pointer-events-none absolute -bottom-24 right-0 -z-10 size-80 rounded-full bg-cyan-400/10 blur-3xl dark:bg-cyan-400/10" />
+
         <div className="grid gap-10 p-5 sm:p-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:gap-14 lg:p-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-2 text-xs font-bold uppercase tracking-normal text-blue-700 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.12em] text-blue-700 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200">
               <Sparkles className="size-3.5" />
               Sobre mim
             </div>
 
-            <h1 className="mt-5 text-balance text-3xl font-bold leading-tight tracking-normal text-foreground sm:text-4xl md:text-5xl">
+            <h1 className="mt-5 text-balance text-3xl font-bold leading-tight tracking-[-0.035em] text-foreground sm:text-4xl md:text-5xl">
               Minha trajetória acontece entre o{" "}
-              <span className="text-blue-600 dark:text-blue-300">
+              <span className="bg-linear-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">
                 problema de negócio
               </span>{" "}
               e o software em produção.
@@ -163,7 +169,7 @@ export default function AboutPage() {
               <Button
                 asChild
                 size="lg"
-                className="group h-12 w-full rounded-lg bg-blue-600 px-6 font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 sm:w-auto"
+                className="group h-12 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 sm:w-auto"
               >
                 <Link href="/projetos">
                   Conhecer meus projetos
@@ -175,7 +181,7 @@ export default function AboutPage() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="group h-12 w-full rounded-lg border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 sm:w-auto"
+                className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 sm:w-auto"
               >
                 <Link href="/blog/artigos">
                   Ler meus artigos
@@ -187,12 +193,14 @@ export default function AboutPage() {
 
           {/* Imagem */}
           <div className="relative mx-auto w-full max-w-[520px]">
-            <div className="relative aspect-[4/4.3] overflow-hidden rounded-lg border border-border bg-slate-100 shadow-sm dark:bg-slate-950">
+            <div className="pointer-events-none absolute -inset-5 rounded-[2.5rem] bg-linear-to-br from-blue-500/15 via-transparent to-cyan-400/15 blur-2xl" />
+
+            <div className="relative aspect-[4/4.3] overflow-hidden rounded-[2rem] border border-slate-200/80 bg-slate-100 shadow-[0_28px_80px_-35px_rgba(37,99,235,0.5)] dark:border-white/10 dark:bg-slate-950">
               <Image
                 src="/images/hero-otavio-light.png"
                 alt="Otávio Pascoal trabalhando com desenvolvimento de software"
                 fill
-                loading="eager"
+                priority
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="object-cover object-center dark:hidden"
               />
@@ -201,13 +209,15 @@ export default function AboutPage() {
                 src="/images/hero-otavio-dark.png"
                 alt="Otávio Pascoal trabalhando com desenvolvimento de software"
                 fill
-                loading="eager"
+                priority
                 sizes="(max-width: 1024px) 100vw, 40vw"
                 className="hidden object-cover object-center dark:block"
               />
 
-              <div className="absolute inset-x-0 bottom-0 bg-slate-950/80 p-4 text-white backdrop-blur-sm">
-                <p className="text-xs font-bold uppercase tracking-normal text-blue-300">
+              <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-slate-950/35 via-transparent to-transparent" />
+
+              <div className="absolute bottom-5 left-5 right-5 rounded-2xl border border-white/15 bg-slate-950/75 p-4 text-white shadow-xl backdrop-blur-xl">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-blue-300">
                   Visão multidisciplinar
                 </p>
 
@@ -238,12 +248,12 @@ export default function AboutPage() {
                     : ""
                 }`}
               >
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
                   <Icon className="size-5" />
                 </div>
 
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-normal text-muted-foreground">
+                  <p className="text-xs font-bold uppercase tracking-[0.1em] text-muted-foreground">
                     {fact.label}
                   </p>
 
@@ -260,11 +270,11 @@ export default function AboutPage() {
       {/* Áreas de atuação */}
       <section className="mt-14">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-normal text-blue-600 dark:text-blue-400">
+          <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
             Perfil profissional
           </p>
 
-          <h2 className="mt-3 text-3xl font-bold tracking-normal text-foreground">
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground">
             Uma visão que conecta diferentes áreas da entrega.
           </h2>
 
@@ -282,10 +292,10 @@ export default function AboutPage() {
             return (
               <article
                 key={item.title}
-                className="group relative overflow-hidden rounded-lg border border-border bg-card p-5 shadow-sm transition-colors hover:border-blue-300 dark:hover:border-blue-500/40 sm:p-6"
+                className="group relative overflow-hidden rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg dark:border-slate-800 dark:hover:border-blue-800 sm:p-6"
               >
                 <div className="relative">
-                  <div className="flex size-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-all duration-300  group-hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:group-hover:bg-blue-950">
+                  <div className="flex size-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-all duration-300 group-hover:scale-105 group-hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-300 dark:group-hover:bg-blue-950">
                     <Icon className="size-5" />
                   </div>
 
@@ -305,13 +315,13 @@ export default function AboutPage() {
 
       {/* Trajetória */}
       <section className="mt-14 grid gap-8 lg:grid-cols-[1fr_340px] lg:gap-12">
-        <div className="rounded-lg border border-border bg-card p-5 shadow-sm sm:p-8 lg:p-10">
+        <div className="rounded-3xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-8 lg:p-10">
           <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-normal text-blue-600 dark:text-blue-400">
+            <p className="text-sm font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
               Trajetória
             </p>
 
-            <h2 className="mt-3 text-3xl font-bold tracking-normal text-foreground">
+            <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground">
               Da análise do problema à evolução da solução.
             </h2>
 
@@ -338,7 +348,7 @@ export default function AboutPage() {
                     </div>
 
                     <div className="pb-1">
-                      <p className="text-xs font-bold uppercase tracking-normal text-blue-600 dark:text-blue-400">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400">
                         Etapa {index + 1}
                       </p>
 
@@ -358,12 +368,12 @@ export default function AboutPage() {
         </div>
 
         {/* Foco atual */}
-        <aside className="flex flex-col rounded-lg border border-blue-200 bg-blue-50/70 p-6 shadow-sm dark:border-blue-400/20 dark:bg-blue-400/[0.07]">
-          <div className="flex size-12 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+        <aside className="flex flex-col rounded-3xl border border-blue-200/80 bg-linear-to-br from-blue-50 to-cyan-50 p-6 shadow-sm dark:border-blue-400/15 dark:from-blue-950/40 dark:to-cyan-950/20">
+          <div className="flex size-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
             <Code2 className="size-5" />
           </div>
 
-          <p className="mt-5 text-xs font-bold uppercase tracking-normal text-blue-700 dark:text-blue-300">
+          <p className="mt-5 text-xs font-bold uppercase tracking-[0.12em] text-blue-700 dark:text-blue-300">
             Foco atual
           </p>
 
@@ -385,7 +395,7 @@ export default function AboutPage() {
             ].map((focus) => (
               <div
                 key={focus}
-                className="flex items-center gap-2 rounded-lg border border-blue-200/70 bg-white/65 px-3 py-2.5 text-sm font-medium text-slate-700 dark:border-blue-400/15 dark:bg-white/[0.04] dark:text-slate-200"
+                className="flex items-center gap-2 rounded-xl border border-blue-200/70 bg-white/65 px-3 py-2.5 text-sm font-medium text-slate-700 dark:border-blue-400/15 dark:bg-white/[0.04] dark:text-slate-200"
               >
                 <span className="size-1.5 rounded-full bg-blue-500" />
                 {focus}
@@ -396,7 +406,7 @@ export default function AboutPage() {
           <Button
             asChild
             variant="outline"
-            className="mt-6 w-full rounded-lg border-blue-300 bg-white/70 text-blue-700 hover:bg-white dark:border-blue-400/25 dark:bg-white/[0.04] dark:text-blue-200 lg:mt-auto"
+            className="mt-6 w-full rounded-xl border-blue-300 bg-white/60 text-blue-700 hover:bg-white dark:border-blue-400/25 dark:bg-white/[0.04] dark:text-blue-200 lg:mt-auto"
           >
             <Link href="/projetos">
               <FolderCode className="size-4" />

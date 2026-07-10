@@ -21,19 +21,27 @@ export default async function CertificatesPage() {
   const certificatesCount = certificates.length;
 
   return (
-    <main className="site-container py-10 sm:py-12">
+    <main className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
       {/* Apresentação */}
-      <section className="overflow-hidden border-y border-border bg-card/50">
+      <section className="relative isolate overflow-hidden rounded-3xl border border-slate-300/70 bg-card shadow-sm dark:border-slate-800">
+        {/* Grid decorativo */}
+        <div className="pointer-events-none absolute inset-0 -z-30 bg-[linear-gradient(to_right,rgba(15,23,42,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.045)_1px,transparent_1px)] bg-size-[42px_42px] opacity-65 dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.035)_1px,transparent_1px)] dark:opacity-40" />
+
+        {/* Iluminação */}
+        <div className="pointer-events-none absolute -right-24 -top-24 -z-20 size-80 rounded-full bg-blue-500/10 blur-3xl dark:bg-blue-500/10" />
+
+        <div className="pointer-events-none absolute -bottom-24 left-10 -z-20 size-72 rounded-full bg-cyan-400/10 blur-3xl dark:bg-cyan-400/10" />
+
         <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[1fr_280px] lg:items-center lg:gap-12 lg:p-10">
           <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-2 text-xs font-bold uppercase tracking-normal text-blue-700 shadow-sm shadow-blue-950/5 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/80 px-3.5 py-2 text-xs font-bold uppercase tracking-[0.12em] text-blue-700 shadow-sm shadow-blue-950/5 dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-200">
               <Award className="size-3.5" />
               Formação contínua
             </div>
 
-            <h1 className="mt-5 text-balance text-3xl font-bold leading-tight tracking-normal text-foreground sm:text-4xl md:text-5xl">
+            <h1 className="mt-5 text-balance text-3xl font-bold leading-tight tracking-[-0.035em] text-foreground sm:text-4xl md:text-5xl">
               Estudos e certificações que{" "}
-              <span className="text-blue-600 dark:text-blue-300">
+              <span className="bg-linear-to-r from-blue-600 via-blue-500 to-cyan-500 bg-clip-text text-transparent">
                 acompanham a prática.
               </span>
             </h1>
@@ -63,13 +71,15 @@ export default async function CertificatesPage() {
           </div>
 
           {/* Resumo */}
-          <div className="relative overflow-hidden rounded-lg border border-blue-200 bg-blue-50/70 p-5 shadow-sm dark:border-blue-400/20 dark:bg-blue-400/[0.07] sm:p-6">
+          <div className="relative overflow-hidden rounded-2xl border border-blue-200/80 bg-blue-50/70 p-5 shadow-sm dark:border-blue-400/15 dark:bg-blue-400/[0.07] sm:p-6">
+            <div className="pointer-events-none absolute -right-10 -top-10 size-28 rounded-full bg-blue-500/15 blur-2xl" />
+
             <div className="relative">
-              <div className="flex size-12 items-center justify-center rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+              <div className="flex size-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-600/20">
                 <Award className="size-5" />
               </div>
 
-              <p className="mt-5 text-4xl font-bold tracking-normal text-slate-950 dark:text-white">
+              <p className="mt-5 text-4xl font-bold tracking-[-0.04em] text-slate-950 dark:text-white">
                 {certificatesCount}
               </p>
 
@@ -95,13 +105,13 @@ export default async function CertificatesPage() {
         >
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-normal text-blue-600 dark:text-blue-400">
+              <p className="text-sm font-semibold uppercase tracking-[0.12em] text-blue-600 dark:text-blue-400">
                 Minha formação
               </p>
 
               <h2
                 id="certificates-title"
-                className="mt-3 text-2xl font-bold tracking-normal text-foreground sm:text-3xl"
+                className="mt-3 text-2xl font-bold tracking-[-0.03em] text-foreground sm:text-3xl"
               >
                 Certificados e cursos concluídos
               </h2>
@@ -128,8 +138,8 @@ export default async function CertificatesPage() {
           </div>
         </section>
       ) : (
-        <section className="mt-10 rounded-lg border border-dashed border-border bg-card p-8 text-center sm:p-10">
-          <div className="mx-auto flex size-14 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
+        <section className="mt-10 rounded-3xl border border-dashed border-slate-300 bg-card p-8 text-center dark:border-slate-800 sm:p-10">
+          <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-400/10 dark:text-blue-300">
             <BookOpenCheck className="size-6" />
           </div>
 
