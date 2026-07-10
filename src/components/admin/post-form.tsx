@@ -2,21 +2,25 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  AlignLeft,
   ArrowLeft,
   Bookmark,
+  Clock3,
   Eye,
+  FileText,
   Folder,
   Hash,
   ImagePlus,
   PencilLine,
   Save,
+  Settings2,
   Star,
-  Text,
+  Tags,
   Type,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -58,6 +62,9 @@ type PostFormProps = {
   tags: TagSummary[];
 };
 
+const inputClassName =
+  "h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600";
+
 const MarkdownPreview = dynamic(
   () =>
     import("@/components/admin/admin-markdown-preview").then(
@@ -65,7 +72,7 @@ const MarkdownPreview = dynamic(
     ),
   {
     loading: () => (
-      <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center text-sm text-muted-foreground dark:border-slate-800 dark:bg-slate-900/30 sm:min-h-104">
+      <div className="flex min-h-128 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-muted/35 px-4 text-center text-sm text-muted-foreground dark:border-slate-800">
         Carregando preview...
       </div>
     ),
@@ -73,9 +80,15 @@ const MarkdownPreview = dynamic(
 );
 
 function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
+  if (!message) {
+    return null;
+  }
 
-  return <p className="text-sm text-red-600 dark:text-red-400">{message}</p>;
+  return (
+    <p role="alert" className="text-sm font-medium text-red-600 dark:text-red-400">
+      {message}
+    </p>
+  );
 }
 
 function slugify(value: string): string {
@@ -110,6 +123,7 @@ function insertMarkdownAtCursor(
 export function PostForm({ post, categories, tags }: PostFormProps) {
   const router = useRouter();
   const toast = useAdminToast();
+
   const [editorMode, setEditorMode] = useState<EditorMode>("write");
   const [isPending, startTransition] = useTransition();
   const [isUploadingImage, startImageUploadTransition] = useTransition();
@@ -132,11 +146,32 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
   });
 
   const contentMarkdownField = form.register("contentMarkdown");
+
   const contentMarkdownPreview =
     useWatch({
       control: form.control,
       name: "contentMarkdown",
     }) ?? "";
+
+  const selectedTagIds =
+    useWatch({
+      control: form.control,
+      name: "tagIds",
+    }) ?? [];
+
+  const readingTimeMinutes = useMemo(
+    () => calculateReadingTimeMinutes(contentMarkdownPreview),
+    [contentMarkdownPreview],
+  );
+
+  const wordCount = useMemo(() => {
+    const normalized = contentMarkdownPreview
+      .replace(/```[\s\S]*?```/g, " ")
+      .replace(/[#>*_`~[\]()!-]/g, " ")
+      .trim();
+
+    return normalized ? normalized.split(/\s+/).length : 0;
+  }, [contentMarkdownPreview]);
 
   function onSubmit(values: PostEditorValues) {
     const actionInput = {
@@ -177,7 +212,9 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
     const [file] = Array.from(event.target.files ?? []);
     event.target.value = "";
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     startImageUploadTransition(async () => {
       const toastId = toast.info("Enviando imagem...");
@@ -188,7 +225,9 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
       const result = await uploadPostImageAction(formData);
       toast.handleActionResult(toastId, result);
 
-      if (!result.ok || !result.markdown) return;
+      if (!result.ok || !result.markdown) {
+        return;
+      }
 
       const textarea = markdownTextareaRef.current;
       const currentValue = form.getValues("contentMarkdown");
@@ -217,175 +256,170 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
 
   return (
     <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-      <section className="rounded-2xl border border-slate-300 bg-card p-4 shadow-sm shadow-slate-200/80 dark:border-slate-800 dark:shadow-black/20 sm:rounded-3xl sm:p-6">
-        <div className="mb-6">
-          <h2 className="text-lg font-bold text-foreground">
-            Informações do artigo
-          </h2>
+      <div className="grid gap-6">
+        <div className="grid min-w-0 gap-6">
+          <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+            <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
+              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                <FileText className="size-4" aria-hidden="true" />
+              </span>
 
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">
-            Configure título, slug, resumo, conteúdo, publicação e organização do
-            artigo.
-          </p>
-        </div>
-
-        <div className="grid gap-5">
-          <div className="grid gap-2">
-            <label
-              htmlFor="title"
-              className="text-sm font-semibold text-foreground"
-            >
-              Título
-            </label>
-
-            <div className="relative">
-              <Type className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="title"
-                placeholder="Ex: Entendendo Service Lifetimes no .NET"
-                className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                {...form.register("title", {
-                  onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
-                    if (!post) {
-                      form.setValue("slug", slugify(event.target.value), {
-                        shouldValidate: true,
-                      });
-                    }
-                  },
-                })}
-              />
-            </div>
-
-            <FieldError message={form.formState.errors.title?.message} />
-          </div>
-
-          <div className="grid gap-2">
-            <label
-              htmlFor="slug"
-              className="text-sm font-semibold text-foreground"
-            >
-              Slug
-            </label>
-
-            <div className="relative">
-              <Hash className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="slug"
-                placeholder="entendendo-service-lifetimes-dotnet"
-                className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                {...form.register("slug")}
-              />
-            </div>
-
-            <FieldError message={form.formState.errors.slug?.message} />
-          </div>
-
-          <div className="grid gap-2">
-            <label
-              htmlFor="description"
-              className="text-sm font-semibold text-foreground"
-            >
-              Descrição
-            </label>
-
-            <div className="relative">
-              <Text className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
-
-              <textarea
-                id="description"
-                rows={3}
-                placeholder="Resumo curto que aparece nos cards e no SEO do artigo."
-                className="w-full rounded-xl border border-slate-400/70 bg-card py-3 pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                {...form.register("description")}
-              />
-            </div>
-
-            <FieldError message={form.formState.errors.description?.message} />
-          </div>
-
-          <div className="grid gap-3">
-            <div>
               <div>
-                <label
-                  htmlFor="contentMarkdown"
-                  className="text-sm font-semibold text-foreground"
-                >
-                  Conteúdo Markdown
-                </label>
-
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                  Escreva o conteúdo do artigo e envie imagens para inserir
-                  automaticamente no cursor.
+                <h2 className="text-base font-bold text-foreground">
+                  Informações do artigo
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Defina o título, a URL e o resumo usado nos cards e mecanismos
+                  de busca.
                 </p>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-dashed border-slate-400/80 bg-slate-50 p-3 shadow-sm transition hover:border-blue-400 hover:bg-blue-50/50 dark:border-slate-700 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20 sm:p-4">
-              <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <div className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-600 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-300">
-                    <ImagePlus className="size-5" />
-                  </div>
+            <div className="grid gap-5">
+              <div className="grid gap-2">
+                <label
+                  htmlFor="title"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Título
+                </label>
 
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">
-                      Editor do artigo
-                    </p>
+                <div className="relative">
+                  <Type className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
-                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      Escreva em Markdown, envie imagens e alterne para revisar
-                      o resultado renderizado.
-                    </p>
-                  </div>
+                  <input
+                    id="title"
+                    placeholder="Ex: Entendendo Service Lifetimes no .NET"
+                    className={`${inputClassName} pl-10 pr-3`}
+                    {...form.register("title", {
+                      onChange: (
+                        event: React.ChangeEvent<HTMLInputElement>,
+                      ) => {
+                        if (!post) {
+                          form.setValue("slug", slugify(event.target.value), {
+                            shouldDirty: true,
+                            shouldValidate: true,
+                          });
+                        }
+                      },
+                    })}
+                  />
                 </div>
 
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                  <div
-                    className="grid w-full grid-cols-2 rounded-xl border border-slate-300 bg-white p-1 dark:border-slate-800 dark:bg-card sm:w-auto"
-                    aria-label="Modo do editor Markdown"
-                  >
-                    <button
-                      type="button"
-                      aria-pressed={editorMode === "write"}
-                      onClick={() => setEditorMode("write")}
-                      className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
-                        editorMode === "write"
-                          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                          : "text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
-                      }`}
-                    >
-                      <PencilLine className="size-4" />
-                      Escrever
-                    </button>
+                <FieldError message={form.formState.errors.title?.message} />
+              </div>
 
-                    <button
-                      type="button"
-                      aria-pressed={editorMode === "preview"}
-                      onClick={() => setEditorMode("preview")}
-                      className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
-                        editorMode === "preview"
-                          ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                          : "text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
-                      }`}
-                    >
-                      <Eye className="size-4" />
-                      Preview
-                    </button>
-                  </div>
+              <div className="grid gap-2">
+                <label
+                  htmlFor="slug"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Slug
+                </label>
 
-                  <Button
+                <div className="relative">
+                  <Hash className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+                  <input
+                    id="slug"
+                    placeholder="entendendo-service-lifetimes-dotnet"
+                    className={`${inputClassName} pl-10 pr-3 font-mono`}
+                    {...form.register("slug")}
+                  />
+                </div>
+
+                <p className="text-xs text-muted-foreground">
+                  A URL pública será gerada a partir deste identificador.
+                </p>
+
+                <FieldError message={form.formState.errors.slug?.message} />
+              </div>
+
+              <div className="grid gap-2">
+                <label
+                  htmlFor="description"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Descrição
+                </label>
+
+                <div className="relative">
+                  <AlignLeft className="pointer-events-none absolute left-3 top-3.5 size-4 text-muted-foreground" />
+
+                  <textarea
+                    id="description"
+                    rows={3}
+                    placeholder="Resumo curto que aparece nos cards e no SEO do artigo."
+                    className="w-full resize-y rounded-xl border border-slate-300/80 bg-background py-3 pl-10 pr-3 text-sm leading-6 text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                    {...form.register("description")}
+                  />
+                </div>
+
+                <FieldError
+                  message={form.formState.errors.description?.message}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="overflow-hidden rounded-2xl border border-slate-300/70 bg-card shadow-sm dark:border-slate-800">
+            <div className="flex flex-col gap-4 border-b border-border p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                  <PencilLine className="size-4" aria-hidden="true" />
+                </span>
+
+                <div>
+                  <h2 className="text-base font-bold text-foreground">
+                    Editor Markdown
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    Escreva, envie imagens e revise o resultado renderizado.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="grid grid-cols-2 rounded-xl border border-border bg-muted/45 p-1">
+                  <button
                     type="button"
-                    variant="outline"
-                    onClick={handleImageButtonClick}
-                    disabled={isUploadingImage}
-                    className="h-11 w-full rounded-xl border-slate-300 bg-white text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-400 sm:w-auto"
+                    aria-pressed={editorMode === "write"}
+                    onClick={() => setEditorMode("write")}
+                    className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
+                      editorMode === "write"
+                        ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                        : "text-muted-foreground hover:bg-background hover:text-foreground"
+                    }`}
                   >
-                    <ImagePlus className="size-4" />
-                    {isUploadingImage ? "Enviando..." : "Enviar imagem"}
-                  </Button>
+                    <PencilLine className="size-4" />
+                    Escrever
+                  </button>
+
+                  <button
+                    type="button"
+                    aria-pressed={editorMode === "preview"}
+                    onClick={() => setEditorMode("preview")}
+                    className={`inline-flex h-9 items-center justify-center gap-2 rounded-lg px-3 text-sm font-semibold transition ${
+                      editorMode === "preview"
+                        ? "bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                        : "text-muted-foreground hover:bg-background hover:text-foreground"
+                    }`}
+                  >
+                    <Eye className="size-4" />
+                    Preview
+                  </button>
                 </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleImageButtonClick}
+                  disabled={isUploadingImage}
+                  className="h-11 rounded-xl"
+                >
+                  <ImagePlus className="size-4" />
+                  {isUploadingImage ? "Enviando..." : "Enviar imagem"}
+                </Button>
 
                 <input
                   ref={imageInputRef}
@@ -395,13 +429,28 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                   onChange={handleImageChange}
                 />
               </div>
+            </div>
 
+            <div className="border-b border-border bg-muted/25 px-5 py-3 sm:px-6">
+              <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock3 className="size-3.5 text-blue-600 dark:text-blue-400" />
+                  {readingTimeMinutes} min de leitura
+                </span>
+
+                <span>{wordCount} palavras</span>
+
+                <span>{contentMarkdownPreview.length} caracteres</span>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5">
               {editorMode === "write" ? (
                 <textarea
                   id="contentMarkdown"
-                  rows={18}
+                  rows={22}
                   placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
-                  className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 font-mono text-sm leading-6 text-foreground shadow-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/70 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-card dark:hover:border-slate-600 sm:min-h-112"
+                  className="min-h-136 w-full resize-y rounded-xl border border-slate-300/80 bg-background px-4 py-4 font-mono text-sm leading-7 text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
                   {...contentMarkdownField}
                   ref={(element) => {
                     contentMarkdownField.ref(element);
@@ -409,52 +458,44 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                   }}
                 />
               ) : (
-                <div className="min-h-80 w-full rounded-xl border border-slate-400/70 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-card sm:min-h-112">
+                <div className="min-h-136 w-full overflow-hidden rounded-xl border border-slate-300/80 bg-background px-5 py-6 shadow-sm dark:border-slate-700 sm:px-7">
                   {contentMarkdownPreview.trim().length > 0 ? (
                     <MarkdownPreview content={contentMarkdownPreview} />
                   ) : (
-                    <div className="flex min-h-72 items-center justify-center rounded-lg border border-dashed border-slate-300 bg-slate-50 px-4 text-center text-sm text-muted-foreground dark:border-slate-800 dark:bg-slate-900/30 sm:min-h-104">
+                    <div className="flex min-h-120 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 px-4 text-center text-sm text-muted-foreground">
                       O preview do Markdown aparecerá aqui.
                     </div>
                   )}
                 </div>
               )}
+
+              <div className="mt-3">
+                <FieldError
+                  message={form.formState.errors.contentMarkdown?.message}
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+          <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800">
+            <div className="mb-5 flex items-start gap-3 border-b border-border pb-4">
+              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                <Settings2 className="size-4" aria-hidden="true" />
+              </span>
+
+              <div>
+                <h2 className="text-sm font-bold text-foreground">
+                  Publicação
+                </h2>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                  Status, categoria e destaque.
+                </p>
+              </div>
             </div>
 
-            <FieldError
-              message={form.formState.errors.contentMarkdown?.message}
-            />
-          </div>
-
-          <div className="grid gap-5 xl:grid-cols-[1fr_1.4fr]">
             <div className="grid gap-5">
-              <div className="grid gap-2">
-                <label
-                  htmlFor="categoryId"
-                  className="text-sm font-semibold text-foreground"
-                >
-                  Categoria
-                </label>
-
-                <div className="relative">
-                  <Folder className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-                  <select
-                    id="categoryId"
-                    className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
-                    {...form.register("categoryId")}
-                  >
-                    <option value="">Sem categoria</option>
-                    {categories.map((category) => (
-                      <option key={category.id} value={category.id}>
-                        {category.name}
-                        {category.isActive ? "" : " (inativa)"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
               <div className="grid gap-2">
                 <label
                   htmlFor="status"
@@ -468,7 +509,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
 
                   <select
                     id="status"
-                    className="h-11 w-full rounded-xl border border-slate-400/70 bg-card pl-10 pr-3 text-sm text-foreground shadow-sm outline-none transition-all duration-200 hover:border-slate-500/80 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
+                    className={`${inputClassName} pl-10 pr-3`}
                     {...form.register("status")}
                   >
                     <option value="draft">Rascunho</option>
@@ -477,97 +518,147 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                 </div>
               </div>
 
-              <label className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-slate-300 bg-slate-50 p-4 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-900/30 dark:hover:border-blue-800 dark:hover:bg-blue-950/20">
-                <span className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300">
+              <div className="grid gap-2">
+                <label
+                  htmlFor="categoryId"
+                  className="text-sm font-semibold text-foreground"
+                >
+                  Categoria
+                </label>
+
+                <div className="relative">
+                  <Folder className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
+                  <select
+                    id="categoryId"
+                    className={`${inputClassName} pl-10 pr-3`}
+                    {...form.register("categoryId")}
+                  >
+                    <option value="">Sem categoria</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                        {category.isActive ? "" : " (inativa)"}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <label className="flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-border bg-muted/30 p-3.5 transition hover:border-blue-300 hover:bg-blue-50/60 dark:hover:border-blue-800 dark:hover:bg-blue-950/20">
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
                     <Star className="size-4" />
                   </span>
 
-                  <span>
+                  <span className="min-w-0">
                     <span className="block text-sm font-semibold text-foreground">
                       Artigo em destaque
                     </span>
-                    <span className="mt-0.5 block text-xs text-muted-foreground">
-                      Exibir como destaque na página do blog.
+                    <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+                      Exibir na página inicial.
                     </span>
                   </span>
                 </span>
 
                 <input
                   type="checkbox"
-                  className="size-4 accent-blue-600"
+                  className="size-4 shrink-0 accent-blue-600"
                   {...form.register("isFeatured")}
                 />
               </label>
             </div>
+          </section>
 
-            <div className="grid gap-2">
-              <span className="text-sm font-semibold text-foreground">
-                Tags
-              </span>
+          <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800">
+            <div className="mb-5 flex items-start justify-between gap-3 border-b border-border pb-4">
+              <div className="flex items-start gap-3">
+                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+                  <Tags className="size-4" aria-hidden="true" />
+                </span>
 
-              <div className="rounded-2xl border border-slate-300 bg-slate-50 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900/30">
-                {tags.length > 0 ? (
-                  <div className="grid max-h-64 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                    {tags.map((tag) => (
-                      <label
-                        key={tag.id}
-                        className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-blue-800 dark:hover:bg-blue-950/30"
-                      >
-                        <input
-                          type="checkbox"
-                          value={tag.id}
-                          className="size-4 accent-blue-600"
-                          {...form.register("tagIds")}
-                        />
-
-                        <span className="min-w-0 flex-1 truncate">
-                          {tag.name}
-                        </span>
-
-                        {!tag.isActive ? (
-                          <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-slate-500 dark:bg-slate-800 dark:text-slate-400">
-                            Inativa
-                          </span>
-                        ) : null}
-                      </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Nenhuma tag cadastrada.
+                <div>
+                  <h2 className="text-sm font-bold text-foreground">Tags</h2>
+                  <p className="mt-0.5 text-xs leading-5 text-muted-foreground">
+                    Relacione tecnologias e temas.
                   </p>
-                )}
+                </div>
               </div>
 
-              <p className="text-xs text-muted-foreground">
-                Selecione uma ou mais tags para relacionar ao artigo.
-              </p>
+              <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-blue-50 px-2 text-[10px] font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
+                {selectedTagIds.length}
+              </span>
             </div>
-          </div>
+
+            {tags.length > 0 ? (
+              <div className="grid max-h-88 gap-2 overflow-y-auto pr-1">
+                {tags.map((tag) => {
+                  const selected = selectedTagIds.includes(tag.id);
+
+                  return (
+                    <label
+                      key={tag.id}
+                      className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                        selected
+                          ? "border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300"
+                          : "border-border bg-background text-muted-foreground hover:border-blue-300 hover:bg-blue-50/50 hover:text-foreground dark:hover:border-blue-800 dark:hover:bg-blue-950/20"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        value={tag.id}
+                        className="size-4 shrink-0 accent-blue-600"
+                        {...form.register("tagIds")}
+                      />
+
+                      <span className="min-w-0 flex-1 truncate">
+                        {tag.name}
+                      </span>
+
+                      {!tag.isActive ? (
+                        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-muted-foreground">
+                          Inativa
+                        </span>
+                      ) : null}
+                    </label>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Nenhuma tag cadastrada.
+              </p>
+            )}
+          </section>
         </div>
-      </section>
+      </div>
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
-          className="h-11 w-full rounded-xl border-slate-300 bg-white px-5 sm:w-auto text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-800 dark:bg-card dark:text-muted-foreground dark:hover:bg-slate-900"
-          disabled={isPending}
-        >
-          <ArrowLeft className="size-4" />
-          Voltar
-        </Button>
+      <div className="flex flex-col-reverse gap-3 rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-xs leading-5 text-muted-foreground">
+          Revise as informações antes de salvar ou publicar o artigo.
+        </p>
 
-        <Button
-          type="submit"
-          className="h-11 w-full rounded-xl bg-blue-600 px-5 sm:w-auto text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700"
-          disabled={isPending}
-        >
-          <Save className="size-4" />
-          {isPending ? "Salvando..." : "Salvar post"}
-        </Button>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            className="h-11 w-full rounded-xl px-5 sm:w-auto"
+            disabled={isPending}
+          >
+            <ArrowLeft className="size-4" />
+            Voltar
+          </Button>
+
+          <Button
+            type="submit"
+            className="h-11 w-full rounded-xl bg-blue-600 px-5 text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 sm:w-auto"
+            disabled={isPending || isUploadingImage}
+          >
+            <Save className="size-4" />
+            {isPending ? "Salvando..." : "Salvar post"}
+          </Button>
+        </div>
       </div>
     </form>
   );
