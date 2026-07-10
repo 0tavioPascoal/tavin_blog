@@ -125,7 +125,7 @@ function TechnologyBadge({ technology }: { technology: Technology }) {
     <span
       aria-label={technology.ariaLabel}
       title={technology.label}
-      className="group inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200/90 bg-white/75 px-3 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-950/5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white hover:text-slate-950 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-blue-400/40 dark:hover:bg-white/[0.09] dark:hover:text-white"
+      className="group inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200/90 bg-white/75 px-3 text-sm font-semibold text-slate-700 shadow-sm shadow-slate-950/5 backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-300 hover:bg-white hover:text-slate-950 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-blue-400/40 dark:hover:bg-white/9 dark:hover:text-white"
     >
       <Image
         src={technology.iconSrc}
