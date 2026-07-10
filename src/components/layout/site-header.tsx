@@ -1,26 +1,50 @@
 "use client";
 
-import { Menu, Moon, ShieldCheck, Sun, X } from "lucide-react";
+import { useState, useSyncExternalStore } from "react";
+import {
+  Mail,
+  Menu,
+  Moon,
+  ShieldCheck,
+  Sun,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "@/providers/theme-provider";
-import { useState, useSyncExternalStore } from "react";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
 import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/features/settings/types/settings";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/providers/theme-provider";
 
 const navigation = [
-  { href: "/", label: "Home" },
-  { href: "/blog/artigos", label: "Artigos" },
-  { href: "/projetos", label: "Projetos" },
-  { href: "/sobre", label: "Sobre" },
-  { href: "/contato", label: "Contato" },
+  {
+    href: "/",
+    label: "Início",
+  },
+  {
+    href: "/blog/artigos",
+    label: "Artigos",
+  },
+  {
+    href: "/projetos",
+    label: "Projetos",
+  },
+  {
+    href: "/certificados",
+    label: "Certificados",
+  },
+  {
+    href: "/sobre",
+    label: "Sobre",
+  },
 ];
 
 function isActive(pathname: string, href: string): boolean {
-  return href === "/" ? pathname === href : pathname.startsWith(href);
+  return href === "/"
+    ? pathname === href
+    : pathname.startsWith(href);
 }
 
 function subscribe() {
@@ -36,6 +60,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
+
   const mounted = useSyncExternalStore(
     subscribe,
     () => true,
@@ -49,22 +74,34 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/90 shadow-[0_4px_20px_rgba(15,23,42,0.06)] backdrop-blur-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.35)]">
+    <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 shadow-[0_8px_30px_-22px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:bg-background/80 dark:shadow-[0_8px_30px_-22px_rgba(0,0,0,0.8)]">
       <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-[7vw]">
+        {/* Identidade */}
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2 font-semibold tracking-tight text-foreground sm:gap-3"
+          aria-label="Ir para a página inicial"
+          className="group flex min-w-0 items-center gap-3"
         >
-          <span className="shrink-0 text-xl text-blue-600 dark:text-blue-400 sm:text-2xl">
-            &lt;/&gt;
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-cyan-500 text-sm font-black tracking-[-0.06em] text-white shadow-md shadow-blue-600/20 transition-transform duration-300 group-hover:scale-105">
+            OP
           </span>
 
-          <span className="truncate text-base sm:text-lg">
-            OTÁVIO <span className="font-normal">PASCOAL</span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-bold tracking-[-0.02em] text-foreground sm:text-base">
+              Otávio Pascoal
+            </span>
+
+            <span className="hidden text-[11px] font-medium text-muted-foreground sm:block">
+              Blog & Portfólio
+            </span>
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        {/* Navegação desktop */}
+        <nav
+          aria-label="Navegação principal"
+          className="hidden h-full items-center gap-1 lg:flex"
+        >
           {navigation.map((item) => {
             const active = isActive(pathname, item.href);
 
@@ -72,91 +109,137 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative py-5 text-sm font-medium text-muted-foreground transition hover:text-blue-700 dark:hover:text-blue-300",
-                  active && "text-blue-700 dark:text-blue-300",
+                  "relative flex h-10 items-center rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-accent/70 hover:text-foreground",
+                  active &&
+                    "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-300",
                 )}
               >
                 {item.label}
 
                 {active ? (
-                  <span className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                  <span className="absolute inset-x-3 -bottom-[13px] h-0.5 rounded-full bg-blue-600 dark:bg-blue-400" />
                 ) : null}
               </Link>
             );
           })}
         </nav>
 
-        <div className="hidden items-center gap-1 md:flex">
+        {/* Ações desktop */}
+        <div className="hidden items-center gap-1 lg:flex">
           {settings.githubUrl ? (
             <Button
+              asChild
               variant="ghost"
               size="icon"
-              className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
-              asChild
-              aria-label="GitHub"
+              className="size-9 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground"
             >
-              <a href={settings.githubUrl} target="_blank" rel="noreferrer">
-                <FaGithub className="size-5" />
+              <a
+                href={settings.githubUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Acessar GitHub"
+              >
+                <FaGithub className="size-[18px]" />
               </a>
             </Button>
           ) : null}
 
           {settings.linkedinUrl ? (
             <Button
+              asChild
               variant="ghost"
               size="icon"
-              className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-blue-600 dark:hover:text-blue-400"
-              asChild
-              aria-label="LinkedIn"
+              className="size-9 rounded-xl text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-400/10 dark:hover:text-blue-300"
             >
-              <a href={settings.linkedinUrl} target="_blank" rel="noreferrer">
-                <FaLinkedinIn className="size-5" />
+              <a
+                href={settings.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Acessar LinkedIn"
+              >
+                <FaLinkedinIn className="size-[18px]" />
               </a>
             </Button>
           ) : null}
 
           <Button
+            type="button"
             variant="ghost"
             size="icon"
-            className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-amber-500 dark:hover:text-amber-400"
+            className="size-9 rounded-xl text-muted-foreground hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-400/10 dark:hover:text-amber-300"
             onClick={toggleTheme}
-            aria-label="Alternar tema"
+            aria-label={
+              mounted && isDark
+                ? "Ativar tema claro"
+                : "Ativar tema escuro"
+            }
           >
             {mounted && isDark ? (
-              <Sun className="size-5" />
+              <Sun className="size-[18px]" />
             ) : (
-              <Moon className="size-5" />
+              <Moon className="size-[18px]" />
             )}
           </Button>
 
+          <div className="mx-1 h-5 w-px bg-border" />
+
           <Button
+            asChild
+            size="sm"
+            className="h-9 rounded-xl bg-blue-600 px-4 font-semibold text-white shadow-md shadow-blue-600/15 hover:bg-blue-700"
+          >
+            <Link href="/contato">
+              <Mail className="size-4" />
+              Contato
+            </Link>
+          </Button>
+
+          <Button
+            asChild
             variant="ghost"
             size="icon"
-            className="rounded-xl text-muted-foreground transition-all hover:bg-accent hover:text-emerald-600 dark:hover:text-emerald-400"
-            asChild
-            aria-label="Admin"
+            className="ml-1 size-9 rounded-xl text-muted-foreground/70 hover:bg-accent hover:text-emerald-600 dark:hover:text-emerald-400"
           >
-            <Link href="/admin">
-              <ShieldCheck className="size-5" />
+            <Link
+              href="/admin"
+              aria-label="Acessar administração"
+            >
+              <ShieldCheck className="size-[18px]" />
             </Link>
           </Button>
         </div>
 
+        {/* Botão mobile */}
         <Button
-          className="md:hidden"
+          type="button"
           variant="ghost"
           size="icon"
+          className="rounded-xl lg:hidden"
           onClick={() => setIsOpen((current) => !current)}
-          aria-label="Abrir menu"
+          aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
         >
-          {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          {isOpen ? (
+            <X className="size-5" />
+          ) : (
+            <Menu className="size-5" />
+          )}
         </Button>
       </div>
 
+      {/* Menu mobile */}
       {isOpen ? (
-        <nav className="border-t border-border bg-card px-4 py-4 shadow-lg shadow-slate-900/5 sm:px-6 md:hidden">
-          <div className="grid gap-2">
+        <div
+          id="mobile-navigation"
+          className="border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl shadow-slate-950/5 backdrop-blur-xl sm:px-6 lg:hidden"
+        >
+          <nav
+            aria-label="Navegação mobile"
+            className="grid gap-1.5"
+          >
             {navigation.map((item) => {
               const active = isActive(pathname, item.href);
 
@@ -165,10 +248,11 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsOpen(false)}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
+                    "flex h-11 items-center rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
                     active &&
-                      "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
+                      "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200",
                   )}
                 >
                   {item.label}
@@ -177,27 +261,37 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             })}
 
             <Link
-              href="/admin"
+              href="/contato"
               onClick={() => setIsOpen(false)}
+              aria-current={
+                isActive(pathname, "/contato")
+                  ? "page"
+                  : undefined
+              }
               className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground",
-                isActive(pathname, "/admin") &&
-                  "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-200",
+                "flex h-11 items-center justify-between rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+                isActive(pathname, "/contato") &&
+                  "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200",
               )}
             >
-              Admin
+              Contato
+              <Mail className="size-4" />
             </Link>
-          </div>
+          </nav>
 
-          <div className="mt-4 grid grid-cols-2 gap-2 border-t border-border pt-4">
+          <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
             {settings.githubUrl ? (
               <Button
-                variant="outline"
-                className="h-10 rounded-xl"
                 asChild
-                aria-label="GitHub"
+                variant="outline"
+                size="sm"
+                className="h-10 flex-1 rounded-xl"
               >
-                <a href={settings.githubUrl} target="_blank" rel="noreferrer">
+                <a
+                  href={settings.githubUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <FaGithub className="size-4" />
                   GitHub
                 </a>
@@ -206,12 +300,16 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
 
             {settings.linkedinUrl ? (
               <Button
-                variant="outline"
-                className="h-10 rounded-xl"
                 asChild
-                aria-label="LinkedIn"
+                variant="outline"
+                size="sm"
+                className="h-10 flex-1 rounded-xl"
               >
-                <a href={settings.linkedinUrl} target="_blank" rel="noreferrer">
+                <a
+                  href={settings.linkedinUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <FaLinkedinIn className="size-4" />
                   LinkedIn
                 </a>
@@ -219,22 +317,41 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             ) : null}
 
             <Button
+              type="button"
               variant="outline"
-              className="h-10 rounded-xl"
+              size="icon"
+              className="size-10 shrink-0 rounded-xl"
               onClick={toggleTheme}
-              aria-label="Alternar tema"
+              aria-label={
+                mounted && isDark
+                  ? "Ativar tema claro"
+                  : "Ativar tema escuro"
+              }
             >
               {mounted && isDark ? (
                 <Sun className="size-4" />
               ) : (
                 <Moon className="size-4" />
               )}
-              Tema
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="icon"
+              className="size-10 shrink-0 rounded-xl"
+            >
+              <Link
+                href="/admin"
+                onClick={() => setIsOpen(false)}
+                aria-label="Acessar administração"
+              >
+                <ShieldCheck className="size-4" />
+              </Link>
             </Button>
           </div>
-        </nav>
+        </div>
       ) : null}
     </header>
   );
 }
-

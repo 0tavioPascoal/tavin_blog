@@ -17,7 +17,7 @@ export default async function HomePage() {
 
       <main className="bg-background">
         <div className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
-          <section className="grid gap-10 lg:grid-cols-[1.65fr_1fr]">
+          <section className="grid gap-10 lg:grid-cols-[1.65fr_1fr] lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-5">
             <FeaturedArticlesSection articles={articles} />
             <FeaturedProjectsSection projects={projects} />
           </section>

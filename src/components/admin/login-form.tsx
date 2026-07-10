@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LockKeyhole, Mail } from "lucide-react";
+import { Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
@@ -18,6 +18,7 @@ export function LoginForm() {
   const router = useRouter();
   const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
@@ -80,12 +81,26 @@ export function LoginForm() {
 
           <input
             id="password"
-            type="password"
+            type={isPasswordVisible ? "text" : "password"}
             autoComplete="current-password"
             placeholder="Digite sua senha"
-            className="h-11 w-full rounded-xl border border-slate-300/70 bg-card pl-10 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800"
+            className="h-11 w-full rounded-xl border border-slate-300/70 bg-card pl-10 pr-10 text-sm text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-800"
             {...form.register("password")}
           />
+
+          <button
+            type="button"
+            aria-label={isPasswordVisible ? "Ocultar senha" : "Mostrar senha"}
+            aria-pressed={isPasswordVisible}
+            className="absolute right-3 top-1/2 inline-flex size-5 -translate-y-1/2 items-center justify-center text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+            onClick={() => setIsPasswordVisible((current) => !current)}
+          >
+            {isPasswordVisible ? (
+              <EyeOff className="size-4" />
+            ) : (
+              <Eye className="size-4" />
+            )}
+          </button>
         </div>
 
         {form.formState.errors.password ? (
