@@ -16,6 +16,7 @@ export function mapCertificateRowToSummary(row: CertificateRow, tags: TagSummary
     description: certificate.description,
     credentialUrl: certificate.credential_url,
     imageUrl: certificate.image_url,
+    pdfUrl: certificate.pdf_url,
     issuedAt: certificate.issued_at,
     expiresAt: certificate.expires_at,
     status: certificate.status,

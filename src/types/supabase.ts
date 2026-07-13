@@ -143,6 +143,7 @@ export type Database = {
           description: string;
           credential_url: string | null;
           image_url: string | null;
+          pdf_url: string | null;
           issued_at: string;
           expires_at: string | null;
           status: CertificateStatus;
@@ -158,6 +159,7 @@ export type Database = {
           description: string;
           credential_url?: string | null;
           image_url?: string | null;
+          pdf_url?: string | null;
           issued_at: string;
           expires_at?: string | null;
           status?: CertificateStatus;
@@ -172,6 +174,7 @@ export type Database = {
           description?: string;
           credential_url?: string | null;
           image_url?: string | null;
+          pdf_url?: string | null;
           issued_at?: string;
           expires_at?: string | null;
           status?: CertificateStatus;

@@ -2,12 +2,6 @@ import { z } from "zod";
 
 export const certificateStatusSchema = z.enum(["draft", "published"]);
 
-const optionalUrlSchema = z.union([z.string().url("Informe uma URL válida."), z.literal("")]);
-const optionalUrlOrLocalPathSchema = z.union([
-  z.string().url("Informe uma URL válida."),
-  z.string().regex(/^\/(?!\/).+/, "Informe uma URL válida ou um caminho local iniciado por /."),
-  z.literal(""),
-]);
 const dateInputSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Informe uma data válida.");
@@ -20,6 +14,7 @@ export const certificateRowSchema = z.object({
   description: z.string().min(1),
   credential_url: z.string().nullable(),
   image_url: z.string().nullable(),
+  pdf_url: z.preprocess((value) => value ?? null, z.string().nullable()),
   issued_at: z.string(),
   expires_at: z.string().nullable(),
   status: certificateStatusSchema,
@@ -36,8 +31,6 @@ export const certificateFormSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use apenas letras minúsculas, números e hífens."),
   issuer: z.string().min(2, "Informe a instituição emissora."),
   description: z.string().min(10, "Informe uma descrição mais completa."),
-  credentialUrl: optionalUrlSchema,
-  imageUrl: optionalUrlOrLocalPathSchema,
   issuedAt: dateInputSchema,
   expiresAt: z.union([dateInputSchema, z.literal("")]),
   status: certificateStatusSchema,

@@ -16,15 +16,23 @@ type CertificateCardProps = {
 
 function CertificateMedia({ certificate }: CertificateCardProps) {
   return (
-    <div className="relative h-28 overflow-hidden border-b border-border bg-muted sm:h-32">
+    <div className="relative h-32 overflow-hidden border-b border-border bg-muted sm:h-36">
       {certificate.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={certificate.imageUrl}
           alt={`Certificado ${certificate.title}`}
-          className="size-full object-cover transition duration-500 group-hover:scale-[1.04]"
+          className="size-full object-contain p-2 transition duration-500 group-hover:scale-[1.02]"
           loading="lazy"
           decoding="async"
+        />
+      ) : certificate.pdfUrl ? (
+        <iframe
+          src={`${certificate.pdfUrl}#page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH`}
+          title={`Prévia do certificado ${certificate.title}`}
+          loading="lazy"
+          tabIndex={-1}
+          className="pointer-events-none h-[calc(100%+18px)] w-[calc(100%+18px)] border-0 bg-white"
         />
       ) : (
         <div className="relative flex size-full items-center justify-center overflow-hidden bg-linear-to-br from-blue-50 via-slate-50 to-cyan-50 text-blue-600 dark:from-blue-950/45 dark:via-slate-950 dark:to-cyan-950/30 dark:text-blue-300">
@@ -38,7 +46,7 @@ function CertificateMedia({ certificate }: CertificateCardProps) {
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-linear-to-t from-black/35 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-      {certificate.credentialUrl ? (
+      {certificate.pdfUrl || certificate.credentialUrl ? (
         <span className="absolute right-3 top-3 inline-flex size-9 items-center justify-center rounded-xl border border-white/50 bg-white/90 text-blue-600 shadow-sm backdrop-blur transition group-hover:bg-blue-600 group-hover:text-white dark:border-white/10 dark:bg-slate-950/85 dark:text-blue-400 dark:group-hover:bg-blue-600 dark:group-hover:text-white">
           <ExternalLink className="size-4" aria-hidden="true" />
           <span className="sr-only">Abrir credencial</span>
@@ -53,7 +61,7 @@ function CertificateContent({ certificate }: CertificateCardProps) {
   const remainingTags = Math.max(certificate.tags.length - visibleTags.length, 0);
 
   return (
-    <div className="flex flex-1 flex-col p-4">
+    <div className="flex flex-1 flex-col p-3.5">
       <div className="flex items-center gap-2">
         <BadgeCheck
           className="size-4 shrink-0 text-blue-600 dark:text-blue-400"
@@ -70,13 +78,13 @@ function CertificateContent({ certificate }: CertificateCardProps) {
       </h3>
 
       {certificate.description ? (
-        <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-foreground">
+        <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted-foreground">
           {certificate.description}
         </p>
       ) : null}
 
       {visibleTags.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-1.5">
+        <div className="mt-2.5 flex flex-wrap gap-1.5">
           {visibleTags.map((tag) => (
             <TagBadge
               key={tag.id}
@@ -94,8 +102,8 @@ function CertificateContent({ certificate }: CertificateCardProps) {
         </div>
       ) : null}
 
-      <div className="mt-auto pt-4">
-        <div className="flex flex-col gap-2.5 border-t border-border pt-3">
+      <div className="mt-auto pt-3">
+        <div className="flex flex-col gap-2 border-t border-border pt-2.5">
           <div className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
             <CalendarDays
               className="size-3.5 shrink-0 text-blue-600 dark:text-blue-400"
@@ -119,9 +127,9 @@ function CertificateContent({ certificate }: CertificateCardProps) {
                 : "Sem expiração"}
             </span>
 
-            {certificate.credentialUrl ? (
+            {certificate.pdfUrl || certificate.credentialUrl ? (
               <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-600 transition group-hover:text-blue-700 dark:text-blue-400 dark:group-hover:text-blue-300">
-                Ver credencial
+                {certificate.pdfUrl ? "Ver certificado" : "Ver credencial"}
                 <ExternalLink className="size-3.5" aria-hidden="true" />
               </span>
             ) : null}
@@ -143,12 +151,14 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
     </>
   );
 
-  if (certificate.credentialUrl) {
+  const certificateUrl = certificate.pdfUrl ?? certificate.credentialUrl;
+
+  if (certificateUrl) {
     return (
       <a
-        href={certificate.credentialUrl}
+        href={certificateUrl}
         target="_blank"
-        rel="noreferrer"
+        rel="noopener noreferrer"
         aria-label={`Abrir credencial ${certificate.title}`}
         className={cardClassName}
       >
