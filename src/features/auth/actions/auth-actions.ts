@@ -2,6 +2,7 @@
 
 import { loginSchema } from "@/features/auth/schemas/auth-schema";
 import { signInWithPassword, signOut } from "@/features/auth/repositories/auth-repository";
+import { enforceRateLimit, hashRateLimitIdentifier } from "@/lib/rate-limit";
 
 export type LoginActionState = {
   ok: boolean;
@@ -19,6 +20,12 @@ export async function loginAction(input: unknown): Promise<LoginActionState> {
   }
 
   try {
+    await enforceRateLimit({
+      scope: "admin-login",
+      identifier: hashRateLimitIdentifier(parsed.data.email),
+      maxAttempts: 5,
+      windowSeconds: 15 * 60,
+    });
     await signInWithPassword(parsed.data.email, parsed.data.password);
   } catch (error) {
     return {

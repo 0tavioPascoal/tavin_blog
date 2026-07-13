@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   Mail,
   Menu,
@@ -60,6 +60,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   const { resolvedTheme, setTheme } = useTheme();
 
   const [isOpen, setIsOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   const mounted = useSyncExternalStore(
     subscribe,
@@ -68,6 +69,23 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
   );
 
   const isDark = resolvedTheme === "dark";
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    mobileMenuRef.current?.focus();
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setIsOpen(false);
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isOpen]);
 
   function toggleTheme() {
     setTheme(isDark ? "light" : "dark");
@@ -233,7 +251,12 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
       {/* Menu mobile */}
       {isOpen ? (
         <div
+          ref={mobileMenuRef}
           id="mobile-navigation"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu principal"
+          tabIndex={-1}
           className="border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl shadow-slate-950/5 backdrop-blur-xl sm:px-6 lg:hidden"
         >
           <nav

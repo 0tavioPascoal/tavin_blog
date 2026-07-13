@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag as expireCacheTag } from "next/cache";
 
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { createCertificate, updateCertificate } from "@/features/certificates/repositories/certificates-repository";
@@ -44,6 +44,9 @@ async function requireAdmin(): Promise<void> {
 }
 
 function revalidateCertificatePaths(): void {
+  expireCacheTag("certificates");
+  expireCacheTag("taxonomy");
+  revalidatePath("/certificados");
   revalidatePath("/sobre");
   revalidatePath("/admin/certificates");
 }

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { LogoutButton } from "@/components/admin/logout-button";
 import type { AdminUser } from "@/features/auth/repositories/auth-repository";
@@ -59,6 +59,7 @@ export function AdminShellClient({
 
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const mobileNavRef = useRef<HTMLElement>(null);
   const mounted = useSyncExternalStore(
     subscribe,
     () => true,
@@ -66,6 +67,23 @@ export function AdminShellClient({
   );
 
   const isDark = resolvedTheme === "dark";
+
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    mobileNavRef.current?.focus();
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    }
+
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileNavOpen]);
 
   function toggleTheme() {
     setTheme(isDark ? "light" : "dark");
@@ -238,7 +256,7 @@ export function AdminShellClient({
               onClick={() => setMobileNavOpen(false)}
             />
 
-            <aside className="relative flex h-full w-[min(22rem,calc(100vw-2rem))] flex-col border-r border-border bg-card p-4 shadow-2xl shadow-slate-950/30">
+            <aside ref={mobileNavRef} role="dialog" aria-modal="true" aria-label="Navegação administrativa" tabIndex={-1} className="relative flex h-full w-[min(22rem,calc(100vw-2rem))] flex-col overflow-y-auto border-r border-border bg-card p-4 shadow-2xl shadow-slate-950/30">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <Link

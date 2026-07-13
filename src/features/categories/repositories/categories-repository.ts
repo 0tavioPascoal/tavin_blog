@@ -1,8 +1,10 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { CategoryDetail, CategoryMutationInput, CategorySummary } from "@/features/categories/types/category";
 import { mapCategoryRowToDetail, mapCategoryRowToSummary } from "@/features/categories/utils/mappers";
 import type { Database } from "@/types/supabase";
@@ -40,8 +42,8 @@ function toUpdate(input: CategoryMutationInput): CategoryUpdate {
   };
 }
 
-export async function listActiveCategories(): Promise<CategorySummary[]> {
-  const supabase = await createSupabaseServerClient();
+async function listActiveCategoriesUncached(): Promise<CategorySummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -60,6 +62,8 @@ export async function listActiveCategories(): Promise<CategorySummary[]> {
 
   return data.map(mapCategoryRowToSummary);
 }
+
+export const listActiveCategories = unstable_cache(listActiveCategoriesUncached, ["active-categories"], { tags: ["taxonomy"], revalidate: 3600 });
 
 export async function listAllCategoriesForAdmin(): Promise<CategorySummary[]> {
   const supabase = await createSupabaseServerClient();
@@ -81,10 +85,10 @@ export async function listAllCategoriesForAdmin(): Promise<CategorySummary[]> {
   return data.map(mapCategoryRowToSummary);
 }
 
-export const getCategoryBySlug = cache(async function getCategoryBySlug(
+const getCategoryBySlugCached = unstable_cache(async function getCategoryBySlugCached(
   slug: string,
 ): Promise<CategoryDetail | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return null;
@@ -102,7 +106,9 @@ export const getCategoryBySlug = cache(async function getCategoryBySlug(
   }
 
   return data ? mapCategoryRowToDetail(data) : null;
-});
+}, ["category-by-slug"], { tags: ["taxonomy"], revalidate: 3600 });
+
+export const getCategoryBySlug = cache(getCategoryBySlugCached);
 
 export async function getCategoryByIdForAdmin(id: string): Promise<CategoryDetail | null> {
   const supabase = await createSupabaseServerClient();

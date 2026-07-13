@@ -1,8 +1,10 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { TagDetail, TagMutationInput, TagSummary } from "@/features/tags/types/tag";
 import { mapTagRowToDetail, mapTagRowToSummary } from "@/features/tags/utils/mappers";
 import type { Database } from "@/types/supabase";
@@ -40,8 +42,8 @@ function toUpdate(input: TagMutationInput): TagUpdate {
   };
 }
 
-export async function listActiveTags(): Promise<TagSummary[]> {
-  const supabase = await createSupabaseServerClient();
+async function listActiveTagsUncached(): Promise<TagSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -59,6 +61,8 @@ export async function listActiveTags(): Promise<TagSummary[]> {
 
   return data.map(mapTagRowToSummary);
 }
+
+export const listActiveTags = unstable_cache(listActiveTagsUncached, ["active-tags"], { tags: ["taxonomy"], revalidate: 3600 });
 
 export async function listAllTagsForAdmin(): Promise<TagSummary[]> {
   const supabase = await createSupabaseServerClient();
@@ -79,10 +83,10 @@ export async function listAllTagsForAdmin(): Promise<TagSummary[]> {
   return data.map(mapTagRowToSummary);
 }
 
-export const getTagBySlug = cache(async function getTagBySlug(
+const getTagBySlugCached = unstable_cache(async function getTagBySlugCached(
   slug: string,
 ): Promise<TagDetail | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return null;
@@ -100,7 +104,9 @@ export const getTagBySlug = cache(async function getTagBySlug(
   }
 
   return data ? mapTagRowToDetail(data) : null;
-});
+}, ["tag-by-slug"], { tags: ["taxonomy"], revalidate: 3600 });
+
+export const getTagBySlug = cache(getTagBySlugCached);
 
 export async function getTagByIdForAdmin(id: string): Promise<TagDetail | null> {
   const supabase = await createSupabaseServerClient();

@@ -1,13 +1,14 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag as expireCacheTag } from "next/cache";
 
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { siteSettingsFormSchema } from "@/features/settings/schemas/settings-schema";
 import { getSiteSettings, updateResumeUrl, updateSiteSettings } from "@/features/settings/repositories/settings-repository";
 import type { SiteSettingsMutationInput } from "@/features/settings/types/settings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export type SettingsActionState = {
   ok: boolean;
@@ -56,6 +57,7 @@ export async function updateSettingsAction(input: unknown): Promise<SettingsActi
   }
 
   revalidatePath("/");
+  expireCacheTag("settings");
   revalidatePath("/contato");
   revalidatePath("/robots.txt");
   revalidatePath("/sitemap.xml");
@@ -71,6 +73,7 @@ export async function uploadResumeAction(formData: FormData): Promise<ResumeUplo
   try {
     const user = await getCurrentAdminUser();
     if (!user) throw new Error("Você precisa estar autenticado como administrador.");
+    await enforceRateLimit({ scope: "admin-upload", identifier: user.id, maxAttempts: 20, windowSeconds: 60 * 60 });
     const resume = formData.get("resume");
     if (!(resume instanceof File) || resume.size === 0) throw new Error("Selecione um currículo em PDF.");
     if (resume.size > maxResumeSizeBytes) throw new Error("O currículo deve ter no máximo 5 MB.");
@@ -90,6 +93,7 @@ export async function uploadResumeAction(formData: FormData): Promise<ResumeUplo
       if (previousPath && previousPath !== uploadedPath) await supabase.storage.from(resumesBucket).remove([previousPath]);
     }
     revalidatePath("/sobre");
+    expireCacheTag("settings");
     revalidatePath("/admin/settings");
     return { ok: true, message: "Currículo enviado com sucesso.", url: data.publicUrl };
   } catch (error) {

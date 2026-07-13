@@ -1,8 +1,10 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { CategorySummary } from "@/features/categories/types/category";
 import { mapCategoryRowToSummary } from "@/features/categories/utils/mappers";
 import type { ArticleDetail, ArticleMutationInput, ArticleSummary } from "@/features/posts/types/post";
@@ -13,6 +15,7 @@ import type { Database } from "@/types/supabase";
 
 type SupabaseClient = NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>;
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
+type ArticleSummaryRow = Omit<ArticleRow, "content_markdown">;
 type ArticleInsert = Database["public"]["Tables"]["articles"]["Insert"];
 type ArticleUpdate = Database["public"]["Tables"]["articles"]["Update"];
 type ArticleTagInsert = Database["public"]["Tables"]["article_tags"]["Insert"];
@@ -66,7 +69,7 @@ function uniqueStrings(values: string[]): string[] {
 
 async function loadArticleRelations(
   supabase: SupabaseClient,
-  articles: ArticleRow[],
+  articles: Array<Pick<ArticleRow, "id" | "category_id">>,
   includeInactiveTaxonomy: boolean,
 ): Promise<ArticleRelations> {
   const articleIds = articles.map((article) => article.id);
@@ -155,7 +158,7 @@ async function loadArticleRelations(
 
 async function hydrateArticleSummaries(
   supabase: SupabaseClient,
-  articles: ArticleRow[],
+  articles: ArticleSummaryRow[],
   includeInactiveTaxonomy: boolean,
 ): Promise<ArticleSummary[]> {
   const relations = await loadArticleRelations(supabase, articles, includeInactiveTaxonomy);
@@ -217,8 +220,8 @@ async function replaceArticleTags(
   }
 }
 
-export async function listPublishedArticles(): Promise<ArticleSummary[]> {
-  const supabase = await createSupabaseServerClient();
+async function listPublishedArticlesUncached(): Promise<ArticleSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -226,7 +229,7 @@ export async function listPublishedArticles(): Promise<ArticleSummary[]> {
 
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("id, category_id, title, slug, description, published_at, updated_at, status, tags, reading_time_minutes, is_featured")
     .eq("status", "published")
     .order("published_at", { ascending: false });
 
@@ -237,8 +240,10 @@ export async function listPublishedArticles(): Promise<ArticleSummary[]> {
   return hydrateArticleSummaries(supabase, data, false);
 }
 
-export async function listFeaturedArticles(limit = 3): Promise<ArticleSummary[]> {
-  const supabase = await createSupabaseServerClient();
+export const listPublishedArticles = unstable_cache(listPublishedArticlesUncached, ["published-articles"], { tags: ["posts", "taxonomy"], revalidate: 3600 });
+
+async function listFeaturedArticlesUncached(limit = 3): Promise<ArticleSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -246,7 +251,7 @@ export async function listFeaturedArticles(limit = 3): Promise<ArticleSummary[]>
 
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("id, category_id, title, slug, description, published_at, updated_at, status, tags, reading_time_minutes, is_featured")
     .eq("status", "published")
     .eq("is_featured", true)
     .order("published_at", { ascending: false })
@@ -259,8 +264,10 @@ export async function listFeaturedArticles(limit = 3): Promise<ArticleSummary[]>
   return hydrateArticleSummaries(supabase, data, false);
 }
 
-export async function listPublishedArticlesByCategoryId(categoryId: string): Promise<ArticleSummary[]> {
-  const supabase = await createSupabaseServerClient();
+export const listFeaturedArticles = unstable_cache(listFeaturedArticlesUncached, ["featured-articles"], { tags: ["posts", "taxonomy"], revalidate: 3600 });
+
+async function listPublishedArticlesByCategoryIdUncached(categoryId: string): Promise<ArticleSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -268,7 +275,7 @@ export async function listPublishedArticlesByCategoryId(categoryId: string): Pro
 
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("id, category_id, title, slug, description, published_at, updated_at, status, tags, reading_time_minutes, is_featured")
     .eq("status", "published")
     .eq("category_id", categoryId)
     .order("published_at", { ascending: false });
@@ -280,8 +287,10 @@ export async function listPublishedArticlesByCategoryId(categoryId: string): Pro
   return hydrateArticleSummaries(supabase, data, false);
 }
 
-export async function listPublishedArticlesByTagId(tagId: string): Promise<ArticleSummary[]> {
-  const supabase = await createSupabaseServerClient();
+export const listPublishedArticlesByCategoryId = unstable_cache(listPublishedArticlesByCategoryIdUncached, ["articles-by-category"], { tags: ["posts", "taxonomy"], revalidate: 3600 });
+
+async function listPublishedArticlesByTagIdUncached(tagId: string): Promise<ArticleSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -289,7 +298,7 @@ export async function listPublishedArticlesByTagId(tagId: string): Promise<Artic
 
   const { data: relationRows, error: relationError } = await supabase
     .from("article_tags")
-    .select("*")
+    .select("article_id, tag_id")
     .eq("tag_id", tagId);
 
   if (relationError) {
@@ -304,7 +313,7 @@ export async function listPublishedArticlesByTagId(tagId: string): Promise<Artic
 
   const { data, error } = await supabase
     .from("articles")
-    .select("*")
+    .select("id, category_id, title, slug, description, published_at, updated_at, status, tags, reading_time_minutes, is_featured")
     .eq("status", "published")
     .in("id", articleIds)
     .order("published_at", { ascending: false });
@@ -315,6 +324,8 @@ export async function listPublishedArticlesByTagId(tagId: string): Promise<Artic
 
   return hydrateArticleSummaries(supabase, data, false);
 }
+
+export const listPublishedArticlesByTagId = unstable_cache(listPublishedArticlesByTagIdUncached, ["articles-by-tag"], { tags: ["posts", "taxonomy"], revalidate: 3600 });
 
 export async function listAllArticlesForAdmin(): Promise<ArticleSummary[]> {
   const supabase = await createSupabaseServerClient();
@@ -335,10 +346,10 @@ export async function listAllArticlesForAdmin(): Promise<ArticleSummary[]> {
   return hydrateArticleSummaries(supabase, data, true);
 }
 
-export const getPublishedArticleBySlug = cache(async function getPublishedArticleBySlug(
+const getPublishedArticleBySlugCached = unstable_cache(async function getPublishedArticleBySlugCached(
   slug: string,
 ): Promise<ArticleDetail | null> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return null;
@@ -356,7 +367,9 @@ export const getPublishedArticleBySlug = cache(async function getPublishedArticl
   }
 
   return data ? hydrateArticleDetail(supabase, data, false) : null;
-});
+}, ["published-article-by-slug"], { tags: ["posts", "taxonomy"], revalidate: 3600 });
+
+export const getPublishedArticleBySlug = cache(getPublishedArticleBySlugCached);
 
 export async function getArticleByIdForAdmin(id: string): Promise<ArticleDetail | null> {
   const supabase = await createSupabaseServerClient();

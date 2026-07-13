@@ -4,9 +4,11 @@ import type { TagSummary } from "@/features/tags/types/tag";
 import type { Database } from "@/types/supabase";
 
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
+type ProjectSummaryRow = Omit<ProjectRow, "content_markdown">;
+const projectSummaryRowSchema = projectRowSchema.omit({ content_markdown: true });
 
-export function mapProjectRowToSummary(row: ProjectRow, tags: TagSummary[] = []): ProjectSummary {
-  const project = projectRowSchema.parse(row);
+export function mapProjectRowToSummary(row: ProjectSummaryRow, tags: TagSummary[] = []): ProjectSummary {
+  const project = projectSummaryRowSchema.parse(row);
 
   return {
     id: project.id,
