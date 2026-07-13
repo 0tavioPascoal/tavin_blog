@@ -11,6 +11,7 @@ export const siteSettingsRowSchema = z.object({
   contact_email: z.email(),
   github_url: nullableUrlSchema,
   linkedin_url: nullableUrlSchema,
+  resume_url: nullableUrlSchema,
   updated_at: z.string(),
 });
 
