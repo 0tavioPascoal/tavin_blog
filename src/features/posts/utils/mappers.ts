@@ -5,13 +5,15 @@ import type { TagSummary } from "@/features/tags/types/tag";
 import type { Database } from "@/types/supabase";
 
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
+type ArticleSummaryRow = Omit<ArticleRow, "content_markdown">;
+const articleSummaryRowSchema = articleRowSchema.omit({ content_markdown: true });
 
 export function mapArticleRowToSummary(
-  row: ArticleRow,
+  row: ArticleSummaryRow,
   category: CategorySummary | null,
   tags: TagSummary[],
 ): ArticleSummary {
-  const article = articleRowSchema.parse(row);
+  const article = articleSummaryRowSchema.parse(row);
 
   return {
     id: article.id,

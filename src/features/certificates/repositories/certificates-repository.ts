@@ -1,6 +1,9 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { CertificateDetail, CertificateMutationInput, CertificateSummary } from "@/features/certificates/types/certificate";
 import { mapCertificateRowToDetail, mapCertificateRowToSummary } from "@/features/certificates/utils/mappers";
 import type { TagSummary } from "@/features/tags/types/tag";
@@ -173,8 +176,8 @@ async function replaceCertificateTags(
   }
 }
 
-export async function listPublishedCertificates(): Promise<CertificateSummary[]> {
-  const supabase = await createSupabaseServerClient();
+async function listPublishedCertificatesUncached(): Promise<CertificateSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -193,6 +196,8 @@ export async function listPublishedCertificates(): Promise<CertificateSummary[]>
 
   return hydrateCertificateSummaries(supabase, data, false);
 }
+
+export const listPublishedCertificates = unstable_cache(listPublishedCertificatesUncached, ["published-certificates"], { tags: ["certificates", "taxonomy"], revalidate: 3600 });
 
 export async function listAllCertificatesForAdmin(): Promise<CertificateSummary[]> {
   const supabase = await createSupabaseServerClient();

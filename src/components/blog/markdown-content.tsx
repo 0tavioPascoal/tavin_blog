@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars, @next/next/no-img-element -- `node` must not reach DOM elements and remote Markdown images intentionally bypass the Next.js proxy. */
 import {
   Children,
   isValidElement,

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag as expireCacheTag } from "next/cache";
 
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { createTag, deleteTag, updateTag } from "@/features/tags/repositories/tags-repository";
@@ -25,6 +25,7 @@ function toMutationInput(input: unknown): TagMutationInput {
 }
 
 function revalidateTagPaths(slugs: Array<string | null | undefined> = []): void {
+  expireCacheTag("taxonomy");
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/blog/tag/[slug]", "page");

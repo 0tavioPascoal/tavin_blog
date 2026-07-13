@@ -1,7 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag as expireCacheTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
@@ -9,6 +9,7 @@ import { postFormSchema } from "@/features/posts/schemas/post-schema";
 import { createArticle, updateArticle } from "@/features/posts/repositories/posts-repository";
 import type { ArticleMutationInput } from "@/features/posts/types/post";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export type PostActionState = {
   ok: boolean;
@@ -92,6 +93,7 @@ function sanitizeImageAlt(value: string): string {
 }
 
 function revalidatePostPaths(slugs: string[] = []): void {
+  expireCacheTag("posts");
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath("/blog/categoria/[slug]", "page");
@@ -157,6 +159,9 @@ export async function updatePostAction(id: string, input: unknown): Promise<Post
 export async function uploadPostImageAction(formData: FormData): Promise<PostImageUploadActionState> {
   try {
     await requireAdmin();
+    const user = await getCurrentAdminUser();
+    if (!user) throw new Error("Você precisa estar autenticado como administrador.");
+    await enforceRateLimit({ scope: "admin-upload", identifier: user.id, maxAttempts: 20, windowSeconds: 60 * 60 });
 
     const supabase = await createSupabaseServerClient();
 

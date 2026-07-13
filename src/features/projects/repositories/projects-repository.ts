@@ -1,6 +1,9 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import type { Database } from "@/types/supabase";
 import type { ProjectDetail, ProjectMutationInput, ProjectSummary } from "@/features/projects/types/project";
 import { mapProjectRowToDetail, mapProjectRowToSummary } from "@/features/projects/utils/mappers";
@@ -9,6 +12,7 @@ import { mapTagRowToSummary } from "@/features/tags/utils/mappers";
 
 type SupabaseClient = NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>;
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
+type ProjectSummaryRow = Omit<ProjectRow, "content_markdown">;
 type ProjectInsert = Database["public"]["Tables"]["projects"]["Insert"];
 type ProjectUpdate = Database["public"]["Tables"]["projects"]["Update"];
 type ProjectTagInsert = Database["public"]["Tables"]["project_tags"]["Insert"];
@@ -61,7 +65,7 @@ function uniqueStrings(values: string[]): string[] {
 
 async function loadProjectRelations(
   supabase: SupabaseClient,
-  projects: ProjectRow[],
+  projects: Array<Pick<ProjectRow, "id">>,
   includeInactiveTags: boolean,
 ): Promise<ProjectRelations> {
   const projectIds = projects.map((project) => project.id);
@@ -122,7 +126,7 @@ async function loadProjectRelations(
 
 async function hydrateProjectSummaries(
   supabase: SupabaseClient,
-  projects: ProjectRow[],
+  projects: ProjectSummaryRow[],
   includeInactiveTags: boolean,
 ): Promise<ProjectSummary[]> {
   const relations = await loadProjectRelations(supabase, projects, includeInactiveTags);
@@ -176,8 +180,8 @@ async function replaceProjectTags(
   }
 }
 
-export async function listPublishedProjects(): Promise<ProjectSummary[]> {
-  const supabase = await createSupabaseServerClient();
+async function listPublishedProjectsUncached(): Promise<ProjectSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -185,7 +189,7 @@ export async function listPublishedProjects(): Promise<ProjectSummary[]> {
 
   const { data, error } = await supabase
     .from("projects")
-    .select("*")
+    .select("id, title, slug, description, repository_url, demo_url, cover_image_url, icon_name, status, tags, is_featured, sort_order, created_at, updated_at")
     .eq("status", "published")
     .order("sort_order", { ascending: true })
     .order("updated_at", { ascending: false });
@@ -197,8 +201,10 @@ export async function listPublishedProjects(): Promise<ProjectSummary[]> {
   return hydrateProjectSummaries(supabase, data, false);
 }
 
-export async function listFeaturedProjects(limit = 3): Promise<ProjectSummary[]> {
-  const supabase = await createSupabaseServerClient();
+export const listPublishedProjects = unstable_cache(listPublishedProjectsUncached, ["published-projects"], { tags: ["projects", "taxonomy"], revalidate: 3600 });
+
+async function listFeaturedProjectsUncached(limit = 3): Promise<ProjectSummary[]> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return [];
@@ -206,7 +212,7 @@ export async function listFeaturedProjects(limit = 3): Promise<ProjectSummary[]>
 
   const { data, error } = await supabase
     .from("projects")
-    .select("*")
+    .select("id, title, slug, description, repository_url, demo_url, cover_image_url, icon_name, status, tags, is_featured, sort_order, created_at, updated_at")
     .eq("status", "published")
     .eq("is_featured", true)
     .order("sort_order", { ascending: true })
@@ -219,6 +225,8 @@ export async function listFeaturedProjects(limit = 3): Promise<ProjectSummary[]>
 
   return hydrateProjectSummaries(supabase, data, false);
 }
+
+export const listFeaturedProjects = unstable_cache(listFeaturedProjectsUncached, ["featured-projects"], { tags: ["projects", "taxonomy"], revalidate: 3600 });
 
 export async function listAllProjectsForAdmin(): Promise<ProjectSummary[]> {
   const supabase = await createSupabaseServerClient();

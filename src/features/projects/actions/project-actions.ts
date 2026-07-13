@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag as expireCacheTag } from "next/cache";
 
 import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repository";
 import { projectFormSchema } from "@/features/projects/schemas/project-schema";
@@ -48,6 +48,8 @@ export async function createProjectAction(input: unknown): Promise<ProjectAction
   try {
     await requireAdmin();
     await createProject(toMutationInput(input));
+    expireCacheTag("projects");
+    expireCacheTag("taxonomy");
   } catch (error) {
     return {
       ok: false,
@@ -69,6 +71,8 @@ export async function updateProjectAction(id: string, input: unknown): Promise<P
   try {
     await requireAdmin();
     await updateProject(id, toMutationInput(input));
+    expireCacheTag("projects");
+    expireCacheTag("taxonomy");
   } catch (error) {
     return {
       ok: false,

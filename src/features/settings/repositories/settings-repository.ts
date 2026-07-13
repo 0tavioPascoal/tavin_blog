@@ -1,9 +1,11 @@
 import "server-only";
 
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { getContactEmailFallback, getSiteUrlFallback } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { siteSettingsRowSchema } from "@/features/settings/schemas/settings-schema";
 import type { SiteSettings, SiteSettingsMutationInput } from "@/features/settings/types/settings";
 
@@ -16,8 +18,8 @@ const fallbackSettings: SiteSettings = {
   updatedAt: null,
 };
 
-export const getSiteSettings = cache(async function getSiteSettings(): Promise<SiteSettings> {
-  const supabase = await createSupabaseServerClient();
+const getSiteSettingsCached = unstable_cache(async function getSiteSettingsCached(): Promise<SiteSettings> {
+  const supabase = createSupabasePublicClient();
 
   if (!supabase) {
     return fallbackSettings;
@@ -43,7 +45,9 @@ export const getSiteSettings = cache(async function getSiteSettings(): Promise<S
     resumeUrl: settings.resume_url,
     updatedAt: settings.updated_at,
   };
-});
+}, ["site-settings"], { tags: ["settings"], revalidate: 3600 });
+
+export const getSiteSettings = cache(getSiteSettingsCached);
 
 export async function updateSiteSettings(input: SiteSettingsMutationInput): Promise<void> {
   const supabase = await createSupabaseServerClient();
