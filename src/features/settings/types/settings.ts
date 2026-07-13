@@ -3,6 +3,7 @@ export type SiteSettings = {
   contactEmail: string;
   githubUrl: string | null;
   linkedinUrl: string | null;
+  resumeUrl: string | null;
   updatedAt: string | null;
 };
 

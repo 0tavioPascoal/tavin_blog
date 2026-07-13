@@ -8,6 +8,7 @@ import {
   BookOpenText,
   BriefcaseBusiness,
   Code2,
+  Download,
   FolderCode,
   GraduationCap,
   Layers3,
@@ -17,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { getSiteSettings } from "@/features/settings/repositories/settings-repository";
 
 export const metadata: Metadata = {
   title: "Sobre",
@@ -114,7 +116,8 @@ const journeyItems: JourneyItem[] = [
   },
 ];
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
   return (
     <main className="w-full px-4 py-10 sm:px-6 sm:py-12 lg:px-[7vw]">
       {/* Apresentação */}
@@ -188,6 +191,15 @@ export default function AboutPage() {
                   <BookOpenText className="size-4" />
                 </Link>
               </Button>
+
+              {settings.resumeUrl ? (
+                <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 sm:w-auto">
+                  <a href={`${settings.resumeUrl}?download=Curriculo-Otavio-Pascoal.pdf`}>
+                    Baixar meu currículo
+                    <Download className="size-4" />
+                  </a>
+                </Button>
+              ) : null}
             </div>
           </div>
 

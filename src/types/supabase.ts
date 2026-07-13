@@ -288,6 +288,7 @@ export type Database = {
           contact_email: string;
           github_url: string | null;
           linkedin_url: string | null;
+          resume_url: string | null;
           updated_at: string;
         };
         Insert: {
@@ -296,6 +297,7 @@ export type Database = {
           contact_email: string;
           github_url?: string | null;
           linkedin_url?: string | null;
+          resume_url?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -303,6 +305,7 @@ export type Database = {
           contact_email?: string;
           github_url?: string | null;
           linkedin_url?: string | null;
+          resume_url?: string | null;
           updated_at?: string;
         };
         Relationships: [];

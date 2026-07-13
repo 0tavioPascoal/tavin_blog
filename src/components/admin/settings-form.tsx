@@ -1,16 +1,18 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ExternalLink,
+  FileText,
   Globe2,
   Link2,
   Mail,
   Save,
   Settings2,
   ShieldCheck,
+  Upload,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
@@ -23,7 +25,7 @@ import {
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
 import { Button } from "@/components/ui/button";
-import { updateSettingsAction } from "@/features/settings/actions/settings-actions";
+import { updateSettingsAction, uploadResumeAction } from "@/features/settings/actions/settings-actions";
 import {
   siteSettingsFormSchema,
   type SiteSettingsFormInput,
@@ -152,6 +154,9 @@ export function SettingsForm({ settings }: SettingsFormProps) {
   const router = useRouter();
   const toast = useAdminToast();
   const [isPending, startTransition] = useTransition();
+  const [isUploadingResume, startResumeUploadTransition] = useTransition();
+  const [selectedResume, setSelectedResume] = useState<File | null>(null);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<SiteSettingsFormInput>({
     resolver: zodResolver(siteSettingsFormSchema),
@@ -179,6 +184,27 @@ export function SettingsForm({ settings }: SettingsFormProps) {
 
       if (result.ok) {
         reset(values);
+        router.refresh();
+      }
+    });
+  }
+
+  function uploadResume() {
+    if (!selectedResume) {
+      toast.error("Selecione um currículo em PDF.");
+      return;
+    }
+
+    startResumeUploadTransition(async () => {
+      const toastId = toast.info("Enviando currículo...");
+      const formData = new FormData();
+      formData.set("resume", selectedResume);
+      const result = await uploadResumeAction(formData);
+      toast.handleActionResult(toastId, result);
+
+      if (result.ok) {
+        setSelectedResume(null);
+        if (resumeInputRef.current) resumeInputRef.current.value = "";
         router.refresh();
       }
     });
@@ -296,6 +322,44 @@ export function SettingsForm({ settings }: SettingsFormProps) {
           </div>
         </section>
       </div>
+
+      <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
+        <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
+            <FileText className="size-4" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="text-base font-bold text-foreground">Currículo</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">
+              Envie o PDF disponibilizado para download na página Sobre. O arquivo anterior será substituído.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div className="grid gap-2">
+            <label htmlFor="resume" className="text-sm font-semibold text-foreground">Arquivo PDF</label>
+            <input
+              ref={resumeInputRef}
+              id="resume"
+              type="file"
+              accept="application/pdf,.pdf"
+              disabled={isUploadingResume}
+              onChange={(event) => setSelectedResume(event.target.files?.[0] ?? null)}
+              className="block h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground file:mr-4 file:h-full file:border-0 file:border-r file:border-border file:bg-muted file:px-4 file:text-sm file:font-semibold hover:border-slate-400 disabled:opacity-60 dark:border-slate-700"
+            />
+            <p className="text-xs leading-5 text-muted-foreground">
+              Somente PDF, com tamanho máximo de 5 MB.
+              {settings.resumeUrl ? " Há um currículo publicado atualmente." : " Nenhum currículo publicado."}
+            </p>
+          </div>
+
+          <Button type="button" className="h-11 rounded-xl bg-blue-600 px-5 text-white hover:bg-blue-700" disabled={!selectedResume || isUploadingResume} onClick={uploadResume}>
+            <Upload className="size-4" aria-hidden="true" />
+            {isUploadingResume ? "Enviando..." : settings.resumeUrl ? "Substituir currículo" : "Enviar currículo"}
+          </Button>
+        </div>
+      </section>
 
       <section className="flex flex-col gap-4 rounded-2xl border border-slate-300/70 bg-card p-4 shadow-sm dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div className="flex items-start gap-3">

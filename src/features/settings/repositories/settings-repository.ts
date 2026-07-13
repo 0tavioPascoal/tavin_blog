@@ -12,6 +12,7 @@ const fallbackSettings: SiteSettings = {
   contactEmail: getContactEmailFallback(),
   githubUrl: null,
   linkedinUrl: null,
+  resumeUrl: null,
   updatedAt: null,
 };
 
@@ -39,6 +40,7 @@ export const getSiteSettings = cache(async function getSiteSettings(): Promise<S
     contactEmail: settings.contact_email,
     githubUrl: settings.github_url,
     linkedinUrl: settings.linkedin_url,
+    resumeUrl: settings.resume_url,
     updatedAt: settings.updated_at,
   };
 });
@@ -65,4 +67,11 @@ export async function updateSiteSettings(input: SiteSettingsMutationInput): Prom
   if (error) {
     throw new Error(`Não foi possível salvar as configurações: ${error.message}`);
   }
+}
+
+export async function updateResumeUrl(resumeUrl: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) throw new Error("Supabase não está configurado.");
+  const { error } = await supabase.from("site_settings").update({ resume_url: resumeUrl, updated_at: new Date().toISOString() }).eq("id", true);
+  if (error) throw new Error(`Não foi possível salvar o currículo: ${error.message}`);
 }
