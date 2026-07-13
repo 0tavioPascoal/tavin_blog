@@ -9,6 +9,7 @@ export type CertificateSummary = {
   description: string;
   credentialUrl: string | null;
   imageUrl: string | null;
+  pdfUrl: string | null;
   issuedAt: string;
   expiresAt: string | null;
   status: CertificateStatus;
@@ -28,6 +29,7 @@ export type CertificateMutationInput = {
   description: string;
   credentialUrl: string | null;
   imageUrl: string | null;
+  pdfUrl: string | null;
   issuedAt: string;
   expiresAt: string | null;
   status: CertificateStatus;

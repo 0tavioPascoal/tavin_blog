@@ -7,17 +7,17 @@ import {
   Bookmark,
   CalendarDays,
   ExternalLink,
+  FileText,
   Hash,
-  ImageIcon,
-  LinkIcon,
   ListOrdered,
   Save,
   Tags,
   Text,
+  Upload,
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
@@ -88,8 +88,6 @@ export function CertificateForm({
       slug: certificate?.slug ?? "",
       issuer: certificate?.issuer ?? "",
       description: certificate?.description ?? "",
-      credentialUrl: certificate?.credentialUrl ?? "",
-      imageUrl: certificate?.imageUrl ?? "",
       issuedAt: formatDateInputValue(certificate?.issuedAt ?? null),
       expiresAt: formatDateInputValue(certificate?.expiresAt ?? null),
       status: certificate?.status ?? "draft",
@@ -104,11 +102,7 @@ export function CertificateForm({
       name: "tagIds",
     }) ?? [];
 
-  const credentialUrl =
-    useWatch({
-      control: form.control,
-      name: "credentialUrl",
-    }) ?? "";
+  const [certificatePdf, setCertificatePdf] = useState<File | null>(null);
 
   function onSubmit(values: CertificateFormInput) {
     startTransition(async () => {
@@ -118,13 +112,17 @@ export function CertificateForm({
           : "Criando certificado...",
       );
 
+      const fileData = new FormData();
+      if (certificatePdf) fileData.set("certificatePdf", certificatePdf);
+
       const result = certificate
-        ? await updateCertificateAction(certificate.id, values)
-        : await createCertificateAction(values);
+        ? await updateCertificateAction(certificate.id, values, fileData)
+        : await createCertificateAction(values, fileData);
 
       toast.handleActionResult(toastId, result);
 
       if (result.ok) {
+        setCertificatePdf(null);
         router.push("/admin/certificates");
         router.refresh();
       }
@@ -302,84 +300,52 @@ export function CertificateForm({
       <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">
         <div className="mb-6 flex items-start gap-3 border-b border-border pb-5">
           <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400">
-            <LinkIcon className="size-4" aria-hidden="true" />
+            <FileText className="size-4" aria-hidden="true" />
           </span>
 
           <div>
             <h2 className="text-base font-bold text-foreground">
-              Links e imagem
+              Arquivo do certificado
             </h2>
 
             <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              Informe o endereço oficial da credencial e a imagem exibida no
-              portfólio.
+              Envie o PDF que será disponibilizado na página pública.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
-          <div className="grid gap-2">
-            <label
-              htmlFor="credentialUrl"
-              className="text-sm font-semibold text-foreground"
-            >
-              URL da credencial
-            </label>
-
-            <div className="relative">
-              <LinkIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="credentialUrl"
-                type="url"
-                placeholder="https://..."
-                className={`${inputClassName} pl-10 pr-3`}
-                aria-invalid={Boolean(
-                  form.formState.errors.credentialUrl,
-                )}
-                {...form.register("credentialUrl")}
-              />
-            </div>
-
-            <FieldError
-              message={form.formState.errors.credentialUrl?.message}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <label
-              htmlFor="imageUrl"
-              className="text-sm font-semibold text-foreground"
-            >
-              URL da imagem
-            </label>
-
-            <div className="relative">
-              <ImageIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="imageUrl"
-                placeholder="/images/certificado.png"
-                className={`${inputClassName} pl-10 pr-3`}
-                aria-invalid={Boolean(form.formState.errors.imageUrl)}
-                {...form.register("imageUrl")}
-              />
-            </div>
-
-            <FieldError
-              message={form.formState.errors.imageUrl?.message}
-            />
-          </div>
+        <div className="grid gap-3">
+          <label htmlFor="certificatePdf" className="text-sm font-semibold text-foreground">
+            PDF do certificado
+          </label>
+          <input
+            id="certificatePdf"
+            type="file"
+            accept="application/pdf,.pdf"
+            disabled={isPending}
+            onChange={(event) => setCertificatePdf(event.target.files?.[0] ?? null)}
+            className="block h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground file:mr-4 file:h-full file:border-0 file:border-r file:border-border file:bg-muted file:px-4 file:text-sm file:font-semibold hover:border-slate-400 disabled:opacity-60 dark:border-slate-700"
+          />
+          <p className="text-xs leading-5 text-muted-foreground">
+            Somente PDF, com tamanho máximo de 5 MB. É obrigatório para publicar.
+            {certificate?.pdfUrl ? " Um PDF já está publicado; selecione outro apenas para substituí-lo." : ""}
+          </p>
+          {certificatePdf ? (
+            <p className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+              <Upload className="size-4" aria-hidden="true" />
+              {certificatePdf.name}
+            </p>
+          ) : null}
         </div>
 
-        {credentialUrl.trim() ? (
+        {certificate?.pdfUrl ? (
           <a
-            href={credentialUrl}
+            href={certificate.pdfUrl}
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             className="mt-5 inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-border bg-background px-3.5 text-sm font-semibold text-muted-foreground transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
           >
-            Abrir credencial
+            Abrir PDF atual
             <ExternalLink className="size-4" aria-hidden="true" />
           </a>
         ) : null}

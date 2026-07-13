@@ -30,6 +30,7 @@ function toInsert(input: CertificateMutationInput): CertificateInsert {
     description: input.description,
     credential_url: input.credentialUrl,
     image_url: input.imageUrl,
+    pdf_url: input.pdfUrl,
     issued_at: input.issuedAt,
     expires_at: input.expiresAt,
     status: input.status,
@@ -47,6 +48,7 @@ function toUpdate(input: CertificateMutationInput): CertificateUpdate {
     description: input.description,
     credential_url: input.credentialUrl,
     image_url: input.imageUrl,
+    pdf_url: input.pdfUrl,
     issued_at: input.issuedAt,
     expires_at: input.expiresAt,
     status: input.status,
@@ -197,7 +199,11 @@ async function listPublishedCertificatesUncached(): Promise<CertificateSummary[]
   return hydrateCertificateSummaries(supabase, data, false);
 }
 
-export const listPublishedCertificates = unstable_cache(listPublishedCertificatesUncached, ["published-certificates"], { tags: ["certificates", "taxonomy"], revalidate: 3600 });
+export const listPublishedCertificates = unstable_cache(
+  listPublishedCertificatesUncached,
+  ["published-certificates-v2"],
+  { tags: ["certificates", "taxonomy"], revalidate: 300 },
+);
 
 export async function listAllCertificatesForAdmin(): Promise<CertificateSummary[]> {
   const supabase = await createSupabaseServerClient();

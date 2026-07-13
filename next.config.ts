@@ -16,6 +16,7 @@ const contentSecurityPolicy = [
   "font-src 'self' data:",
   `connect-src 'self' ${supabaseOrigin} wss://*.supabase.co`,
   `img-src 'self' data: blob: https: ${supabaseOrigin}`,
+  `frame-src 'self' ${supabaseOrigin}`,
   "media-src 'self' https:",
   "worker-src 'self' blob:",
   "upgrade-insecure-requests",

@@ -6,6 +6,7 @@ create table if not exists public.certificates (
   description text not null,
   credential_url text,
   image_url text,
+  pdf_url text,
   issued_at date not null,
   expires_at date,
   status text not null default 'draft' check (status in ('draft', 'published')),
