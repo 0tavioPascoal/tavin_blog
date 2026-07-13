@@ -168,11 +168,11 @@ export default async function AboutPage() {
               </p>
             </div>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-7 flex flex-col gap-3 2xl:flex-row">
               <Button
                 asChild
                 size="lg"
-                className="group h-12 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 sm:w-auto"
+                className="group h-12 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 2xl:w-auto"
               >
                 <Link href="/projetos">
                   Conhecer meus projetos
@@ -184,7 +184,7 @@ export default async function AboutPage() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 sm:w-auto"
+                className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 2xl:w-auto"
               >
                 <Link href="/blog/artigos">
                   Ler meus artigos
@@ -193,7 +193,7 @@ export default async function AboutPage() {
               </Button>
 
               {settings.resumeUrl ? (
-                <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 sm:w-auto">
+                <Button asChild variant="outline" size="lg" className="group h-12 w-full rounded-xl border-slate-300 bg-background/70 px-6 font-semibold backdrop-blur-sm dark:border-white/15 2xl:w-auto">
                   <a href={`${settings.resumeUrl}?download=Curriculo-Otavio-Pascoal.pdf`}>
                     Baixar meu currículo
                     <Download className="size-4" />
