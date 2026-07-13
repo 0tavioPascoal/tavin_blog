@@ -327,10 +327,10 @@ export function HeroSection() {
             <div className="min-w-0 font-mono text-[10px] leading-5 text-slate-500 dark:text-slate-400 sm:text-xs">
               <p>
                 <span className="text-blue-600 dark:text-blue-300">&gt;</span>{" "}
-                intencao = aprender;
+                intenção = aprender;
               </p>
 
-              <p>constancia = diaria;</p>
+              <p>constância = diária;</p>
 
               <p>resultado = impacto;</p>
 
@@ -338,7 +338,7 @@ export function HeroSection() {
                 <span className="text-violet-600 dark:text-violet-300">
                   return
                 </span>{" "}
-                evolucao;
+                evolução;
               </p>
             </div>
 

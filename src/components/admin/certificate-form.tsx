@@ -18,9 +18,10 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
+import { DatePickerField } from "@/components/admin/date-picker-field";
 import { Button } from "@/components/ui/button";
 import {
   createCertificateAction,
@@ -70,7 +71,18 @@ function slugify(value: string): string {
 }
 
 function formatDateInputValue(value: string | null): string {
-  return value ? value.slice(0, 10) : "";
+  if (!value) return "";
+  const [year, month, day] = value.slice(0, 10).split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function parseDisplayDateValue(value: string): Date | undefined {
+  const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value);
+  if (!match) return undefined;
+  const date = new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]));
+  return date.getFullYear() === Number(match[3]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[1])
+    ? date
+    : undefined;
 }
 
 export function CertificateForm({
@@ -90,6 +102,7 @@ export function CertificateForm({
       description: certificate?.description ?? "",
       issuedAt: formatDateInputValue(certificate?.issuedAt ?? null),
       expiresAt: formatDateInputValue(certificate?.expiresAt ?? null),
+      doesNotExpire: !certificate?.expiresAt,
       status: certificate?.status ?? "draft",
       tagIds: certificate?.tags.map((tag) => tag.id) ?? [],
       sortOrder: certificate?.sortOrder ?? 0,
@@ -103,6 +116,12 @@ export function CertificateForm({
     }) ?? [];
 
   const [certificatePdf, setCertificatePdf] = useState<File | null>(null);
+  const issuedAt = useWatch({ control: form.control, name: "issuedAt" }) ?? "";
+  const doesNotExpire = useWatch({ control: form.control, name: "doesNotExpire" }) ?? false;
+  const today = new Date();
+  const calendarStart = new Date(1980, 0, 1);
+  const expirationEnd = new Date(today.getFullYear() + 50, 11, 31);
+  const issuedDate = parseDisplayDateValue(issuedAt);
 
   function onSubmit(values: CertificateFormInput) {
     startTransition(async () => {
@@ -432,57 +451,99 @@ export function CertificateForm({
           </div>
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          <div className="grid gap-2">
-            <label
-              htmlFor="issuedAt"
-              className="text-sm font-semibold text-foreground"
-            >
-              Emissão
-            </label>
-
-            <div className="relative">
-              <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="issuedAt"
-                type="date"
-                className={`${inputClassName} pl-10 pr-3`}
-                aria-invalid={Boolean(form.formState.errors.issuedAt)}
-                {...form.register("issuedAt")}
-              />
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid content-start gap-2">
+            <div className="flex h-6 items-center">
+              <label htmlFor="issuedAt" className="text-sm font-semibold text-foreground">
+                Emissão
+              </label>
             </div>
 
-            <FieldError
-              message={form.formState.errors.issuedAt?.message}
+            <Controller
+              control={form.control}
+              name="issuedAt"
+              render={({ field }) => (
+                <DatePickerField
+                  id="issuedAt"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  invalid={Boolean(form.formState.errors.issuedAt)}
+                  describedBy={form.formState.errors.issuedAt ? "issuedAt-error" : "issuedAt-hint"}
+                  startMonth={calendarStart}
+                  endMonth={today}
+                  disabledDates={{ after: today }}
+                />
+              )}
             />
+
+            {form.formState.errors.issuedAt ? (
+              <div id="issuedAt-error" className="min-h-5">
+                <FieldError message={form.formState.errors.issuedAt.message} />
+              </div>
+            ) : (
+              <p id="issuedAt-hint" className="min-h-5 text-xs leading-5 text-muted-foreground">
+                Escolha no calendário ou digite DD/MM/AAAA.
+              </p>
+            )}
           </div>
 
-          <div className="grid gap-2">
-            <label
-              htmlFor="expiresAt"
-              className="text-sm font-semibold text-foreground"
-            >
-              Expiração
-            </label>
+          <div className="grid content-start gap-2">
+            <div className="flex h-6 items-center justify-between gap-3">
+              <label htmlFor="expiresAt" className="text-sm font-semibold text-foreground">
+                Expiração
+              </label>
 
-            <div className="relative">
-              <CalendarDays className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
-              <input
-                id="expiresAt"
-                type="date"
-                className={`${inputClassName} pl-10 pr-3`}
-                aria-invalid={Boolean(form.formState.errors.expiresAt)}
-                {...form.register("expiresAt")}
-              />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={doesNotExpire}
+                onClick={() => {
+                  const nextValue = !doesNotExpire;
+                  form.setValue("doesNotExpire", nextValue, { shouldDirty: true, shouldValidate: true });
+                  if (nextValue) form.setValue("expiresAt", "", { shouldDirty: true, shouldValidate: true });
+                }}
+                className="inline-flex items-center gap-2 rounded-full text-xs font-semibold text-muted-foreground transition hover:text-foreground"
+              >
+                <span className={`relative h-6 w-11 rounded-full transition ${doesNotExpire ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-700"}`}>
+                  <span className={`absolute top-1 size-4 rounded-full bg-white shadow-sm transition ${doesNotExpire ? "left-6" : "left-1"}`} />
+                </span>
+                Sem expiração
+              </button>
             </div>
 
-            <FieldError
-              message={form.formState.errors.expiresAt?.message}
+            <Controller
+              control={form.control}
+              name="expiresAt"
+              render={({ field }) => (
+                <DatePickerField
+                  id="expiresAt"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  disabled={doesNotExpire}
+                  invalid={Boolean(form.formState.errors.expiresAt)}
+                  describedBy={form.formState.errors.expiresAt ? "expiresAt-error" : "expiresAt-hint"}
+                  startMonth={issuedDate ?? today}
+                  endMonth={expirationEnd}
+                  disabledDates={issuedDate ? { before: issuedDate } : undefined}
+                />
+              )}
             />
-          </div>
 
+            {form.formState.errors.expiresAt ? (
+              <div id="expiresAt-error" className="min-h-5">
+                <FieldError message={form.formState.errors.expiresAt.message} />
+              </div>
+            ) : (
+              <p id="expiresAt-hint" className="min-h-5 text-xs leading-5 text-muted-foreground">
+                {doesNotExpire ? "Este certificado não possui data de validade." : "A validade deve ser igual ou posterior à emissão."}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-5 grid gap-5 border-t border-border pt-5 md:grid-cols-2">
           <div className="grid gap-2">
             <label
               htmlFor="status"

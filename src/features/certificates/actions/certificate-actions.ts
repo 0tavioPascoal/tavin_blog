@@ -36,7 +36,7 @@ function toMutationInput(input: unknown, assets: CertificateAssets): Certificate
     description: certificate.description,
     ...assets,
     issuedAt: certificate.issuedAt,
-    expiresAt: normalizeOptionalText(certificate.expiresAt),
+    expiresAt: certificate.doesNotExpire ? null : normalizeOptionalText(certificate.expiresAt),
     status: certificate.status,
     tagIds: certificate.tagIds,
     sortOrder: certificate.sortOrder,
