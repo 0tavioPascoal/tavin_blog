@@ -18,6 +18,12 @@ type MarkdownImageProps = ComponentProps<"img"> & {
   node?: unknown;
 };
 
+type MarkdownAstNode = {
+  type: string;
+  tagName?: string;
+  children?: MarkdownAstNode[];
+};
+
 export type MarkdownContentProps = {
   content: string;
   rehypePlugins?: ReactMarkdownProps["rehypePlugins"];
@@ -27,9 +33,55 @@ export const baseRemarkPlugins: NonNullable<
   ReactMarkdownProps["remarkPlugins"]
 > = [remarkGfm];
 
+function rehypeNormalizeArticleHeadings() {
+  return (tree: MarkdownAstNode) => {
+    const headings: MarkdownAstNode[] = [];
+
+    function collectHeadings(node: MarkdownAstNode) {
+      if (
+        node.type === "element" &&
+        typeof node.tagName === "string" &&
+        /^h[1-6]$/.test(node.tagName)
+      ) {
+        headings.push(node);
+      }
+
+      node.children?.forEach(collectHeadings);
+    }
+
+    collectHeadings(tree);
+
+    const firstHeading = headings[0];
+
+    if (!firstHeading?.tagName) {
+      return;
+    }
+
+    const firstDepth = Number(firstHeading.tagName.slice(1));
+    const depthOffset = 2 - firstDepth;
+    let previousDepth = 2;
+
+    headings.forEach((heading, index) => {
+      const originalDepth = Number(heading.tagName?.slice(1));
+      const shiftedDepth = Math.min(
+        6,
+        Math.max(2, originalDepth + depthOffset),
+      );
+      const normalizedDepth =
+        index === 0
+          ? 2
+          : Math.min(shiftedDepth, previousDepth + 1);
+
+      heading.tagName = "h" + normalizedDepth;
+      previousDepth = normalizedDepth;
+    });
+  };
+}
+
 export const baseRehypePlugins: NonNullable<
   ReactMarkdownProps["rehypePlugins"]
 > = [
+  rehypeNormalizeArticleHeadings,
   rehypeSlug,
   [
     rehypeAutolinkHeadings,
@@ -357,12 +409,26 @@ export const markdownContentClassName = `
   prose-h4:text-lg
   prose-h4:leading-snug
 
+  prose-h5:mb-2
+  prose-h5:mt-6
+  prose-h5:text-base
+  prose-h5:leading-snug
+
+  prose-h6:mb-2
+  prose-h6:mt-5
+  prose-h6:text-sm
+  prose-h6:leading-snug
+  prose-h6:uppercase
+  prose-h6:tracking-wide
+
   [&_hr+h2]:mt-0
   [&_hr+h3]:mt-0
 
   [&_h2+*]:mt-0
   [&_h3+*]:mt-0
   [&_h4+*]:mt-0
+  [&_h5+*]:mt-0
+  [&_h6+*]:mt-0
 
   prose-p:my-5
   prose-p:max-w-none
