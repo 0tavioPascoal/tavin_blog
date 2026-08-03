@@ -18,13 +18,13 @@ import {
   Tags,
   Type,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { useAdminToast } from "@/components/admin/admin-toast-provider";
+import { AdminMarkdownPreview } from "@/components/admin/admin-markdown-preview";
 import { Button } from "@/components/ui/button";
 import type { CategorySummary } from "@/features/categories/types/category";
 import {
@@ -64,20 +64,6 @@ type PostFormProps = {
 
 const inputClassName =
   "h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600";
-
-const MarkdownPreview = dynamic(
-  () =>
-    import("@/components/admin/admin-markdown-preview").then(
-      (module) => module.AdminMarkdownPreview,
-    ),
-  {
-    loading: () => (
-      <div className="flex min-h-128 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-muted/35 px-4 text-center text-sm text-muted-foreground dark:border-slate-800">
-        Carregando preview...
-      </div>
-    ),
-  },
-);
 
 function FieldError({ message }: { message?: string }) {
   if (!message) {
@@ -460,7 +446,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
               ) : (
                 <div className="min-h-136 w-full overflow-hidden rounded-xl border border-slate-300/80 bg-background px-5 py-6 shadow-sm dark:border-slate-700 sm:px-7">
                   {contentMarkdownPreview.trim().length > 0 ? (
-                    <MarkdownPreview content={contentMarkdownPreview} />
+                    <AdminMarkdownPreview content={contentMarkdownPreview} />
                   ) : (
                     <div className="flex min-h-120 items-center justify-center rounded-xl border border-dashed border-border bg-muted/30 px-4 text-center text-sm text-muted-foreground">
                       O preview do Markdown aparecerá aqui.
