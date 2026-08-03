@@ -51,7 +51,7 @@ function isExternalUrl(value?: string) {
   return value ? /^https?:\/\//i.test(value) : false;
 }
 
-export function safeUrlTransform(value: string) {
+export function safeUrlTransform(value: string): string | undefined {
   const trimmedValue = value.trim();
 
   if (
@@ -73,21 +73,31 @@ export function safeUrlTransform(value: string) {
       "tel:",
     ]);
 
-    return allowedProtocols.has(url.protocol) ? value : "";
+    return allowedProtocols.has(url.protocol) ? value : undefined;
   } catch {
-    return "";
+    return undefined;
   }
+}
+
+function hasRenderableImageSource(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 function MarkdownImage({
   node: _node,
   className,
   alt,
+  src,
   ...props
 }: MarkdownImageProps) {
+  if (!hasRenderableImageSource(src)) {
+    return null;
+  }
+
   return (
     <img
       {...props}
+      src={src}
       alt={alt ?? ""}
       loading="lazy"
       decoding="async"
@@ -133,10 +143,14 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
 
     const isStandaloneImage =
       childItems.length === 1 &&
-      isValidElement<{ alt?: string }>(onlyChild) &&
+      isValidElement<{ alt?: string; src?: string }>(onlyChild) &&
       onlyChild.type === MarkdownImage;
 
     if (isStandaloneImage) {
+      if (!hasRenderableImageSource(onlyChild.props.src)) {
+        return null;
+      }
+
       const caption = onlyChild.props.alt?.trim();
 
       return (
