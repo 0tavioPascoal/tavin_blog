@@ -20,7 +20,7 @@ export function FeaturedProjectsSection({
       aria-labelledby="featured-projects-title"
       className="lg:row-span-2 lg:grid lg:grid-rows-subgrid"
     >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-4">
         <div>
           <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400">
             <FolderKanban className="size-4" aria-hidden="true" />
@@ -42,47 +42,21 @@ export function FeaturedProjectsSection({
 
         <Link
           href="/projetos"
-          className="group inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-border bg-background px-3.5 text-sm font-semibold text-muted-foreground transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-300 dark:focus-visible:ring-offset-slate-950"
+          className="group inline-flex h-9 w-fit items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-background px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           Ver todos os projetos
           <ArrowRight
-            className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+            className="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
             aria-hidden="true"
           />
         </Link>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-slate-300/70 bg-card shadow-sm dark:border-slate-800 lg:mt-0">
-        <div className="divide-y divide-slate-300/70 dark:divide-slate-800">
+      <div className="mt-5 overflow-hidden rounded-xl border border-border/80 bg-card shadow-xs lg:mt-0">
+        <div className="divide-y divide-border/70">
           {projects.map((project) => (
-            <div
-              key={project.id}
-              className="
-                group/project
-                relative
-                overflow-hidden
-                transition-all
-                duration-300
-                ease-out
-                before:absolute
-                before:inset-y-0
-                before:left-0
-                before:w-1
-                before:origin-center
-                before:scale-y-0
-                before:bg-blue-500
-                before:transition-transform
-                before:duration-300
-                hover:bg-blue-50/55
-                hover:shadow-[inset_0_0_0_1px_rgba(59,130,246,0.08)]
-                hover:before:scale-y-100
-                dark:hover:bg-blue-950/20
-                dark:hover:shadow-[inset_0_0_0_1px_rgba(96,165,250,0.1)]
-              "
-            >
-              <div className="transition-transform duration-300 ease-out group-hover/project:translate-x-1">
-                <ProjectCard project={project} compact />
-              </div>
+            <div key={project.id} className="p-1">
+              <ProjectCard project={project} compact />
             </div>
           ))}
         </div>

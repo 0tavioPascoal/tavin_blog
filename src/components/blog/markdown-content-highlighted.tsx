@@ -13,6 +13,7 @@ import {
   baseRehypePlugins,
   markdownComponents,
   markdownContentClassName,
+  removeDuplicateLeadingTitle,
   safeUrlTransform,
   type MarkdownContentProps,
 } from "@/components/blog/markdown-content";
@@ -46,7 +47,10 @@ const highlightedRehypePlugins: NonNullable<
 
 export async function HighlightedMarkdownContent({
   content,
+  articleTitle,
 }: MarkdownContentProps) {
+  const renderedContent = removeDuplicateLeadingTitle(content, articleTitle);
+
   return (
     <article className={markdownContentClassName}>
       <MarkdownAsync
@@ -55,7 +59,7 @@ export async function HighlightedMarkdownContent({
         urlTransform={safeUrlTransform}
         components={markdownComponents}
       >
-        {content}
+        {renderedContent}
       </MarkdownAsync>
     </article>
   );

@@ -1,13 +1,41 @@
+import type { ReactNode } from "react";
+import { SearchX, type LucideIcon } from "lucide-react";
+
+import { cn } from "@/lib/utils";
+
 type EmptyStateProps = {
+  icon?: LucideIcon;
   title: string;
   description: string;
+  action?: ReactNode;
+  className?: string;
 };
 
-export function EmptyState({ title, description }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon = SearchX,
+  title,
+  description,
+  action,
+  className,
+}: EmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed border-slate-300 bg-white/70 p-8 text-center text-slate-600 dark:border-slate-800 dark:bg-slate-950/70 dark:text-slate-400">
-      <h2 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h2>
-      <p className="mt-2 text-sm leading-6">{description}</p>
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center rounded-xl border border-dashed border-border/80 bg-card/50 px-6 py-12 text-center",
+        className,
+      )}
+    >
+      <div className="flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <Icon className="size-5" aria-hidden="true" />
+      </div>
+
+      <h3 className="mt-4 text-base font-semibold text-foreground">{title}</h3>
+
+      <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
+        {description}
+      </p>
+
+      {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );
 }

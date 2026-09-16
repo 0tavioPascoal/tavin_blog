@@ -1,6 +1,21 @@
 export type ArticleStatus = "draft" | "published";
 export type CertificateStatus = "draft" | "published";
 export type ProjectStatus = "draft" | "published";
+export type NewsletterSubscriberStatus =
+  | "subscribed"
+  | "unsubscribed"
+  | "bounced"
+  | "complained";
+export type ArticleEmailCampaignStatus =
+  | "pending"
+  | "sending"
+  | "sent"
+  | "failed";
+export type NewsletterCampaignDeliveryStatus =
+  | "pending"
+  | "sending"
+  | "sent"
+  | "failed";
 
 export type Database = {
   public: {
@@ -20,6 +35,102 @@ export type Database = {
           user_id?: string;
           email?: string;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      newsletter_subscribers: {
+        Row: {
+          id: string;
+          email: string;
+          status: NewsletterSubscriberStatus;
+          source: string | null;
+          subscribed_at: string;
+          unsubscribed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          status?: NewsletterSubscriberStatus;
+          source?: string | null;
+          subscribed_at?: string;
+          unsubscribed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          email?: string;
+          status?: NewsletterSubscriberStatus;
+          source?: string | null;
+          subscribed_at?: string;
+          unsubscribed_at?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      article_email_campaigns: {
+        Row: {
+          id: string;
+          post_id: string;
+          status: ArticleEmailCampaignStatus;
+          created_at: string;
+          updated_at: string;
+          sent_at: string | null;
+          last_error: string | null;
+        };
+        Insert: {
+          id?: string;
+          post_id: string;
+          status?: ArticleEmailCampaignStatus;
+          created_at?: string;
+          updated_at?: string;
+          sent_at?: string | null;
+          last_error?: string | null;
+        };
+        Update: {
+          status?: ArticleEmailCampaignStatus;
+          updated_at?: string;
+          sent_at?: string | null;
+          last_error?: string | null;
+        };
+        Relationships: [];
+      };
+      newsletter_campaign_deliveries: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          subscriber_id: string;
+          email: string;
+          status: NewsletterCampaignDeliveryStatus;
+          provider_message_id: string | null;
+          attempts: number;
+          last_error: string | null;
+          sent_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          subscriber_id: string;
+          email: string;
+          status?: NewsletterCampaignDeliveryStatus;
+          provider_message_id?: string | null;
+          attempts?: number;
+          last_error?: string | null;
+          sent_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          email?: string;
+          status?: NewsletterCampaignDeliveryStatus;
+          provider_message_id?: string | null;
+          attempts?: number;
+          last_error?: string | null;
+          sent_at?: string | null;
+          updated_at?: string;
         };
         Relationships: [];
       };

@@ -65,62 +65,17 @@ export function ValuePillarsSection() {
           return (
             <article
               key={pillar.title}
-              className="
-                group
-                flex
-                h-full
-                flex-col
-                rounded-2xl
-                border
-                border-slate-300/70
-                bg-card
-                p-5
-                shadow-sm
-                transition-all
-                duration-300
-                hover:-translate-y-1
-                hover:border-blue-300
-                hover:shadow-xl
-                hover:shadow-slate-950/5
-                dark:border-slate-800
-                dark:hover:border-blue-800
-                dark:hover:shadow-black/20
-                sm:p-6
-              "
+              className="group flex h-full flex-col rounded-xl border border-border/80 bg-card p-5 transition-colors duration-150 hover:border-blue-500/50 hover:shadow-xs sm:p-6"
             >
-              <div
-                className="
-                  flex
-                  size-11
-                  items-center
-                  justify-center
-                  rounded-xl
-                  border
-                  border-blue-200
-                  bg-blue-50/80
-                  text-blue-600
-                  shadow-sm
-                  transition-all
-                  duration-300
-                  group-hover:border-blue-300
-                  group-hover:bg-blue-100
-                  group-hover:text-blue-700
-                  dark:border-blue-900
-                  dark:bg-blue-950/40
-                  dark:text-blue-300
-                  dark:group-hover:border-blue-800
-                  dark:group-hover:bg-blue-950/70
-                  dark:group-hover:text-blue-200
-                "
-              >
+              <div className="flex size-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-300">
                 <Icon className="size-5" aria-hidden="true" />
               </div>
 
-              <h3 className="mt-5 text-lg font-bold tracking-tight text-foreground">
+              <h3 className="mt-4 font-sans text-base font-bold tracking-tight text-foreground">
                 {pillar.title}
               </h3>
 
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {pillar.description}
               </p>
             </article>

@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Source_Sans_3,
+  Source_Serif_4,
+} from "next/font/google";
 
 import { getSiteUrlFallback } from "@/lib/env";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -14,6 +19,19 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const sourceSerif4 = Source_Serif_4({
+  variable: "--font-article-serif",
+  subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
+});
+
+const sourceSans3 = Source_Sans_3({
+  variable: "--font-article-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -85,7 +103,8 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif4.variable} ${sourceSans3.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full overflow-x-hidden bg-background text-foreground">
         <ThemeProvider
