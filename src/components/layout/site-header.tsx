@@ -13,6 +13,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaGithub, FaLinkedinIn } from "react-icons/fa";
 
+import {
+  NewsletterHeaderMobile,
+  NewsletterHeaderPopover,
+} from "@/components/newsletter/newsletter-header-popover";
 import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/features/settings/types/settings";
 import { cn } from "@/lib/utils";
@@ -42,6 +46,10 @@ const navigation = [
 ];
 
 function isActive(pathname: string, href: string): boolean {
+  if (href === "/blog/artigos") {
+    return pathname === "/blog" || pathname === href || pathname.startsWith("/blog/");
+  }
+
   return href === "/"
     ? pathname === href
     : pathname.startsWith(href);
@@ -61,6 +69,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
 
   const mounted = useSyncExternalStore(
     subscribe,
@@ -74,16 +83,42 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
     if (!isOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    mobileMenuRef.current?.focus();
+    mobileMenuRef.current
+      ?.querySelector<HTMLElement>('a[href], button:not([disabled])')
+      ?.focus();
 
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
+    function handleMenuKeyboard(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        mobileMenuButtonRef.current?.focus();
+        return;
+      }
+
+      if (event.key !== "Tab" || !mobileMenuRef.current) return;
+
+      const focusableElements = Array.from(
+        mobileMenuRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements.at(-1);
+
+      if (!firstElement || !lastElement) return;
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
     }
 
-    document.addEventListener("keydown", closeOnEscape);
+    document.addEventListener("keydown", handleMenuKeyboard);
     return () => {
       document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", closeOnEscape);
+      document.removeEventListener("keydown", handleMenuKeyboard);
     };
   }, [isOpen]);
 
@@ -93,23 +128,23 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-background/85 shadow-[0_8px_30px_-22px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:bg-background/80 dark:shadow-[0_8px_30px_-22px_rgba(0,0,0,0.8)]">
-      <div className="flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-[7vw]">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Identidade */}
         <Link
           href="/"
           aria-label="Ir para a página inicial"
-          className="group flex min-w-0 items-center gap-3"
+          className="group flex min-w-0 items-center gap-2.5 rounded-xl p-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-blue-600 to-cyan-500 text-sm font-black tracking-[-0.06em] text-white shadow-md shadow-blue-600/20 transition-transform duration-300 group-hover:scale-105">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-[11px] border border-white/15 bg-linear-to-br from-blue-600 to-cyan-500 text-[13px] font-extrabold tracking-[-0.04em] text-white shadow-sm shadow-blue-600/20 transition-shadow group-hover:shadow-blue-600/30">
             OP
           </span>
 
-          <span className="min-w-0">
-            <span className="block truncate text-sm font-bold tracking-[-0.02em] text-foreground sm:text-base">
+          <span className="min-w-0 leading-none">
+            <span className="block truncate text-[15px] font-bold leading-5 tracking-[-0.02em] text-foreground">
               Otávio Pascoal
             </span>
 
-            <span className="hidden text-[11px] font-medium text-muted-foreground sm:block">
+            <span className="block text-[11px] font-medium leading-4 text-muted-foreground max-[340px]:hidden">
               Blog & Portfólio
             </span>
           </span>
@@ -129,9 +164,10 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-10 items-center rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-accent/70 hover:text-foreground",
-                  active &&
-                    "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-300",
+                  "relative flex h-10 items-center rounded-lg px-3.5 text-sm font-medium transition-colors duration-150 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  active
+                    ? "font-semibold text-foreground"
+                    : "text-muted-foreground",
                 )}
               >
                 {item.label}
@@ -145,18 +181,18 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
         </nav>
 
         {/* Ações desktop */}
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-1.5 lg:flex">
           {settings.githubUrl ? (
             <Button
               asChild
               variant="ghost"
               size="icon"
-              className="size-9 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground"
+              className="size-9 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <a
                 href={settings.githubUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label="Acessar GitHub"
               >
                 <FaGithub className="size-[18px]" />
@@ -169,12 +205,12 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
               asChild
               variant="ghost"
               size="icon"
-              className="size-9 rounded-xl text-muted-foreground hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-400/10 dark:hover:text-blue-300"
+              className="size-9 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <a
                 href={settings.linkedinUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 aria-label="Acessar LinkedIn"
               >
                 <FaLinkedinIn className="size-[18px]" />
@@ -186,7 +222,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             type="button"
             variant="ghost"
             size="icon"
-            className="size-9 rounded-xl text-muted-foreground hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-400/10 dark:hover:text-amber-300"
+            className="size-9 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
             onClick={toggleTheme}
             aria-label={
               mounted && isDark
@@ -203,10 +239,12 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
 
           <div className="mx-1 h-5 w-px bg-border" />
 
+          <NewsletterHeaderPopover />
+
           <Button
             asChild
             size="sm"
-            className="h-9 rounded-xl bg-blue-600 px-4 font-semibold text-white shadow-md shadow-blue-600/15 hover:bg-blue-700"
+            className="h-9 rounded-lg bg-blue-600 px-4 font-semibold text-white shadow-sm hover:bg-blue-700"
           >
             <Link href="/contato">
               <Mail className="size-4" />
@@ -218,23 +256,24 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
             asChild
             variant="ghost"
             size="icon"
-            className="ml-1 size-9 rounded-xl text-muted-foreground/70 hover:bg-accent hover:text-emerald-600 dark:hover:text-emerald-400"
+            className="size-9 rounded-lg text-muted-foreground/60 hover:bg-accent hover:text-muted-foreground"
           >
             <Link
               href="/admin"
               aria-label="Acessar administração"
             >
-              <ShieldCheck className="size-[18px]" />
+              <ShieldCheck className="size-4" />
             </Link>
           </Button>
         </div>
 
         {/* Botão mobile */}
         <Button
+          ref={mobileMenuButtonRef}
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-xl lg:hidden"
+          className="rounded-lg lg:hidden"
           onClick={() => setIsOpen((current) => !current)}
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={isOpen}
@@ -257,11 +296,11 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
           aria-modal="true"
           aria-label="Menu principal"
           tabIndex={-1}
-          className="border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl shadow-slate-950/5 backdrop-blur-xl sm:px-6 lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-6 lg:hidden"
         >
           <nav
             aria-label="Navegação mobile"
-            className="grid gap-1.5"
+            className="grid gap-1"
           >
             {navigation.map((item) => {
               const active = isActive(pathname, item.href);
@@ -273,16 +312,23 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                   onClick={() => setIsOpen(false)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex h-11 items-center rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                    active &&
-                      "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200",
+                    "flex h-11 items-center rounded-lg border-l-2 px-3.5 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    active
+                      ? "border-blue-600 font-semibold text-blue-600 dark:border-blue-400 dark:text-blue-400"
+                      : "border-transparent text-muted-foreground",
                   )}
                 >
                   {item.label}
                 </Link>
               );
             })}
+          </nav>
 
+          <div className="mt-3">
+            <NewsletterHeaderMobile />
+          </div>
+
+          <nav aria-label="Ações mobile" className="mt-3">
             <Link
               href="/contato"
               onClick={() => setIsOpen(false)}
@@ -292,9 +338,10 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                   : undefined
               }
               className={cn(
-                "flex h-11 items-center justify-between rounded-xl px-3.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-                isActive(pathname, "/contato") &&
-                  "bg-blue-50 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200",
+                "flex h-11 items-center justify-between rounded-lg border-l-2 px-3.5 text-sm font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                isActive(pathname, "/contato")
+                  ? "border-blue-600 font-semibold text-blue-600 dark:border-blue-400 dark:text-blue-400"
+                  : "border-transparent text-muted-foreground",
               )}
             >
               Contato
@@ -308,12 +355,12 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                 asChild
                 variant="outline"
                 size="sm"
-                className="h-10 flex-1 rounded-xl"
+                className="h-10 flex-1 rounded-lg"
               >
                 <a
                   href={settings.githubUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   <FaGithub className="size-4" />
                   GitHub
@@ -326,12 +373,12 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
                 asChild
                 variant="outline"
                 size="sm"
-                className="h-10 flex-1 rounded-xl"
+                className="h-10 flex-1 rounded-lg"
               >
                 <a
                   href={settings.linkedinUrl}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   <FaLinkedinIn className="size-4" />
                   LinkedIn
@@ -343,7 +390,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
               type="button"
               variant="outline"
               size="icon"
-              className="size-10 shrink-0 rounded-xl"
+              className="size-10 shrink-0 rounded-lg"
               onClick={toggleTheme}
               aria-label={
                 mounted && isDark
@@ -362,7 +409,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
               asChild
               variant="outline"
               size="icon"
-              className="size-10 shrink-0 rounded-xl"
+              className="size-10 shrink-0 rounded-lg"
             >
               <Link
                 href="/admin"

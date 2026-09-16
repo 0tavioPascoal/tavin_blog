@@ -11,7 +11,7 @@ import type { ArticleDetail, ArticleMutationInput, ArticleSummary } from "@/feat
 import { mapArticleRowToDetail, mapArticleRowToSummary } from "@/features/posts/utils/mappers";
 import type { TagSummary } from "@/features/tags/types/tag";
 import { mapTagRowToSummary } from "@/features/tags/utils/mappers";
-import type { Database } from "@/types/supabase";
+import type { ArticleStatus, Database } from "@/types/supabase";
 
 type SupabaseClient = NonNullable<Awaited<ReturnType<typeof createSupabaseServerClient>>>;
 type ArticleRow = Database["public"]["Tables"]["articles"]["Row"];
@@ -416,7 +416,7 @@ export async function createArticle(input: ArticleMutationInput): Promise<string
 export async function updateArticle(
   id: string,
   input: ArticleMutationInput,
-): Promise<{ previousSlug: string | null }> {
+): Promise<{ previousSlug: string | null; previousStatus: ArticleStatus | null }> {
   const supabase = await createSupabaseServerClient();
 
   if (!supabase) {
@@ -437,5 +437,6 @@ export async function updateArticle(
 
   return {
     previousSlug: current?.slug ?? null,
+    previousStatus: current?.status ?? null,
   };
 }

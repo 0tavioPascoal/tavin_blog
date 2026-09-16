@@ -11,6 +11,7 @@ import {
   PanelLeftOpen,
   PenSquare,
   Settings,
+  MailCheck,
   Sun,
   Tags,
   X,
@@ -33,6 +34,7 @@ type AdminShellClientProps = {
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: Home },
   { href: "/admin/posts", label: "Posts", icon: FileText },
+  { href: "/admin/newsletter", label: "Newsletter", icon: MailCheck },
   { href: "/admin/projects", label: "Projetos", icon: FolderKanban },
   { href: "/admin/certificates", label: "Certificados", icon: Award },
   { href: "/admin/categories", label: "Categorias", icon: Tags },

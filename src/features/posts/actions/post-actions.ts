@@ -8,6 +8,8 @@ import { getCurrentAdminUser } from "@/features/auth/repositories/auth-repositor
 import { postFormSchema } from "@/features/posts/schemas/post-schema";
 import { createArticle, updateArticle } from "@/features/posts/repositories/posts-repository";
 import type { ArticleMutationInput } from "@/features/posts/types/post";
+import { sendArticlePublishedCampaign } from "@/features/newsletter/services/article-campaign-service";
+import type { ArticleCampaignResult } from "@/features/newsletter/types/newsletter";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
@@ -110,14 +112,44 @@ function uniqueSlugs(slugs: Array<string | null | undefined>): string[] {
   return Array.from(new Set(slugs.filter((slug): slug is string => Boolean(slug))));
 }
 
+async function trySendPublicationNewsletter(articleId: string): Promise<ArticleCampaignResult> {
+  try {
+    return await sendArticlePublishedCampaign(articleId);
+  } catch {
+    console.error("[newsletter] unexpected publication integration failure", { articleId });
+    return {
+      status: "failed",
+      message: "Falha inesperada ao enviar newsletter.",
+    };
+  }
+}
+
+function getPublicationMessage(result: ArticleCampaignResult): string {
+  if (result.status === "failed") {
+    return "Post publicado com sucesso, mas não foi possível enviar a newsletter.";
+  }
+
+  if (result.status === "already-sent") {
+    return "Post publicado com sucesso. A newsletter deste artigo já havia sido processada.";
+  }
+
+  return "Post publicado e newsletter enviada.";
+}
+
 export async function createPostAction(input: unknown): Promise<PostActionState> {
   let slugsToRevalidate: string[] = [];
+  let newsletterMessage: string | null = null;
 
   try {
     await requireAdmin();
     const postInput = toMutationInput(input);
     slugsToRevalidate = [postInput.slug];
-    await createArticle(postInput);
+    const postId = await createArticle(postInput);
+    if (postInput.status === "published") {
+      newsletterMessage = getPublicationMessage(
+        await trySendPublicationNewsletter(postId),
+      );
+    }
   } catch (error) {
     return {
       ok: false,
@@ -129,18 +161,25 @@ export async function createPostAction(input: unknown): Promise<PostActionState>
 
   return {
     ok: true,
-    message: "Post criado com sucesso.",
+    message: newsletterMessage ?? "Post criado com sucesso.",
   };
 }
 
 export async function updatePostAction(id: string, input: unknown): Promise<PostActionState> {
   let slugsToRevalidate: string[] = [];
+  let newsletterMessage: string | null = null;
 
   try {
     await requireAdmin();
     const postInput = toMutationInput(input);
-    const { previousSlug } = await updateArticle(id, postInput);
+    const { previousSlug, previousStatus } = await updateArticle(id, postInput);
     slugsToRevalidate = [previousSlug, postInput.slug].filter((slug): slug is string => Boolean(slug));
+    const firstPublication = previousStatus !== "published" && postInput.status === "published";
+    if (firstPublication) {
+      newsletterMessage = getPublicationMessage(
+        await trySendPublicationNewsletter(id),
+      );
+    }
   } catch (error) {
     return {
       ok: false,
@@ -152,7 +191,7 @@ export async function updatePostAction(id: string, input: unknown): Promise<Post
 
   return {
     ok: true,
-    message: "Post atualizado com sucesso.",
+    message: newsletterMessage ?? "Post atualizado com sucesso.",
   };
 }
 

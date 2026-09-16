@@ -21,7 +21,7 @@ export function FeaturedArticlesSection({
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="inline-flex items-center mb-4 gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400">
+          <div className="inline-flex items-center mb-2 gap-2 text-xs font-bold uppercase tracking-[0.14em] text-blue-600 dark:text-blue-400">
             <BookOpenText className="size-4" aria-hidden="true" />
             Biblioteca técnica
           </div>
@@ -41,11 +41,11 @@ export function FeaturedArticlesSection({
 
         <Link
           href="/blog/artigos"
-          className="group inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-border bg-background px-3.5 text-sm font-semibold text-muted-foreground transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-300 dark:focus-visible:ring-offset-slate-950"
+          className="group inline-flex h-9 w-fit items-center gap-2 whitespace-nowrap rounded-lg border border-border bg-background px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
         >
           Ver todos os artigos
           <ArrowRight
-            className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+            className="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
             aria-hidden="true"
           />
         </Link>
@@ -60,7 +60,7 @@ export function FeaturedArticlesSection({
           ))}
         </div>
       ) : (
-        <div className="mt-5 rounded-2xl border border-dashed border-slate-300/80 bg-card p-4 shadow-sm dark:border-slate-800 lg:mt-0">
+        <div className="mt-5 lg:mt-0">
           <EmptyState
             title="Nenhum artigo publicado ainda"
             description="Quando os primeiros artigos forem publicados, eles aparecerão aqui automaticamente."

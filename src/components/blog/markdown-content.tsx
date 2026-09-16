@@ -18,18 +18,103 @@ type MarkdownImageProps = ComponentProps<"img"> & {
   node?: unknown;
 };
 
+type MarkdownAstNode = {
+  type: string;
+  tagName?: string;
+  children?: MarkdownAstNode[];
+};
+
 export type MarkdownContentProps = {
   content: string;
+  articleTitle?: string;
   rehypePlugins?: ReactMarkdownProps["rehypePlugins"];
 };
+
+function normalizeComparableHeading(value: string) {
+  return value
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/(\*\*|__)(.*?)\1/g, "$2")
+    .replace(/(\*|_)(.*?)\1/g, "$2")
+    .replace(/~~(.*?)~~/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase("pt-BR");
+}
+
+export function removeDuplicateLeadingTitle(content: string, articleTitle?: string) {
+  if (!articleTitle) return content;
+
+  const leadingH1 = /^(?:\uFEFF)?(?:[ \t]*\r?\n)*[ \t]*#[ \t]+(.+?)(?:[ \t]+#+)?[ \t]*(?:\r?\n|$)/;
+  const atxMatch = content.match(leadingH1);
+  if (atxMatch && normalizeComparableHeading(atxMatch[1]) === normalizeComparableHeading(articleTitle)) {
+    return content.slice(atxMatch[0].length).replace(/^(?:[ \t]*\r?\n)+/, "");
+  }
+
+  const leadingSetextH1 = /^(?:\uFEFF)?(?:[ \t]*\r?\n)*([^\r\n]+)\r?\n[ \t]*=+[ \t]*(?:\r?\n|$)/;
+  const setextMatch = content.match(leadingSetextH1);
+  if (setextMatch && normalizeComparableHeading(setextMatch[1]) === normalizeComparableHeading(articleTitle)) {
+    return content.slice(setextMatch[0].length).replace(/^(?:[ \t]*\r?\n)+/, "");
+  }
+
+  return content;
+}
 
 export const baseRemarkPlugins: NonNullable<
   ReactMarkdownProps["remarkPlugins"]
 > = [remarkGfm];
 
+function rehypeNormalizeArticleHeadings() {
+  return (tree: MarkdownAstNode) => {
+    const headings: MarkdownAstNode[] = [];
+
+    function collectHeadings(node: MarkdownAstNode) {
+      if (
+        node.type === "element" &&
+        typeof node.tagName === "string" &&
+        /^h[1-6]$/.test(node.tagName)
+      ) {
+        headings.push(node);
+      }
+
+      node.children?.forEach(collectHeadings);
+    }
+
+    collectHeadings(tree);
+
+    const firstHeading = headings[0];
+
+    if (!firstHeading?.tagName) {
+      return;
+    }
+
+    const firstDepth = Number(firstHeading.tagName.slice(1));
+    const depthOffset = 2 - firstDepth;
+    let previousDepth = 2;
+
+    headings.forEach((heading, index) => {
+      const originalDepth = Number(heading.tagName?.slice(1));
+      const shiftedDepth = Math.min(
+        6,
+        Math.max(2, originalDepth + depthOffset),
+      );
+      const normalizedDepth =
+        index === 0
+          ? 2
+          : Math.min(shiftedDepth, previousDepth + 1);
+
+      heading.tagName = "h" + normalizedDepth;
+      previousDepth = normalizedDepth;
+    });
+  };
+}
+
 export const baseRehypePlugins: NonNullable<
   ReactMarkdownProps["rehypePlugins"]
 > = [
+  rehypeNormalizeArticleHeadings,
   rehypeSlug,
   [
     rehypeAutolinkHeadings,
@@ -103,7 +188,7 @@ function MarkdownImage({
       decoding="async"
       className={[
         "mx-auto h-auto max-w-full rounded-lg",
-        "border border-border bg-card object-contain",
+        "object-contain",
         className,
       ]
         .filter(Boolean)
@@ -158,7 +243,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
           {onlyChild}
 
           {caption ? (
-            <figcaption className="mx-auto mt-3 max-w-2xl text-center text-sm leading-6 text-muted-foreground">
+            <figcaption className="mx-auto mt-3 max-w-2xl text-center [font-family:var(--font-article-serif)] text-sm leading-6 text-muted-foreground">
               {caption}
             </figcaption>
           ) : null}
@@ -193,7 +278,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
       <figure
         {...props}
         className={[
-          "not-prose my-7 sm:my-8",
+          "not-prose my-8 sm:my-10",
           className,
         ]
           .filter(Boolean)
@@ -210,10 +295,10 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
     ...props
   }) {
     return (
-      <div className="not-prose my-8 max-w-full overflow-x-auto rounded-lg border border-border bg-card">
+      <div className="not-prose my-8 max-w-full overflow-x-auto rounded-lg border border-border bg-background">
         <table
           {...props}
-          className="w-full min-w-160 border-collapse text-left text-sm"
+          className="w-full min-w-140 border-collapse text-left [font-family:var(--font-article-sans)] text-[0.9em] leading-[1.55]"
         >
           {children}
         </table>
@@ -244,7 +329,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
     return (
       <tbody
         {...props}
-        className="divide-y divide-border"
+        className="divide-y divide-border/60"
       >
         {children}
       </tbody>
@@ -259,7 +344,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
     return (
       <tr
         {...props}
-        className="even:bg-muted/20"
+        className="even:bg-muted/15"
       >
         {children}
       </tr>
@@ -274,7 +359,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
     return (
       <th
         {...props}
-        className="whitespace-nowrap px-4 py-3 font-bold text-foreground"
+        className="whitespace-nowrap px-4 py-3 font-semibold text-foreground"
       >
         {children}
       </th>
@@ -289,7 +374,7 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
     return (
       <td
         {...props}
-        className="px-4 py-3 align-top leading-6 text-foreground/80"
+        className="px-4 py-3 align-top leading-6 text-foreground/90"
       >
         {children}
       </td>
@@ -310,26 +395,28 @@ export const markdownComponents: ReactMarkdownProps["components"] = {
 };
 
 export const markdownContentClassName = `
+  article-content
   prose
   prose-slate
+  [font-family:var(--font-article-serif)]
   mx-auto
   w-full
-  max-w-[48rem]
+  max-w-[47.5rem]
+  [text-rendering:optimizeLegibility]
+  [font-kerning:normal]
 
   text-[1.0625rem]
-  leading-[1.75]
-
-  sm:text-lg
-  sm:leading-[1.8]
+  leading-[1.78]
 
   dark:prose-invert
 
   [&>*:first-child]:mt-0
   [&>*:last-child]:mb-0
 
+  prose-headings:[font-family:var(--font-article-sans)]
   prose-headings:scroll-mt-28
   prose-headings:font-bold
-  prose-headings:tracking-[-0.025em]
+  prose-headings:tracking-[-0.012em]
   prose-headings:text-foreground
 
   prose-h1:mb-7
@@ -340,22 +427,32 @@ export const markdownContentClassName = `
 
   prose-h2:mb-4
   prose-h2:mt-10
-  prose-h2:text-2xl
-  prose-h2:leading-[1.25]
-  sm:prose-h2:mt-12
-  sm:prose-h2:text-[1.8rem]
+  prose-h2:text-[1.625rem]
+  prose-h2:leading-[1.2]
+  sm:prose-h2:text-[1.75rem]
 
   prose-h3:mb-3
   prose-h3:mt-8
-  prose-h3:text-xl
-  prose-h3:leading-[1.3]
-  sm:prose-h3:mt-10
-  sm:prose-h3:text-2xl
+  prose-h3:text-[1.3125rem]
+  prose-h3:leading-[1.25]
+  sm:prose-h3:text-[1.4375rem]
 
-  prose-h4:mb-3
+  prose-h4:mb-2
   prose-h4:mt-7
-  prose-h4:text-lg
-  prose-h4:leading-snug
+  prose-h4:text-[1.1rem]
+  prose-h4:leading-[1.15]
+
+  prose-h5:mb-2
+  prose-h5:mt-6
+  prose-h5:text-base
+  prose-h5:leading-snug
+
+  prose-h6:mb-2
+  prose-h6:mt-5
+  prose-h6:text-sm
+  prose-h6:leading-snug
+  prose-h6:uppercase
+  prose-h6:tracking-wide
 
   [&_hr+h2]:mt-0
   [&_hr+h3]:mt-0
@@ -363,25 +460,32 @@ export const markdownContentClassName = `
   [&_h2+*]:mt-0
   [&_h3+*]:mt-0
   [&_h4+*]:mt-0
+  [&_h5+*]:mt-0
+  [&_h6+*]:mt-0
 
-  prose-p:my-5
+  prose-p:my-4
   prose-p:max-w-none
-  prose-p:leading-[1.75]
-  prose-p:text-foreground/85
-  sm:prose-p:leading-[1.8]
+  prose-p:leading-[1.78]
+  prose-p:text-foreground/95
+  [&_p]:[text-wrap:pretty]
 
-  prose-ul:my-6
-  prose-ul:pl-7
+  prose-ul:my-5
+  prose-ul:list-disc
+  prose-ul:pl-6
+  sm:prose-ul:pl-7
 
-  prose-ol:my-6
-  prose-ol:pl-7
+  prose-ol:my-5
+  prose-ol:list-decimal
+  prose-ol:pl-6
+  sm:prose-ol:pl-7
 
   prose-li:my-1.5
   prose-li:pl-1
-  prose-li:leading-[1.7]
-  prose-li:text-foreground/85
+  prose-li:leading-[1.72]
+  prose-li:text-foreground/95
+  [&_li]:[text-wrap:pretty]
 
-  prose-li:marker:font-bold
+  prose-li:marker:font-semibold
   prose-li:marker:text-foreground/60
 
   [&_li>p]:my-2
@@ -400,77 +504,74 @@ export const markdownContentClassName = `
   [&_input[type='checkbox']]:mr-2
   [&_input[type='checkbox']]:size-4
   [&_input[type='checkbox']]:translate-y-0.5
-  [&_input[type='checkbox']]:accent-blue-600
+  [&_input[type='checkbox']]:accent-primary
 
-  prose-strong:font-bold
+  prose-strong:font-semibold
   prose-strong:text-foreground
 
-  prose-em:text-foreground/90
+  prose-em:italic
+  prose-em:text-foreground
 
   prose-del:text-muted-foreground
   prose-del:decoration-red-400/70
 
-  prose-blockquote:my-7
-  prose-blockquote:border-l-4
-  prose-blockquote:border-slate-400
-  prose-blockquote:py-1
+  prose-blockquote:my-8
+  prose-blockquote:border-l-[3px]
+  prose-blockquote:border-primary
+  prose-blockquote:bg-transparent
+  prose-blockquote:py-0
   prose-blockquote:pl-5
+  prose-blockquote:pr-0
   prose-blockquote:not-italic
-  prose-blockquote:text-foreground/85
+  prose-blockquote:text-foreground/95
 
-  dark:prose-blockquote:border-slate-600
-
-  [&_blockquote>p]:my-0
-  [&_blockquote>p]:text-inherit
-  [&_blockquote>p+p]:mt-4
+  [&_blockquote_p]:my-2
+  [&_blockquote_p:first-child]:mt-0
+  [&_blockquote_p:last-child]:mb-0
 
   prose-a:font-medium
-  prose-a:text-blue-600
+  prose-a:text-primary
   prose-a:underline
-  prose-a:decoration-blue-500/35
-  prose-a:decoration-1
-  prose-a:underline-offset-2
+  prose-a:underline-offset-[0.15em]
+  prose-a:decoration-from-font
+  [&_a]:[text-decoration-skip-ink:auto]
   prose-a:transition-colors
-
-  hover:prose-a:text-blue-700
-  hover:prose-a:decoration-blue-600
-
-  dark:prose-a:text-blue-400
-  dark:hover:prose-a:text-blue-300
+  hover:prose-a:text-primary/80
 
   focus-visible:prose-a:rounded-sm
   focus-visible:prose-a:outline-2
   focus-visible:prose-a:outline-offset-3
-  focus-visible:prose-a:outline-blue-500
+  focus-visible:prose-a:outline-primary
 
-  [&_.heading-anchor]:ml-2
+  [&_.heading-anchor]:ml-2.5
   [&_.heading-anchor]:inline-flex
   [&_.heading-anchor]:align-middle
   [&_.heading-anchor]:font-normal
-  [&_.heading-anchor]:text-blue-500/0
+  [&_.heading-anchor]:text-primary
+  [&_.heading-anchor]:opacity-0
   [&_.heading-anchor]:no-underline
-  [&_.heading-anchor]:transition-colors
+  [&_.heading-anchor]:transition-all
 
-  hover:[&_.heading-anchor]:text-blue-500/60
-  focus-visible:[&_.heading-anchor]:text-blue-500
+  focus-visible:[&_.heading-anchor]:opacity-100
+  focus-visible:[&_.heading-anchor]:text-primary
+  focus-visible:[&_.heading-anchor]:outline-none
+  focus-visible:[&_.heading-anchor]:ring-2
+  focus-visible:[&_.heading-anchor]:ring-primary
+  focus-visible:[&_.heading-anchor]:ring-offset-2
 
-  prose-code:rounded
-  prose-code:bg-slate-100
-  prose-code:px-1.5
-  prose-code:py-0.5
+  prose-code:rounded-md
+  prose-code:bg-muted/75
+  prose-code:px-[0.35em]
+  prose-code:py-[0.15em]
   prose-code:font-mono
-  prose-code:text-[0.88em]
-  prose-code:font-medium
-  prose-code:text-slate-900
+  prose-code:text-[0.85em]
+  prose-code:font-normal
+  prose-code:text-foreground
 
   before:prose-code:content-none
   after:prose-code:content-none
 
-  dark:prose-code:bg-slate-800
-  dark:prose-code:text-slate-100
-
-  [&_[data-rehype-pretty-code-figure]]:my-7
-  sm:[&_[data-rehype-pretty-code-figure]]:my-8
+  [&_[data-rehype-pretty-code-figure]]:my-8
 
   prose-figcaption:text-sm
   prose-figcaption:leading-6
@@ -479,8 +580,11 @@ export const markdownContentClassName = `
 
 export function MarkdownContent({
   content,
+  articleTitle,
   rehypePlugins = baseRehypePlugins,
 }: MarkdownContentProps) {
+  const renderedContent = removeDuplicateLeadingTitle(content, articleTitle);
+
   return (
     <article className={markdownContentClassName}>
       <ReactMarkdown
@@ -489,7 +593,7 @@ export function MarkdownContent({
         urlTransform={safeUrlTransform}
         components={markdownComponents}
       >
-        {content}
+        {renderedContent}
       </ReactMarkdown>
     </article>
   );

@@ -13,11 +13,11 @@ export async function SiteShell({ children }: SiteShellProps) {
     <>
       <SiteHeader settings={settings} />
 
-      <main className="flex-1 bg-background text-foreground">
+      <div className="flex-1 bg-background text-foreground">
         {children}
-      </main>
+      </div>
 
-      <SiteFooter />
+      <SiteFooter settings={settings} />
     </>
   );
 }

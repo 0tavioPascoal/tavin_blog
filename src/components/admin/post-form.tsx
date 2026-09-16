@@ -34,6 +34,7 @@ import {
 } from "@/features/posts/actions/post-actions";
 import type { ArticleDetail } from "@/features/posts/types/post";
 import type { TagSummary } from "@/features/tags/types/tag";
+import { articleMarkdownTemplate } from "@/lib/markdown/article-template";
 import { calculateReadingTimeMinutes } from "@/lib/markdown/reading-time";
 
 const postEditorSchema = z.object({
@@ -192,6 +193,23 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
 
   function handleImageButtonClick() {
     imageInputRef.current?.click();
+  }
+
+  function handleTemplateInsertion() {
+    form.setValue("contentMarkdown", articleMarkdownTemplate, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setEditorMode("write");
+
+    requestAnimationFrame(() => {
+      markdownTextareaRef.current?.focus();
+      markdownTextareaRef.current?.setSelectionRange(
+        articleMarkdownTemplate.length,
+        articleMarkdownTemplate.length,
+      );
+    });
   }
 
   function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -360,7 +378,8 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                     Editor Markdown
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                    Escreva, envie imagens e revise o resultado renderizado.
+                    O título principal vem do campo Título. Use ## para seções e
+                    ### para subseções.
                   </p>
                 </div>
               </div>
@@ -395,6 +414,19 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                     Preview
                   </button>
                 </div>
+
+                {!post &&
+                contentMarkdownPreview.trim().length === 0 ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleTemplateInsertion}
+                    className="h-11 rounded-xl"
+                  >
+                    <FileText className="size-4" />
+                    Usar modelo editorial
+                  </Button>
+                ) : null}
 
                 <Button
                   type="button"
@@ -435,7 +467,7 @@ export function PostForm({ post, categories, tags }: PostFormProps) {
                 <textarea
                   id="contentMarkdown"
                   rows={22}
-                  placeholder={`# Título do artigo\n\nEscreva seu conteúdo em Markdown...`}
+                  placeholder={`## Primeira seção\n\nEscreva seu conteúdo em Markdown...`}
                   className="min-h-136 w-full resize-y rounded-xl border border-slate-300/80 bg-background px-4 py-4 font-mono text-sm leading-7 text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground/70 hover:border-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:hover:border-slate-600"
                   {...contentMarkdownField}
                   ref={(element) => {

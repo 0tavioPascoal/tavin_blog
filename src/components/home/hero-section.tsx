@@ -189,7 +189,7 @@ export function HeroSection() {
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-32 bg-linear-to-t from-background via-background/85 to-transparent" />
 
-      <div className="relative grid w-full gap-10 px-4 py-9 sm:px-6 sm:py-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:px-[7vw] lg:py-14">
+      <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-4 py-9 sm:px-6 sm:py-12 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-12 lg:px-8 lg:py-14">
         {/* Conteúdo pessoal */}
         <div className="relative z-20 flex items-center">
           <div className="max-w-175">
@@ -252,25 +252,23 @@ export function HeroSection() {
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Button
                 asChild
-                size="lg"
-                className="group h-12 w-full rounded-xl bg-blue-600 px-6 font-semibold text-white shadow-lg shadow-blue-600/20 transition-all duration-300 hover:-translate-y-0.5 hover:bg-blue-700 hover:shadow-xl hover:shadow-blue-600/25 sm:w-auto"
+                className="group h-11 w-full rounded-lg bg-blue-600 px-5 font-semibold text-white shadow-xs transition-colors hover:bg-blue-700 sm:w-auto"
               >
                 <Link href="/projetos">
                   Conhecer meus projetos
-                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>
               </Button>
 
               <Button
                 asChild
                 variant="outline"
-                size="lg"
-                className="group h-12 w-full rounded-xl border-blue-300 bg-white/70 px-6 font-semibold text-blue-700 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-400 hover:bg-blue-50 dark:border-blue-400/30 dark:bg-white/4.5 dark:text-blue-200 dark:hover:border-blue-400/50 dark:hover:bg-blue-400/10 sm:w-auto"
+                className="group h-11 w-full rounded-lg border-border bg-card px-5 font-semibold text-foreground shadow-xs transition-colors hover:bg-muted hover:text-foreground sm:w-auto"
               >
                 <Link href="/blog/artigos">
                   <FileText className="size-4" />
                   Explorar artigos
-                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ArrowRight className="size-4 transition-transform duration-150 group-hover:translate-x-0.5" />
                 </Link>
               </Button>
             </div>

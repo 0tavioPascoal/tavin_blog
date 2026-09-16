@@ -156,22 +156,22 @@ export function MarkdownCodeBlock({
         : "Copiar código";
 
   const buttonClassName = [
-    "inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5",
-    "text-xs font-semibold transition",
+    "inline-flex h-8 items-center gap-1.5 rounded-md px-2",
+    "text-xs font-medium transition-colors",
     "focus-visible:outline-none focus-visible:ring-2",
     "focus-visible:ring-blue-500 focus-visible:ring-offset-2",
-    "focus-visible:ring-offset-slate-950",
+    "focus-visible:ring-offset-background",
     copyState === "copied"
-      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+      ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
       : copyState === "error"
-        ? "border-red-500/30 bg-red-500/10 text-red-300"
-        : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20 hover:bg-white/10 hover:text-white",
+        ? "bg-red-500/10 text-red-700 dark:text-red-400"
+        : "text-muted-foreground hover:bg-background/70 hover:text-foreground dark:hover:bg-white/5",
   ].join(" ");
 
   return (
-    <div className="markdown-code-block not-prose overflow-hidden rounded-2xl border border-slate-800 bg-slate-950 shadow-xl shadow-slate-950/10 dark:shadow-black/30">
-      <div className="markdown-code-toolbar flex min-h-12 items-center justify-between gap-4 border-b border-white/10 bg-slate-900/90 px-3 sm:px-4">
-        <span className="markdown-code-language truncate font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-slate-400">
+    <div className="markdown-code-block not-prose my-8 overflow-hidden rounded-lg border border-border bg-muted/60 dark:bg-[#23211f]">
+      <div className="markdown-code-toolbar flex h-9 items-center justify-between gap-4 border-b border-border/80 bg-muted/40 px-3 dark:bg-white/[0.025]">
+        <span className="markdown-code-language truncate font-mono text-[11px] font-medium text-muted-foreground">
           {language}
         </span>
 
@@ -221,8 +221,9 @@ export function MarkdownCodeBlock({
         {...props}
         ref={preRef}
         className={[
-          "m-0 max-w-full overflow-x-auto bg-transparent px-4 py-5",
-          "font-mono text-sm leading-7 text-slate-100",
+          "m-0 max-w-full overflow-x-auto bg-transparent px-4 py-4",
+          "font-mono text-[0.9em] leading-[1.65] text-foreground",
+          "whitespace-pre break-normal [overflow-wrap:normal] [font-variant-ligatures:none]",
           "[&>code]:grid [&>code]:min-w-full",
           className,
         ]
