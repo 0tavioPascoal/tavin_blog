@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ExternalLink,
   FileText,
+  ImageIcon,
   Hash,
   ListOrdered,
   Save,
@@ -116,6 +117,7 @@ export function CertificateForm({
     }) ?? [];
 
   const [certificatePdf, setCertificatePdf] = useState<File | null>(null);
+  const [certificatePreview, setCertificatePreview] = useState<File | null>(null);
   const issuedAt = useWatch({ control: form.control, name: "issuedAt" }) ?? "";
   const doesNotExpire = useWatch({ control: form.control, name: "doesNotExpire" }) ?? false;
   const today = new Date();
@@ -133,6 +135,7 @@ export function CertificateForm({
 
       const fileData = new FormData();
       if (certificatePdf) fileData.set("certificatePdf", certificatePdf);
+      if (certificatePreview) fileData.set("certificatePreview", certificatePreview);
 
       const result = certificate
         ? await updateCertificateAction(certificate.id, values, fileData)
@@ -142,6 +145,7 @@ export function CertificateForm({
 
       if (result.ok) {
         setCertificatePdf(null);
+        setCertificatePreview(null);
         router.push("/admin/certificates");
         router.refresh();
       }
@@ -368,6 +372,41 @@ export function CertificateForm({
             <ExternalLink className="size-4" aria-hidden="true" />
           </a>
         ) : null}
+
+        <div className="mt-6 grid gap-3 border-t border-border pt-6">
+          <label htmlFor="certificatePreview" className="text-sm font-semibold text-foreground">
+            Imagem de preview <span className="font-normal text-muted-foreground">(opcional)</span>
+          </label>
+          <input
+            id="certificatePreview"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            disabled={isPending}
+            onChange={(event) => setCertificatePreview(event.target.files?.[0] ?? null)}
+            className="block h-11 w-full rounded-xl border border-slate-300/80 bg-background text-sm text-foreground file:mr-4 file:h-full file:border-0 file:border-r file:border-border file:bg-muted file:px-4 file:text-sm file:font-semibold hover:border-slate-400 disabled:opacity-60 dark:border-slate-700"
+          />
+          <p className="text-xs leading-5 text-muted-foreground">
+            JPEG, PNG ou WebP, com até 2 MB. A imagem aparece somente nos cards em Grade.
+            {certificate?.imageUrl ? " Um preview já está publicado; selecione outro apenas para substituí-lo." : ""}
+          </p>
+          {certificatePreview ? (
+            <p className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+              <ImageIcon className="size-4" aria-hidden="true" />
+              {certificatePreview.name}
+            </p>
+          ) : null}
+          {certificate?.imageUrl ? (
+            <a
+              href={certificate.imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-10 w-fit items-center gap-2 rounded-xl border border-border bg-background px-3.5 text-sm font-semibold text-muted-foreground transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:hover:border-blue-800 dark:hover:bg-blue-950/30 dark:hover:text-blue-300"
+            >
+              Abrir preview atual
+              <ExternalLink className="size-4" aria-hidden="true" />
+            </a>
+          ) : null}
+        </div>
       </section>
 
       <section className="rounded-2xl border border-slate-300/70 bg-card p-5 shadow-sm dark:border-slate-800 sm:p-6">

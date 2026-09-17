@@ -103,9 +103,6 @@ export function ArticleLayout({
             {children}
           </section>
 
-          {/* Slot preparado para futura inserção de Newsletter */}
-          <div id="article-after-content" aria-label="Conteúdo pós-artigo" />
-
           {/* Rodapé do artigo */}
           <ArticleFooter />
         </article>

@@ -2,7 +2,13 @@ alter table public.certificates
 add column if not exists pdf_url text;
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('certificate-files', 'certificate-files', true, 5242880, array['application/pdf'])
+values (
+  'certificate-files',
+  'certificate-files',
+  true,
+  5242880,
+  array['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+)
 on conflict (id) do update
 set public = excluded.public,
     file_size_limit = excluded.file_size_limit,

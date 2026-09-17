@@ -15,13 +15,13 @@ export function ArticlesNewsletterPanel({
   return (
     <section
       aria-labelledby={titleId}
-      className={cn("rounded-xl border border-border bg-card p-5", className)}
+      className={cn("rounded-xl border border-border/80 bg-card p-5", className)}
     >
       <div className="flex items-start gap-3">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Mail className="size-4" aria-hidden="true" />
         </span>
-        <div>
+        <div className="min-w-0">
           <h2 id={titleId} className="text-sm font-bold text-foreground">
             Receba novos artigos
           </h2>
