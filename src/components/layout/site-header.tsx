@@ -153,7 +153,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
         {/* Navegação desktop */}
         <nav
           aria-label="Navegação principal"
-          className="hidden h-full items-center gap-1 lg:flex"
+          className="hidden h-full items-center gap-1 xl:flex"
         >
           {navigation.map((item) => {
             const active = isActive(pathname, item.href);
@@ -181,7 +181,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
         </nav>
 
         {/* Ações desktop */}
-        <div className="hidden items-center gap-1.5 lg:flex">
+        <div className="hidden items-center gap-1.5 xl:flex">
           {settings.githubUrl ? (
             <Button
               asChild
@@ -273,7 +273,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
           type="button"
           variant="ghost"
           size="icon"
-          className="rounded-lg lg:hidden"
+          className="rounded-lg xl:hidden"
           onClick={() => setIsOpen((current) => !current)}
           aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
           aria-expanded={isOpen}
@@ -296,7 +296,7 @@ export function SiteHeader({ settings }: SiteHeaderProps) {
           aria-modal="true"
           aria-label="Menu principal"
           tabIndex={-1}
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-6 lg:hidden"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border/80 bg-background/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-6 xl:hidden"
         >
           <nav
             aria-label="Navegação mobile"

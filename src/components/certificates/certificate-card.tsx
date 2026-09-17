@@ -1,11 +1,11 @@
 import {
-  Award,
   BadgeCheck,
   CalendarDays,
   ExternalLink,
 } from "lucide-react";
 
 import { TagBadge } from "@/components/blog/tag-badge";
+import { CertificatePreview } from "@/components/certificates/certificate-preview";
 import type { CertificateSummary } from "@/features/certificates/types/certificate";
 import { formatDate } from "@/lib/formatters";
 
@@ -22,20 +22,12 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
     <article className="flex h-full flex-col overflow-hidden rounded-xl border border-border/80 bg-card transition-colors duration-150 hover:border-blue-500/50 hover:shadow-xs">
       {/* Mídia / Prévia com Aspect Ratio Consistente */}
       <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-border/70 bg-muted">
-        {certificate.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={certificate.imageUrl}
-            alt={`Certificado ${certificate.title}`}
-            className="size-full object-contain"
-            loading="lazy"
-            decoding="async"
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-muted/60 text-muted-foreground">
-            <Award className="size-8 opacity-40" aria-hidden="true" />
-          </div>
-        )}
+        <CertificatePreview
+          key={certificate.imageUrl}
+          imageUrl={certificate.imageUrl}
+          title={certificate.title}
+          href={certificateUrl}
+        />
       </div>
 
       {/* Conteúdo */}
@@ -69,10 +61,10 @@ export function CertificateCard({ certificate }: CertificateCardProps) {
                 href={certificateUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`Abrir credencial do certificado ${certificate.title}`}
+                aria-label={`Abrir certificado ${certificate.title} (nova aba)`}
                 className="inline-flex min-h-9 items-center gap-1 rounded-sm font-semibold text-blue-600 transition-colors hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary dark:text-blue-400 dark:hover:text-blue-300"
               >
-                <span>Ver credencial</span>
+                <span>Ver certificado</span>
                 <ExternalLink className="size-3" aria-hidden="true" />
               </a>
             ) : null}

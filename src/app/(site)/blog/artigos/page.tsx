@@ -170,7 +170,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
               )}
             </div>
 
-            <aside aria-label="Navegação e newsletter" className="hidden xl:block">
+            <aside aria-label="Navegação complementar" className="hidden xl:block">
               <div className="sticky top-24 space-y-6">
                 {view === "list" ? (
                   <div className="border-b border-border pb-6">
@@ -190,10 +190,6 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             </aside>
           </div>
 
-          <ArticlesNewsletterPanel
-            titleId="articles-newsletter-mobile-title"
-            className="mt-10 xl:hidden"
-          />
         </>
       )}
     </PageContainer>

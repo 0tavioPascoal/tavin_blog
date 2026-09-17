@@ -52,7 +52,7 @@ export async function HighlightedMarkdownContent({
   const renderedContent = removeDuplicateLeadingTitle(content, articleTitle);
 
   return (
-    <article className={markdownContentClassName}>
+    <div className={markdownContentClassName}>
       <MarkdownAsync
         remarkPlugins={remarkPlugins}
         rehypePlugins={highlightedRehypePlugins}
@@ -61,6 +61,6 @@ export async function HighlightedMarkdownContent({
       >
         {renderedContent}
       </MarkdownAsync>
-    </article>
+    </div>
   );
 }
